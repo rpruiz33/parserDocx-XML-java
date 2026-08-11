@@ -24,12 +24,21 @@ public class JatsBodyBuilder {
 
     /** Abre un <sec> en el nivel indicado, cerrando los niveles iguales o más profundos que estén abiertos. */
     public void openSection(int level, String title) {
+        openSection(level, title, null);
+    }
+
+    /** Abre un <sec> con sec-type opcional en el nivel indicado. */
+    public void openSection(int level, String title, String secType) {
         listTracker.closeIfOpen(body);
         while (!openSectionLevels.isEmpty() && openSectionLevels.peek() >= level) {
             body.append("</sec>\n");
             openSectionLevels.pop();
         }
-        body.append("<sec>\n<title>").append(XmlUtils.escape(title)).append("</title>\n");
+        body.append("<sec");
+        if (secType != null && !secType.isBlank()) {
+            body.append(" sec-type=\"").append(XmlUtils.escape(secType)).append("\"");
+        }
+        body.append(">\n<title>").append(XmlUtils.escape(title)).append("</title>\n");
         openSectionLevels.push(level);
     }
 
