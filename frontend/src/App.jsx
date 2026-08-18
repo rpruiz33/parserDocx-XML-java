@@ -1,9 +1,9 @@
 import { useCallback, useRef, useState } from 'react'
-
+import './index.css'
+import logoUnla from './assets/unla-logo.png'
 const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:8081'
 
 function highlightXml(xml) {
-  // Resaltado simple de tags para la vista previa (solo visual, no altera el XML real)
   const escaped = xml
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
@@ -16,7 +16,7 @@ export default function App() {
   const [dragging, setDragging] = useState(false)
   const [xml, setXml] = useState('')
   const [imageCount, setImageCount] = useState(0)
-  const [status, setStatus] = useState(null) // {type: 'ok'|'error', message}
+  const [status, setStatus] = useState(null)
   const [loading, setLoading] = useState(false)
   const [downloading, setDownloading] = useState(false)
   const inputRef = useRef(null)
@@ -88,24 +88,33 @@ export default function App() {
   }
 
   return (
-    <>
-      <div className="masthead">
-        <div className="eyebrow">Herramienta de conversión editorial</div>
-        <h1>DOCX <span className="tag">→</span> JATS <span className="tag">&lt;xml/&gt;</span></h1>
-        <p>
-          Subí un manuscrito en Word y obtené su equivalente en JATS (Journal Article Tag Suite):
-          secciones anidadas, listas, tablas e imágenes convertidas a marcado XML listo para
-          sistemas editoriales.
-        </p>
-      </div>
+    <div className="container">
+      <header className="masthead">
+        <div className="masthead-content">
+          <div className="eyebrow">Herramienta de conversión editorial</div>
+          <h1>
+            DOCX <span className="tag">→</span> JATS <span className="tag">&lt;xml/&gt;</span>
+          </h1>
+          <p>
+            Subí un manuscrito en Word y obtené su equivalente en JATS (Journal Article Tag Suite):
+            secciones anidadas, listas, tablas e imágenes convertidas a marcado XML listo para
+            sistemas editoriales.
+          </p>
+        </div>
+        {/* Asegúrate de ubicar tu logo en public/logo-unla.png o actualizar esta ruta */}
+        <div className="unla-logo-container">
+          <img src={logoUnla} alt="Universidad Nacional de Lanús" className="unla-logo" />
+        </div>
+      </header>
 
-      <div className="workspace">
-        <div className="sheet" data-label="01 · Manuscrito">
-          <label
+      <main className="workspace">
+        <div className="sheet" data-label="01 · MANUSCRITO">
+          <div
             className={`dropzone ${dragging ? 'dragging' : ''}`}
             onDragOver={(e) => { e.preventDefault(); setDragging(true) }}
             onDragLeave={() => setDragging(false)}
             onDrop={onDrop}
+            onClick={() => inputRef.current?.click()}
           >
             <input
               ref={inputRef}
@@ -113,25 +122,34 @@ export default function App() {
               accept=".docx"
               onChange={(e) => pickFile(e.target.files?.[0])}
             />
-            <div className="icon" />
-            {file ? (
-              <>
-                <div className="filename">{file.name}</div>
-                <div className="hint">Click o arrastrá otro archivo para reemplazarlo</div>
-              </>
-            ) : (
-              <>
-                <div className="hint">Arrastrá tu archivo .docx acá, o hacé click para elegirlo</div>
-              </>
-            )}
-          </label>
+            
+            <div className="dropzone-icon">
+              <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                <polyline points="14 2 14 8 20 8" />
+                <path d="M12 18v-6" />
+                <path d="M9 15l3-3 3 3" />
+              </svg>
+            </div>
+
+            <p className="hint">Arrastrá tu archivo .docx acá, o hacé click para elegirlo.</p>
+
+            <div className="file-picker-row" onClick={(e) => e.stopPropagation()}>
+              <button className="select-btn" onClick={() => inputRef.current?.click()}>
+                Seleccionar archivo
+              </button>
+              <span className="filename-display">
+                {file ? file.name : 'Ningún archivo seleccionado'}
+              </span>
+            </div>
+          </div>
 
           <div className="actions">
             <button className="primary" onClick={handlePreview} disabled={!file || loading}>
-              {loading ? 'Convirtiendo…' : 'Convertir y previsualizar'}
+              {loading ? 'Convirtiendo…' : 'CONVERTIR Y PREVISUALIZAR'}
             </button>
             <button className="secondary" onClick={handleDownload} disabled={!file || downloading}>
-              {downloading ? 'Generando .xml…' : 'Descargar XML JATS (.xml)'}
+              {downloading ? 'Generando .xml…' : 'DESCARGAR XML JATS (.XML)'}
             </button>
           </div>
 
@@ -143,13 +161,13 @@ export default function App() {
         </div>
 
         {xml && (
-          <div className="sheet" data-label={`02 · article.xml${imageCount ? ` · ${imageCount} imagen(es) en /images` : ''}`}>
+          <div className="sheet" data-label={`02 · ARTICLE.XML${imageCount ? ` · ${imageCount} IMAGEN(ES)` : ''}`}>
             <pre className="xml-view" dangerouslySetInnerHTML={{ __html: highlightXml(xml) }} />
           </div>
         )}
-      </div>
+      </main>
 
       <footer className="credit">spring boot · apache poi · react — conversor docx→jats</footer>
-    </>
+    </div>
   )
 }

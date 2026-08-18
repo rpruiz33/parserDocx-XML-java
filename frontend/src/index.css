@@ -1,237 +1,276 @@
 @import url('https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
 
 :root {
-  --paper: #ece8de;
-  --paper-raised: #f6f3ea;
+  --paper: #f4f3ef;
+  --paper-raised: #ffffff;
   --ink: #1c2430;
-  --ink-soft: #4b5563;
-  --rule: #c9c2ac;
-  --accent: #2f6f5e;
-  --accent-dark: #204c40;
+  --ink-soft: #555d66;
+  --rule: #d5d0c3;
+  --accent: #800000;       /* Rojo Institucional UNLa */
+  --accent-dark: #5c0000;
   --mark: #a8442f;
-  --tag-color: #6b5b95;
+  --tag-color: #800000;
 }
 
-* { box-sizing: border-box; }
-
-html, body { margin: 0; padding: 0; }
+* { 
+  box-sizing: border-box; 
+  margin: 0;
+  padding: 0;
+}
 
 body {
   background: var(--paper);
-  background-image:
-    repeating-linear-gradient(180deg, rgba(0,0,0,0.015) 0px, rgba(0,0,0,0.015) 1px, transparent 1px, transparent 34px);
+  background-image: repeating-linear-gradient(180deg, rgba(0,0,0,0.015) 0px, rgba(0,0,0,0.015) 1px, transparent 1px, transparent 32px);
   color: var(--ink);
   font-family: 'Inter', sans-serif;
   -webkit-font-smoothing: antialiased;
 }
 
-#root {
+.container {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 56px 20px 80px;
+  padding: 40px 20px 60px;
 }
 
+/* Encabezado */
 .masthead {
   width: 100%;
-  max-width: 920px;
-  margin-bottom: 40px;
+  max-width: 860px;
+  margin-bottom: 32px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 24px;
+}
+
+.masthead-content {
+  flex: 1;
 }
 
 .masthead .eyebrow {
   font-family: 'JetBrains Mono', monospace;
-  font-size: 12px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--accent-dark);
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.masthead .eyebrow::before {
-  content: "";
-  width: 22px;
-  height: 1px;
-  background: var(--mark);
+  font-size: 13px;
+  letter-spacing: 0.05em;
+  color: var(--ink-soft);
+  margin-bottom: 12px;
 }
 
 .masthead h1 {
   font-family: 'Source Serif 4', serif;
   font-weight: 700;
-  font-size: clamp(32px, 5vw, 48px);
-  line-height: 1.08;
-  margin: 10px 0 12px;
-  letter-spacing: -0.01em;
+  font-size: clamp(32px, 4.5vw, 44px);
+  line-height: 1.1;
+  margin-bottom: 16px;
+  color: var(--ink);
 }
 
 .masthead h1 .tag {
-  font-family: 'JetBrains Mono', monospace;
-  font-weight: 500;
-  font-size: 0.5em;
-  color: var(--tag-color);
-  vertical-align: middle;
+  font-family: 'Source Serif 4', serif;
+  font-weight: 400;
+  color: var(--ink);
 }
 
 .masthead p {
-  font-size: 16px;
+  font-size: 15px;
   color: var(--ink-soft);
-  max-width: 60ch;
-  line-height: 1.55;
+  line-height: 1.6;
 }
 
+.unla-logo {
+  width: 100px;
+  height: auto;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+/* Área de Trabajo */
 .workspace {
   width: 100%;
-  max-width: 920px;
-  display: grid;
-  gap: 24px;
+  max-width: 860px;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
 }
 
 .sheet {
   background: var(--paper-raised);
   border: 1px solid var(--rule);
-  border-radius: 3px;
-  box-shadow: 0 1px 0 rgba(0,0,0,0.03);
+  border-top: 5px solid var(--accent);
   position: relative;
+  margin-top: 12px;
 }
 
 .sheet::before {
   content: attr(data-label);
   position: absolute;
-  top: -11px;
-  left: 20px;
-  background: var(--paper);
-  padding: 0 8px;
+  top: -24px;
+  left: -1px;
+  background: var(--accent);
+  color: #ffffff;
+  padding: 3px 10px;
   font-family: 'JetBrains Mono', monospace;
   font-size: 11px;
+  font-weight: 500;
   letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--ink-soft);
 }
 
+/* Dropzone corregida */
 .dropzone {
-  padding: 46px 28px;
-  text-align: center;
+  padding: 36px 20px 24px;
+  margin: 16px;
+  border: 1px dashed var(--rule);
+  background: #fafaf8;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   cursor: pointer;
   transition: background 0.15s ease, border-color 0.15s ease;
-  border-radius: 3px;
 }
 
+.dropzone:hover,
 .dropzone.dragging {
-  background: rgba(47, 111, 94, 0.06);
+  background: #f2efe9;
+  border-color: var(--accent);
 }
 
-.dropzone input { display: none; }
-
-.dropzone .icon {
-  width: 46px;
-  height: 46px;
-  margin: 0 auto 16px;
-  border: 1.5px solid var(--ink);
-  border-radius: 2px;
-  position: relative;
+.dropzone input[type="file"] {
+  display: none;
 }
 
-.dropzone .icon::before,
-.dropzone .icon::after {
-  content: "";
-  position: absolute;
-  background: var(--ink);
-}
-
-.dropzone .icon::before {
-  left: 10px; right: 10px; top: 18px; height: 2px;
-}
-.dropzone .icon::after {
-  left: 10px; right: 10px; top: 26px; height: 2px;
-}
-
-.dropzone .filename {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 14px;
-  color: var(--accent-dark);
-  margin-top: 4px;
+.dropzone-icon {
+  color: var(--ink);
+  margin-bottom: 12px;
 }
 
 .dropzone .hint {
   font-size: 14px;
   color: var(--ink-soft);
-  margin-top: 6px;
+  margin-bottom: 16px;
+  text-align: center;
 }
 
+/* Fila de Selección de Archivo */
+.file-picker-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #ffffff;
+  border: 1px solid var(--rule);
+  padding: 4px 12px 4px 4px;
+}
+
+.select-btn {
+  background: #f0ede6;
+  border: 1px solid var(--rule);
+  padding: 6px 12px;
+  font-size: 13px;
+  font-family: 'Inter', sans-serif;
+  cursor: pointer;
+  color: var(--ink);
+  transition: background 0.15s ease;
+}
+
+.select-btn:hover {
+  background: #e4dfd3;
+}
+
+.filename-display {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  color: var(--ink-soft);
+}
+
+/* Botones Principales */
 .actions {
   display: flex;
   gap: 12px;
-  align-items: center;
-  padding: 18px 24px 24px;
+  padding: 0 16px 20px;
   flex-wrap: wrap;
 }
 
 button.primary {
   font-family: 'Inter', sans-serif;
   font-weight: 600;
-  font-size: 14px;
+  font-size: 12px;
+  letter-spacing: 0.05em;
   background: var(--accent);
   color: white;
   border: none;
-  border-radius: 2px;
-  padding: 12px 22px;
+  padding: 12px 20px;
   cursor: pointer;
-  transition: background 0.15s ease, transform 0.1s ease;
+  transition: background 0.15s ease;
 }
 
-button.primary:hover:not(:disabled) { background: var(--accent-dark); }
-button.primary:active:not(:disabled) { transform: translateY(1px); }
+button.primary:hover:not(:disabled) {
+  background: var(--accent-dark);
+}
+
 button.primary:disabled {
-  background: #b7b2a1;
+  background: #b8b2a4;
   cursor: not-allowed;
 }
 
 button.secondary {
   font-family: 'Inter', sans-serif;
-  font-weight: 500;
-  font-size: 14px;
+  font-weight: 600;
+  font-size: 12px;
+  letter-spacing: 0.05em;
   background: transparent;
   color: var(--ink);
-  border: 1px solid var(--rule);
-  border-radius: 2px;
+  border: 1px solid var(--ink);
   padding: 11px 20px;
   cursor: pointer;
+  transition: background 0.15s ease;
 }
 
-button.secondary:hover:not(:disabled) { border-color: var(--ink); }
-button.secondary:disabled { opacity: 0.4; cursor: not-allowed; }
+button.secondary:hover:not(:disabled) {
+  background: rgba(0,0,0,0.04);
+}
 
+button.secondary:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* Mensaje de Estado */
 .status {
   font-family: 'JetBrains Mono', monospace;
-  font-size: 13px;
-  padding: 0 24px 18px;
+  font-size: 12px;
+  padding: 0 16px 16px;
 }
 
 .status.error { color: var(--mark); }
-.status.ok { color: var(--accent-dark); }
+.status.ok { color: var(--accent); }
 
+/* Visor XML */
 .xml-view {
   margin: 0;
-  padding: 26px 24px 22px;
+  padding: 20px;
   overflow-x: auto;
   font-family: 'JetBrains Mono', monospace;
-  font-size: 12.5px;
-  line-height: 1.65;
+  font-size: 12px;
+  line-height: 1.6;
   color: var(--ink);
   white-space: pre-wrap;
   word-break: break-word;
   max-height: 480px;
   overflow-y: auto;
+  background: #fafaf8;
 }
 
-.xml-view .tag { color: var(--tag-color); }
+.xml-view .tag {
+  color: var(--tag-color);
+  font-weight: 600;
+}
 
+/* Pie de Página */
 footer.credit {
-  margin-top: 48px;
+  margin-top: 40px;
   font-family: 'JetBrains Mono', monospace;
   font-size: 11px;
   color: var(--ink-soft);
-  letter-spacing: 0.05em;
 }
+
