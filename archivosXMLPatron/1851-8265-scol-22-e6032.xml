@@ -1,0 +1,2956 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE article
+  PUBLIC "-//NLM//DTD JATS (Z39.96) Journal Publishing DTD v1.1 20151215//EN" "https://jats.nlm.nih.gov/publishing/1.1/JATS-journalpublishing1.dtd">
+<article article-type="research-article" dtd-version="1.1" specific-use="sps-1.9" xml:lang="es" xmlns:mml="http://www.w3.org/1998/Math/MathML" xmlns:xlink="http://www.w3.org/1999/xlink">
+	<front>
+		<journal-meta>
+			<journal-id journal-id-type="nlm-ta">Salud Colect</journal-id>
+			<journal-id journal-id-type="publisher-id">scol</journal-id>
+			<journal-title-group>
+				<journal-title>Salud Colectiva</journal-title>
+				<abbrev-journal-title abbrev-type="publisher">Salud Colect</abbrev-journal-title>
+			</journal-title-group>
+			<issn pub-type="ppub">1669-2381</issn>
+			<issn pub-type="epub">1851-8265</issn>
+			<publisher>
+				<publisher-name>Universidad Nacional de Lanús</publisher-name>
+			</publisher>
+		</journal-meta>
+		<article-meta>
+			<article-id pub-id-type="doi">10.18294/sc.2026.6032</article-id>
+			<article-id pub-id-type="other">00600</article-id>
+			<article-categories>
+				<subj-group subj-group-type="heading">
+					<subject>Artículo</subject>
+				</subj-group>
+			</article-categories>
+			<title-group>
+				<article-title>Cesáreas como expresión biopolítica del nacimiento: el caso de la provincia del Neuquén, Argentina</article-title>
+				<trans-title-group xml:lang="en">
+					<trans-title>Cesarean sections as a biopolitical expression of birth: The case of Neuquén province, Argentina</trans-title>
+				</trans-title-group>
+			</title-group>
+			<contrib-group>
+				<contrib contrib-type="author">
+					<contrib-id contrib-id-type="orcid">0000-0002-4574-8974</contrib-id>
+					<name>
+						<surname>Perner</surname>
+						<given-names>Serena</given-names>
+					</name>
+					<bio>Doctora en Salud Colectiva. Docente-Investigadora, Instituto de Salud Colectiva, Universidad Nacional de Lanús, Buenos Aires, Argentina. serenaperner@gmail.com </bio>
+					<xref ref-type="aff" rid="aff1"><sup>1</sup></xref>
+				</contrib>
+				<contrib contrib-type="author">
+					<contrib-id contrib-id-type="orcid">0000-0001-5021-6377</contrib-id>
+					<name>
+						<surname>Spinelli</surname>
+						<given-names>Hugo</given-names>
+					</name>
+					<bio>Doctor en Salud Colectiva. Investigador, Instituto de Salud Colectiva, Universidad Nacional de Lanús, Buenos Aires, Argentina. hugospinelli09@gmail.com</bio>
+					<xref ref-type="aff" rid="aff2"><sup>2</sup></xref>
+				</contrib>
+				<contrib contrib-type="author">
+					<contrib-id contrib-id-type="orcid">0000-0003-4607-2221</contrib-id>
+					<name>
+						<surname>Martinovich</surname>
+						<given-names>Viviana</given-names>
+					</name>
+					<bio>Doctora en Salud Colectiva. Docente-Investigadora, Instituto de Salud Colectiva, Universidad Nacional de Lanús, Buenos Aires, Argentina. vivianamartinovich@gmail.com </bio>
+					<xref ref-type="aff" rid="aff3"><sup>3</sup></xref>
+				</contrib>
+				<contrib contrib-type="author">
+					<contrib-id contrib-id-type="orcid">0000-0002-6507-0208</contrib-id>
+					<name>
+						<surname>Alazraqui</surname>
+						<given-names>Marcio</given-names>
+					</name>
+					<bio>Doctor en Salud Colectiva. Director, Instituto de Salud Colectiva, Universidad Nacional de Lanús, Buenos Aires, Argentina. malazraqui@yahoo.com.ar </bio>
+					<xref ref-type="aff" rid="aff4"><sup>4</sup></xref>
+				</contrib>
+			</contrib-group>
+			<aff id="aff1">
+				<label>1</label>
+				<institution content-type="original">Doctora en Salud Colectiva. Docente-Investigadora, Instituto de Salud Colectiva, Universidad Nacional de Lanús, Buenos Aires, Argentina. serenaperner@gmail.com </institution>
+				<institution content-type="normalized">Universidad Nacional de Lanús</institution>
+				<institution content-type="orgdiv1">Instituto de Salud Colectiva</institution>
+				<institution content-type="orgname">Universidad Nacional de Lanús</institution>
+				<addr-line>
+					<city>Buenos Aires</city>
+				</addr-line>
+				<country country="AR">Argentina</country>
+				<email>serenaperner@gmail.com</email>
+			</aff>
+			<aff id="aff2">
+				<label>2</label>
+				<institution content-type="original">Doctor en Salud Colectiva. Investigador, Instituto de Salud Colectiva, Universidad Nacional de Lanús, Buenos Aires, Argentina. hugospinelli09@gmail.com </institution>
+				<institution content-type="normalized">Universidad Nacional de Lanús</institution>
+				<institution content-type="orgdiv1">Instituto de Salud Colectiva</institution>
+				<institution content-type="orgname">Universidad Nacional de Lanús</institution>
+				<addr-line>
+					<city>Buenos Aires</city>
+				</addr-line>
+				<country country="AR">Argentina</country>
+				<email>hugospinelli09@gmail.com</email>
+			</aff>
+			<aff id="aff3">
+				<label>3</label>
+				<institution content-type="original">Doctora en Salud Colectiva. Docente-Investigadora, Instituto de Salud Colectiva, Universidad Nacional de Lanús, Buenos Aires, Argentina. vivianamartinovich@gmail.com </institution>
+				<institution content-type="normalized">Universidad Nacional de Lanús</institution>
+				<institution content-type="orgdiv1">Instituto de Salud Colectiva</institution>
+				<institution content-type="orgname">Universidad Nacional de Lanús</institution>
+				<addr-line>
+					<city>Buenos Aires</city>
+				</addr-line>
+				<country country="AR">Argentina</country>
+				<email>vivianamartinovich@gmail.com</email>
+			</aff>
+			<aff id="aff4">
+				<label>4</label>
+				<institution content-type="original">Doctor en Salud Colectiva. Director, Instituto de Salud Colectiva, Universidad Nacional de Lanús, Buenos Aires, Argentina. malazraqui@yahoo.com.ar </institution>
+				<institution content-type="normalized">Universidad Nacional de Lanús</institution>
+				<institution content-type="orgdiv1">Instituto de Salud Colectiva</institution>
+				<institution content-type="orgname">Universidad Nacional de Lanús</institution>
+				<addr-line>
+					<city>Buenos Aires</city>
+				</addr-line>
+				<country country="AR">Argentina</country>
+				<email>malazraqui@yahoo.com.ar</email>
+			</aff>
+			<author-notes>
+				<fn fn-type="conflict" id="fn2">
+					<label>Conflicto de intereses</label>
+					<p> Los autores declaran no tener vínculos que condicionen lo expresado en el texto y que puedan ser comprendidos como conflicto de intereses.</p>
+				</fn>
+				<fn fn-type="equal" id="fn3">
+					<label>Contribución autoral</label>
+					<p> Serena Perner: conceptualización, curación de datos, análisis formal, investigación, metodología, redacción del borrador original, redacción, revisión y edición de versiones posteriores. Hugo Spinelli: conceptualización, redacción, revisión y edición de versiones posteriores. Viviana Martinovich: conceptualización, redacción del borrador original, redacción, revisión y edición de versiones posteriores. Marcio Alazraqui: conceptualización, redacción, revisión y edición de versiones posteriores.</p>
+				</fn>
+			</author-notes>
+			<pub-date date-type="pub" publication-format="electronic">
+				<day>15</day>
+				<month>05</month>
+				<year>2026</year>
+			</pub-date>
+			<pub-date date-type="collection" publication-format="electronic">
+				<year>2026</year>
+			</pub-date>
+			<volume>22</volume>
+			<elocation-id>e6032</elocation-id>
+			<history>
+				<date date-type="received">
+					<day>14</day>
+					<month>11</month>
+					<year>2025</year>
+				</date>
+				<date date-type="rev-recd">
+					<day>29</day>
+					<month>04</month>
+					<year>2026</year>
+				</date>
+				<date date-type="accepted">
+					<day>07</day>
+					<month>05</month>
+					<year>2026</year>
+				</date>
+				<date date-type="pub">
+					<day>15</day>
+					<month>05</month>
+					<year>2026</year>
+				</date>
+			</history>
+			<permissions>
+				<license license-type="open-access" xlink:href="https://creativecommons.org/licenses/by/4.0/" xml:lang="es">
+					<license-p>Este es un artículo publicado en acceso abierto bajo una licencia Creative Commons</license-p>
+				</license>
+			</permissions>
+			<abstract>
+				<title>RESUMEN </title>
+				<p>Las cesáreas aumentan a nivel global a pesar de las recomendaciones internacionales y de la evidencia sobre sus riesgos en los casos que no están clínicamente justificadas. Este estudio caracteriza la tendencia temporal de indicadores vinculados a los nacimientos vivos en la provincia del Neuquén, Argentina, y la analiza desde la biopolítica del nacimiento, que entiende la cesárea, no solo como técnica quirúrgica, sino como un dispositivo complejo, una tecnología biopolítica que actúa simultáneamente sobre múltiples planos. Se realizó un análisis de tendencias temporales a partir de fuentes de información provinciales, reconstruyendo indicadores de natalidad, mortalidad infantil y tipo de parto desde 1970 hasta 2022. Para el período entre 2011 y 2022 se estudió la relación de los cambios en el tiempo en la tasa de cesáreas según variables socioeconómicas y asistenciales, mediante modelos lineales generalizados. Los resultados muestran un incremento sostenido de las cesáreas -del 20% en 1995 al 50% en 2022- en un contexto de descenso de la natalidad y de la mortalidad infantil, con patrones diferenciales según nivel educativo, edad de la persona gestante, tipo de establecimiento y organización temporal de los nacimientos vivos. Estos hallazgos permiten interpretar la expansión de las cesáreas como parte de un proceso más amplio de regulación y normalización de las formas de nacer, en los que la cesárea se configura como una tecnología que contribuye a producir previsibilidad y establecer estándares sobre cuándo y cómo debe ocurrir el nacimiento, creando subjetividades que reconfiguran las condiciones sociales y simbólicas del nacimiento.</p>
+			</abstract>
+			<trans-abstract xml:lang="en">
+				<title>ABSTRACT </title>
+				<p>Cesarean sections continue to increase globally regardless of international recommendations and evidence of their risks when not medically indicated. This study characterizes the time-trend of birth indicators in the province of Neuquén, Argentina, through the perspective of the biopolitics of birth, which understands the cesarean section not merely as a surgical technique, but as a complex device, a biopolitical technology that acts simultaneously on multiple levels. A time-trend analysis was conducted using provincial administrative records, reconstructing indicators of birth rate, infant mortality, and delivery mode from 1970 to 2022. For the period 2011 and 2022, the relationship between changes over time in the cesarean section rate according to socioeconomic and healthcare variables was studied using generalized linear models. The results show a sustained increase in cesarean sections - from 20% in 1995 to 50% in 2022 - in a context marked by declining birth rates and infant mortality, along with patterns that vary according to educational level, age of the pregnant people, type of healthcare facility, and timing of births. These findings suggest that the rise in cesarean sections can be interpreted as part of a broader process of regulating and standardizing modes of giving birth, in which the cesarean section is configured as a technology that contributes to producing predictability and establish standards regarding when and how birth should occur, thereby shaping subjectivities that reshape the social and symbolic conditions of birth.</p>
+			</trans-abstract>
+			<kwd-group xml:lang="es">
+				<title>PALABRAS CLAVES:</title>
+				<kwd>Nacimiento</kwd>
+				<kwd>Cesárea</kwd>
+				<kwd>Biopolítica</kwd>
+				<kwd>Argentina</kwd>
+			</kwd-group>
+			<kwd-group xml:lang="en">
+				<title>Keywords:</title>
+				<kwd>Birth</kwd>
+				<kwd>Cesarean Section</kwd>
+				<kwd>Biopolitics</kwd>
+				<kwd>Argentina</kwd>
+			</kwd-group>
+			<counts>
+				<fig-count count="4"/>
+				<table-count count="3"/>
+				<equation-count count="0"/>
+				<ref-count count="74"/>
+				<page-count count="1"/>
+			</counts>
+		</article-meta>
+	</front>
+	<body>
+		<sec sec-type="intro">
+			<title>Introducción</title>
+			<p>Según la Organización Mundial de la Salud, las cesáreas continúan aumentando en el mundo<xref ref-type="bibr" rid="B1"><sup>1</sup></xref><sup>,</sup><xref ref-type="bibr" rid="B2"><sup>2</sup></xref>, a la par de un incremento del número de nacimientos prematuros inmaduros con un mayor riesgo de padecer diferentes enfermedades crónicas a lo largo de la vida<xref ref-type="bibr" rid="B3"><sup>3</sup></xref><sup>,</sup><xref ref-type="bibr" rid="B4"><sup>4</sup></xref><sup>,</sup><xref ref-type="bibr" rid="B5"><sup>5</sup></xref><sup>,</sup><xref ref-type="bibr" rid="B6"><sup>6</sup></xref><sup>,</sup><xref ref-type="bibr" rid="B7"><sup>7</sup></xref><sup>,</sup><xref ref-type="bibr" rid="B8"><sup>8</sup></xref><sup>,</sup><xref ref-type="bibr" rid="B9"><sup>9</sup></xref>. En 2021, a nivel global, los partos por cesárea correspondían a más de 1 de cada 5 partos (21%) con una situación heterogénea entre regiones y países. Según proyecciones, esa cifra seguirá en aumento y, para la década de 2030 se estima que llegará casi a un tercio (29%) del total de partos<xref ref-type="bibr" rid="B1"><sup>1</sup></xref><sup>,</sup><xref ref-type="bibr" rid="B2"><sup>2</sup></xref>. Este fenómeno no es reciente<xref ref-type="bibr" rid="B10"><sup>10</sup></xref><sup>,</sup><xref ref-type="bibr" rid="B11"><sup>11</sup></xref>, diferentes estudios en países de América Latina y el Caribe vienen señalando el incremento de las cesáreas desde la década de 1970<xref ref-type="bibr" rid="B12"><sup>12</sup></xref><sup>,</sup><xref ref-type="bibr" rid="B13"><sup>13</sup></xref><sup>,</sup><xref ref-type="bibr" rid="B14"><sup>14</sup></xref><sup>,</sup><xref ref-type="bibr" rid="B15"><sup>15</sup></xref><sup>,</sup><xref ref-type="bibr" rid="B16"><sup>16</sup></xref><sup>,</sup><xref ref-type="bibr" rid="B17"><sup>17</sup></xref>.</p>
+			<p>A pesar de las recomendaciones internacionales de una tasa de cesáreas de alrededor del 15%, estas siguen aumentando en el mundo<xref ref-type="bibr" rid="B1"><sup>1</sup></xref><sup>,</sup><xref ref-type="bibr" rid="B2"><sup>2</sup></xref>. Si bien es una intervención médica eficaz para salvar vidas cuando está clínicamente justificada, su uso sin justificación incrementa los riesgos de complicaciones tanto en las personas gestantes, como de quienes nacen por cesárea<xref ref-type="bibr" rid="B18"><sup>18</sup></xref><sup>,</sup><xref ref-type="bibr" rid="B19"><sup>19</sup></xref><sup>,</sup><xref ref-type="bibr" rid="B20"><sup>20</sup></xref>. Entendemos que este incremento responde a que la cesárea, más que una técnica quirúrgica, es un dispositivo complejo, una tecnología política que pone en acción una <italic>biopolítica del nacimiento</italic> que actúa simultáneamente sobre múltiples planos.</p>
+			<sec>
+				<title>Biopolítica del nacimiento</title>
+				<p>Desde la perspectiva de Michel Foucault, el disciplinamiento del cuerpo y la regulación vital de la población constituyen “los dos polos alrededor de los cuales se desarrolló la organización del poder sobre la vida”<xref ref-type="bibr" rid="B21"><sup>21</sup></xref>, de allí que la <italic>biopolítica</italic> reduce las experiencias vitales al dominio de lo calculable, de lo controlable y “convierte al poder-saber en un agente de transformación de la vida humana”<xref ref-type="bibr" rid="B21"><sup>21</sup></xref>. Así, las <italic>tecnologías biopolíticas</italic> pasan a “invadir el cuerpo, la salud, las maneras de alimentarse y alojarse, las condiciones de vida, el espacio entero de la existencia”<xref ref-type="bibr" rid="B21"><sup>21</sup></xref>. De este modo, la biopolítica desplaza el control sobre el cuerpo individual hacia la gestión de los procesos vitales de la población<xref ref-type="bibr" rid="B22"><sup>22</sup></xref>, como la reproducción, la natalidad, la mortalidad o la morbilidad. El nacimiento deja de ser un acontecimiento singular y se convierte en un objeto de saberes e intervenciones, susceptibles de ser normalizados. En ese marco, las cesáreas funcionan no solo como una intervención clínica, sino como una tecnología biopolítica que estructura sentidos, prácticas, tiempos y decisiones en torno al nacimiento.</p>
+				<p>Por un lado, la biopolítica transforma el parto en un proceso anticipable y programable, que sustituye la temporalidad incierta del trabajo de parto por una temporalidad administrativa compatible con las agendas de las y los profesionales de la salud, y con los turnos, protocolos e intereses del amplio espectro de instituciones del campo de la salud. El nacimiento se integra así a la racionalidad organizacional de la institución médica. Pero, por otro lado, en esa expansión de las cesáreas participan también la producción de una subjetividad compartida por el conjunto social. </p>
+				<p>En términos de Marcuse<xref ref-type="bibr" rid="B23"><sup>23</sup></xref>, la institucionalización del dominio técnico sobre las acciones sociales logra un nivel de aceptación y de legitimidad tal que las decisiones quedan atravesadas por la subordinación (no solo de las personas gestantes, sino de la sociedad en su conjunto) a un aparato técnico que, a la vez que instala la supresión del dolor como horizonte normativo de la experiencia vital, aumenta la productividad en el campo de la salud. De este modo, el discurso del “parto riesgoso”, del “sufrimiento evitable” o del “bienestar fetal” no se imponen, sino que se internalizan, interpelando a las personas gestantes como responsables morales del resultado biológico del nacimiento. Así, el cuerpo gestante es construido como un cuerpo potencialmente fallido, peligroso o imprevisible, que requiere vigilancia constante<xref ref-type="bibr" rid="B24"><sup>24</sup></xref>, lo que se potencia aún más en los cuerpos de las personas gestantes con discapacidad<xref ref-type="bibr" rid="B25"><sup>25</sup></xref>. La cesárea se transforma así en una respuesta tecnificada que reduce la imprevisibilidad y el dolor propio de la experiencia vital del parto, aspectos que parecerían alcanzar tal legitimidad, que incluso penetran en entornos basados en la humanización de la atención<xref ref-type="bibr" rid="B26"><sup>26</sup></xref>.</p>
+				<p>En esa interfaz entre tecnificación de la vida planteada por Marcuse y la biopolítica foucoultiana, Nikolas Rose señala que “la vitalidad humana […] se ha vuelto terreno franco para la innovación técnica, la explotación económica y formas de bioeconomía fuertemente competitivas. Esta tecnologización y capitalización de la medicina otorgan una forma singular al disputado campo de la política vital en el siglo XXI”<xref ref-type="bibr" rid="B27"><sup>27</sup></xref>. </p>
+				<p>Aun así, esa política vital o biopolítica del nacimiento no actúa de manera homogénea. Las cesáreas revelan desigualdades de clase<xref ref-type="bibr" rid="B16"><sup>16</sup></xref>, género, territorio en el campo de la salud, mostrando que no todos los nacimientos son gobernados del mismo modo<xref ref-type="bibr" rid="B28"><sup>28</sup></xref>. En algunos contextos, la cesárea es sobreutilizada; en otros, es inaccesible; y, en otros contextos, se van resquebrajando los acuerdos respecto al parto humanizado y las cosmovisiones propias de los pueblos originarios respecto del parto, de tal manera que tanto la cosmovisión de estas otras culturas queda relegadas ante el poder institucionalizante de la tecnificación del parto y la biopolítica del nacimiento<xref ref-type="bibr" rid="B29"><sup>29</sup></xref>. </p>
+			</sec>
+			<sec>
+				<title>El caso de la provincia del Neuquén</title>
+				<p>Neuquén es una provincia ubicada en el noroeste de la región patagónica argentina, región de baja densidad poblacional y que, según los datos del censo 2022<xref ref-type="bibr" rid="B30"><sup>30</sup></xref>, presenta la mayor población que se autopercibe como mapuche exclusivamente. Es la primera provincia argentina en tener un establecimiento sanitario intercultural<xref ref-type="bibr" rid="B31"><sup>31</sup></xref>, el Centro de Salud Intercultural Raguiñ Kien, emplazado en la Cuenca Ruca Choroi. Inaugurado en 2021, pero como resultado de años discusiones y espacios de consenso, forma parte del sistema público de salud de la provincia, con un modelo de atención basado en el abordaje intercultural, en el que se conjuga la biomedicina con la medicina mapuche<xref ref-type="bibr" rid="B32"><sup>32</sup></xref><sup>,</sup><xref ref-type="bibr" rid="B33"><sup>33</sup></xref><sup>,</sup><xref ref-type="bibr" rid="B34"><sup>34</sup></xref>, en un marco complejo de encuentro de saberes<xref ref-type="bibr" rid="B34"><sup>34</sup></xref>.</p>
+				<p>En la década de 1950, la provincia del Neuquén adquiere estatus político provincial y crea un fuerte sistema público de salud, basada en centros de salud de alcance territorial, médicas y médicos rurales y agentes sanitarios<xref ref-type="bibr" rid="B35"><sup>35</sup></xref>, y un sistema hospitalario de complejidad creciente, aún vigente<xref ref-type="bibr" rid="B36"><sup>36</sup></xref><sup>,</sup><xref ref-type="bibr" rid="B37"><sup>37</sup></xref>. Esa apuesta implicó un compromiso social y una firmeza política, que permitió construir un sistema de salud que ha sido ejemplo no solo para otras provincias, sino para otros países de América Latina<xref ref-type="bibr" rid="B34"><sup>34</sup></xref>. A partir de la invitación a radicarse en la provincia a sanitaristas y profesionales de la salud, comenzó a plasmarse en Neuquén el programa de salud rural, con agentes sanitarios que, desde entonces, enfrentaron diferentes desafíos para poder llegar a las poblaciones rurales. El sistema siguió un modelo que centralizó la administración y diversificó sus alcances para optimizar las respuestas desde los diferentes efectores sanitarios<xref ref-type="bibr" rid="B38"><sup>38</sup></xref><sup>,</sup><xref ref-type="bibr" rid="B39"><sup>39</sup></xref><sup>,</sup><xref ref-type="bibr" rid="B40"><sup>40</sup></xref>. </p>
+				<p>En 1970, la implementación del “Plan de salud”, tuvo como principal objetivo llevar la atención sanitaria a la población de todo el territorio, en contraposición a modelos que focalizaban la atención en hospitales centrales. Así, la provincia del Neuquén definió un horizonte sanitario basado en la equidad y en la universalidad, con una atención integral de salud y prácticas centradas en la maternidad e infancia, logrando vincular al gobierno provincial directamente con la comunidad a través de acciones de promoción, prevención, atención y rehabilitación de la salud, poniendo especial énfasis en el nivel de atención/cuidado, favoreciendo la descentralización geográfica y dando prioridad a las necesidades sociales, al abordar problemáticas de salud desde una perspectiva familiar y territorial. Ese primer nivel de atención resultó fundamental en la prevención de enfermedades, en la promoción de la salud y en una más eficiente relación de la atención de la salud con los niveles de mayor complejidad, caracterizado por ofrecer asistencia en el territorio a cada paciente que la requiriera antes de decidirse su internación. De esta forma, se configuró una red de atención de complejidad creciente, en la que el hospital no fue la primera instancia de atención, garantizando así la eficiencia en el tratamiento y la atención más adecuada de cada paciente<xref ref-type="bibr" rid="B35"><sup>35</sup></xref><sup>,</sup><xref ref-type="bibr" rid="B36"><sup>36</sup></xref><sup>,</sup><xref ref-type="bibr" rid="B39"><sup>39</sup></xref>.</p>
+				<p>Hasta la década de 1970, gran cantidad de los nacimientos en la provincia del Neuquén eran domiciliarios, atendidos por parteras empíricas y machis (figura central de la medicina mapuche). Paulatinamente, las instituciones públicas comenzaron a institucionalizar el parto en el hospital, considerado como uno de los logros del Plan de Salud<xref ref-type="bibr" rid="B40"><sup>40</sup></xref>. Esto produjo que entre 1970 y 2006 los partos domiciliarios descendieran del 27% al 0,2%<xref ref-type="bibr" rid="B36"><sup>36</sup></xref><sup>,</sup><xref ref-type="bibr" rid="B41"><sup>41</sup></xref>. En el marco de ese proceso, a partir de la década de 1990, en la provincia comienza un crecimiento de las instituciones privadas y, en ese contexto, se produce un progresivo aumento de las cesáreas, desde la primera cesárea realizada en la provincia en 1957, a un 20% de nacimientos por cesárea en 1995 (primer año del que se encontró registro oficial del dato), al 50% en 2022. Frente al aumento del parto por cesárea, en 2021, el Ministerio de Salud de la provincia del Neuquén generó un protocolo para garantizar el derecho a un parto respetado<xref ref-type="bibr" rid="B42"><sup>42</sup></xref>, en el que se explicita, como primer punto, el derecho “a un parto respetuoso de los tiempos biológicos y psicológicos, evitando prácticas invasivas y suministro de medicación que no esté justificada”<xref ref-type="bibr" rid="B42"><sup>42</sup></xref>. Aun así, las cesáreas siguen aumentando. </p>
+				<p>Desde este contexto, nos proponemos caracterizar la tendencia temporal de diferentes indicadores vinculados a los nacimientos vivos en la provincia de Neuquén y analizarlos no solo desde su dimensión epidemiológica, histórica y asistencial, sino entendiendo la cesárea como un dispositivo complejo que pone en acción una <italic>biopolítica del nacimiento</italic> que estructura sentidos y prácticas, tiempos y decisiones en torno al nacimiento.</p>
+			</sec>
+		</sec>
+		<sec sec-type="methods">
+			<title>Metodología</title>
+			<p>La posibilidad de cuantificar estos eventos se vincula a la calidad de las estadísticas sanitarias. En Argentina no hay datos oficiales que permitan calcular la tasa de cesárea, ya que no es un aspecto sistemáticamente relevado en el <italic>Informe estadístico de Nacido Vivo</italic> publicado por el Ministerio de Salud de la Nación. Existen datos parciales del subsector público a partir del Sistema Informático Perinatal (SIP), herramienta de la OPS empleada por el Ministerio de Salud de Argentina, o datos de determinadas instituciones privadas<xref ref-type="bibr" rid="B43"><sup>43</sup></xref><sup>,</sup><xref ref-type="bibr" rid="B44"><sup>44</sup></xref>. </p>
+			<p>La provincia del Neuquén, en particular, se caracteriza por la buena calidad de sus registros y, desde la década de 1970<xref ref-type="bibr" rid="B37"><sup>37</sup></xref>, presenta un sistema de recolección continua de información referente a nacidas/os vivas/os y también de las defunciones. Se trata de una de las pocas jurisdicciones de Argentina que disponibilizó la forma de terminación del parto en su sistema de información en salud, lo que permite analizar el cambio en el tiempo de las cesáreas. </p>
+			<p>Por un lado, se realizó un análisis temporal a partir de fuentes de información provinciales, en las que se reconstruyeron indicadores de natalidad, mortalidad infantil y el tipo de parto desde 1970 hasta 2022. Para esta construcción se relevaron las siguientes fuentes oficiales y publicaciones: el Plan Quinquenal 1984-1988 del Ministerio de Salud Pública de Neuquén<xref ref-type="bibr" rid="B45"><sup>45</sup></xref>, la página web de la Dirección Provincial de Estadística y Censos de la provincia del Neuquén<xref ref-type="bibr" rid="B46"><sup>46</sup></xref> y publicaciones con informes provinciales<xref ref-type="bibr" rid="B42"><sup>42</sup></xref><sup>,</sup><xref ref-type="bibr" rid="B47"><sup>47</sup></xref>. En estas fuentes se buscó la siguiente información para el total provincial: cantidad de nacimientos vivos (NV) por año, cantidad de población por año, mortalidad infantil y tipo de parto. Esto permitió calcular los siguientes indicadores para cada año y elaborar la tendencia temporal: tasa de natalidad (nacimientos vivos por 1.000 habitantes), tasa de mortalidad infantil (muertes de menores de un año de edad por 1.000 NV) y porcentaje de cesáreas (nacimientos vivos por cesárea por 100 NV). Se calculó la variación proporcional porcentual (VPP) de las series, entre 1970 y 2022, mediante el siguiente cálculo ((tasa final-tasa inicial)/tasa inicial) x 100.</p>
+			<p>Por otro lado, a partir de información individual de cada nacimiento disponible en los registros de nacimientos de 2011 a 2022 de la Dirección Provincial de Estadística y Censos se pudo analizar la relación de los cambios en el tiempo según el tipo de parto (cesáreas o parto vaginal) relacionándolo con variables socioeconómicas y asistenciales. En total, se incluyeron los 119.097 registros de nacimientos vivos de personas gestantes en ese período, quienes, al momento del nacimiento, vivían en la provincia de Neuquén, Argentina. </p>
+			<p>Como variables socioeconómicas se incluyeron el nivel educativo de la persona gestante (bajo: con secundaria incompleta o menos; medio: con secundaria completa o universitario incompleta; y alto: universitaria completa o más) y la edad de la persona gestante (19 años o menos, 20 a 34 años, 35 años y más). Como variables asistenciales, el lugar del parto (establecimiento público o privado) y variables relativas al tiempo (año, día de la semana y hora del parto). </p>
+			<p>Para este segundo análisis, se analizó primero la frecuencia a lo largo del tiempo (en tres cuatrienios: 2011-2014, 2015-2018 y 2019-2022) de nacimientos vivos y de las cesáreas según las distintas variables analizadas. Luego se analizó la distribución de los partos por cesárea y partos vaginales según días de la semana y según la hora del nacimiento, comparando, en ambos casos, según tipo de establecimiento (público y privado). </p>
+			<p>Luego se estimó la tasa de cesáreas al inicio del periodo y su cambio en el tiempo según categorías de nivel educativo, de edad y del tipo de establecimiento. Para esto se usaron modelos lineales generalizados, familia binomial. Se calculó la razón de prevalencia con el intervalo de confianza del 95% (IC95%), ya que el cálculo de los odds ratio (OR), tiende a sobreestimar la asociación para un evento frecuente como la cesárea. Finalmente, se realizó una regresión de Poisson para predecir los cambios en el tiempo de las tasas de cesáreas según nivel educativo (usando como numerador el recuento de cesáreas y como denominador el total de nacimientos). Todos los análisis se realizaron el STATA® 18. </p>
+			<p>Se respetó la Ley de Secreto estadístico que protege la confidencialidad de la información contenida en las estadísticas vitales (Informe Estadístico de Nacido Vivo).</p>
+		</sec>
+		<sec sec-type="results">
+			<title>Resultados</title>
+			<sec>
+				<title>Análisis de indicadores vinculados a los nacimientos vivos entre 1970-2022</title>
+				<p>Fue posible reconstruir la tendencia de natalidad y de mortalidad infantil, desde el año 1970 hasta 2022, y de cesáreas, desde el año 1995. Estos indicadores fueron graficados en la <xref ref-type="fig" rid="f1">Figura 1</xref>, en la que se incluyen, además, diferentes eventos históricos sociosanitarios relevantes para la provincia desde mediados del siglo XX. La información sobre los dos primeros indicadores comienza unos pocos años luego de la creación del Sistema Provincial de Salud, en 1963, y de la creación del Plan de Salud de la provincia, en 1970. </p>
+				<p>
+					<fig id="f1">
+						<label>Figura 1</label>
+						<caption>
+							<title>Tendencia temporal de indicadores epidemiológicos vinculados a la salud materno-infantil, con referencias a eventos sociosanitarios y políticos relevantes. Provincia del Neuquén, Argentina, 1950-2022. </title>
+						</caption>
+						<graphic xlink:href="1851-8265-scol-22-e6032-gf1.png"/>
+						<attrib>Fuente: Elaboración propia con base en Dirección General de Información y Control<xref ref-type="bibr" rid="B45"><sup>45</sup></xref>; Consejo Federal de Inversiones <italic>et al</italic>.<xref ref-type="bibr" rid="B48"><sup>48</sup></xref>; Dirección Provincial de Estadística, Censos y Documentación<xref ref-type="bibr" rid="B49"><sup>49</sup></xref><sup>,</sup><xref ref-type="bibr" rid="B51"><sup>51</sup></xref>; Dirección Provincial de Estadística y Censos <xref ref-type="bibr" rid="B50"><sup>50</sup></xref>.</attrib>
+					</fig>
+				</p>
+				<p>Destacamos el pronunciado descenso que se observa en los primeros 10 años (hasta 1980) en la tasa de mortalidad infantil (de 108,4 por 1.000 NV en 1970 a 32,5 por 1.000 NV en 1980, VPP: -70,1%). Luego de 1980, continua con un descenso ininterrumpido en el tiempo hasta alcanzar una tasa de 4,1 por 1.000 NV en 2022. La tasa de natalidad también disminuyó a lo largo del tiempo, pasando de 34,7 NV por 1.000 habitantes en 1970 a 11,5 NV por 1.000 habitantes en 2022 (VPP: -66,8%). Desde comienzos del nuevo siglo hasta el año 2014, la tasa de natalidad se mantuvo entre 19,3 y 20,5 NV por 1.000 habitantes, y desde allí comenzó un descenso año tras año, llegando a la mitad de esos nacimientos en 2022 (11,5 NV por 1.000 habitantes). </p>
+				<p>Según registros aportados por profesionales del sistema de salud de la provincia, la primera cesárea en Neuquén data de 1957; y, para 1995 -año en que comienza el registro oficial y sistemático del indicador-, las cesáreas ya representaban el 20% de los nacimientos, y de allí en más ascendió de manera constante hasta llegar al 50% en 2022, mostrando un fuerte entrecruzamiento en las tendencias de los indicadores (<xref ref-type="fig" rid="f1">Figura 1</xref>). </p>
+				<p>Siguiendo con el análisis temporal, en términos absolutos, la población neuquina creció de manera sostenida a lo largo de todo el periodo (de 154.570 habitantes en 1970 a 680.726 en 2022). Por su parte, la cantidad de nacimientos vivos aumentó hasta 2010 (pasando de 5.360 NV en 1970 a 12.100 NV en 2010), momento a partir del cual comenzó a descender hasta situarse, en 2022, en valores similares a los de la década de 1970 (7.859 NV en 2022). </p>
+			</sec>
+			<sec>
+				<title>Análisis de las cesáreas entre 2011-2022</title>
+				<p>Además, a partir de 2011, cuando se comenzó a obtener información de variables individuales, se observaron otros cambios a lo largo del tiempo en el patrón de nacimientos vivos: un cambio en la edad de las mujeres al momento del nacimiento (descenso de la proporción de nacimientos de mujeres menores de 19 años y un ascenso de aquellas con 35 años y más), y un descenso en la proporción de nacimientos entre las mujeres de menor nivel educativo. En cuanto al tipo de parto, observamos un incremento en la proporción de cesáreas en el período 2011-2022 (del 38% al 50%) y un incremento de los nacimientos los días hábiles respecto a aquellos ocurridos en fines de semana o feriados (<xref ref-type="table" rid="t1">Tabla 1</xref>). </p>
+				<p>
+					<table-wrap id="t1">
+						<label>Tabla 1</label>
+						<caption>
+							<title>Distribución de nacimientos vivos, según características socioeconómicas y tipo de parto (vaginal o cesárea). Neuquén, Argentina, 2011-2022.</title>
+						</caption>
+						<table>
+							<colgroup>
+								<col span="9"/>
+							</colgroup>
+							<thead>
+							  <tr>
+								<th rowspan="3" style="background-color: rgba(51,51,51,0.8);color: rgb(255,255,255); border-right: 1px solid #FFFFFF; vertical-align:top;">Características socioeconómicas</th>
+								<th colspan="2" align="center" style="background-color: rgba(51,51,51,0.8);color: rgb(255,255,255); border-right: 1px solid #FFFFFF; vertical-align:top;">2011 a 2014</th>
+								<th colspan="2" align="center" style="background-color: rgba(51,51,51,0.8);color: rgb(255,255,255); border-right: 1px solid #FFFFFF; vertical-align:top;">2015 a 2018</th>
+								<th colspan="2" align="center" style="background-color: rgba(51,51,51,0.8);color: rgb(255,255,255); border-right: 1px solid #FFFFFF; vertical-align:top;">2019 a 2022</th>
+								<th colspan="2" align="center" style="background-color: rgba(51,51,51,0.8);color: rgb(255,255,255); border-right: 1px solid #FFFFFF; vertical-align:top;">Total</th>
+							  </tr>
+							  <tr>
+								<th colspan="2" align="center" style="background-color: rgba(51,51,51,0.8);color: rgb(255,255,255); border-right: 1px solid #FFFFFF; vertical-align:top;">n= 44.545</th>
+								<th colspan="2" align="center" style="background-color: rgba(51,51,51,0.8);color: rgb(255,255,255); border-right: 1px solid #FFFFFF; vertical-align:top;">n= 42.629</th>
+								<th colspan="2" align="center" style="background-color: rgba(51,51,51,0.8);color: rgb(255,255,255); border-right: 1px solid #FFFFFF; vertical-align:top;">n=31.923</th>
+								<th colspan="2" align="center" style="background-color: rgba(51,51,51,0.8);color: rgb(255,255,255); border-right: 1px solid #FFFFFF; vertical-align:top;">n=119.097</th>
+							  </tr>
+							  <tr>
+								<th align="center" style="background-color: rgba(51,51,51,0.8);color: rgb(255,255,255); border-right: 1px solid #FFFFFF; vertical-align:top;">%</th>
+								<th align="center" style="background-color: rgba(51,51,51,0.8);color: rgb(255,255,255); border-right: 1px solid #FFFFFF; vertical-align:top;">n</th>
+								<th align="center" style="background-color: rgba(51,51,51,0.8);color: rgb(255,255,255); border-right: 1px solid #FFFFFF; vertical-align:top;">%</th>
+								<th align="center" style="background-color: rgba(51,51,51,0.8);color: rgb(255,255,255); border-right: 1px solid #FFFFFF; vertical-align:top;">n</th>
+								<th align="center" style="background-color: rgba(51,51,51,0.8);color: rgb(255,255,255); border-right: 1px solid #FFFFFF; vertical-align:top;">%</th>
+								<th align="center" style="background-color: rgba(51,51,51,0.8);color: rgb(255,255,255); border-right: 1px solid #FFFFFF; vertical-align:top;">n</th>
+								<th align="center" style="background-color: rgba(51,51,51,0.8);color: rgb(255,255,255); border-right: 1px solid #FFFFFF; vertical-align:top;">%</th>
+								<th align="center" style="background-color: rgba(51,51,51,0.8);color: rgb(255,255,255); border-right: 1px solid #FFFFFF; vertical-align:top;">n</th>
+							  </tr>
+							</thead>
+							<tbody>
+							  <tr>
+								<td align="left" style="vertical-align:top"><bold>Edad de la persona gestante</bold></td>
+								<td align="center" style="vertical-align:top"></td>
+								<td align="center" style="vertical-align:top"></td>
+								<td align="center" style="vertical-align:top"></td>
+								<td align="center" style="vertical-align:top"></td>
+								<td align="center" style="vertical-align:top"></td>
+								<td align="center" style="vertical-align:top"></td>
+								<td align="center" style="vertical-align:top"></td>
+								<td align="center" style="vertical-align:top"></td>
+							  </tr>
+							  <tr>
+								<td align="left" style="vertical-align:top">19 años o menos</td>
+								<td align="center" style="vertical-align:top">15,6</td>
+								<td align="center" style="vertical-align:top">6.930</td>
+								<td align="center" style="vertical-align:top">12,5</td>
+								<td align="center" style="vertical-align:top">5.319</td>
+								<td align="center" style="vertical-align:top">7,9</td>
+								<td align="center" style="vertical-align:top">2.521</td>
+								<td align="center" style="vertical-align:top">12,4</td>
+								<td align="center" style="vertical-align:top">14.770</td>
+							  </tr>
+							  <tr>
+								<td align="left" style="vertical-align:top">20 - 34 años</td>
+								<td align="center" style="vertical-align:top">70,3</td>
+								<td align="center" style="vertical-align:top">31.313</td>
+								<td align="center" style="vertical-align:top">71,0</td>
+								<td align="center" style="vertical-align:top">30.247</td>
+								<td align="center" style="vertical-align:top">73,1</td>
+								<td align="center" style="vertical-align:top">23.351</td>
+								<td align="center" style="vertical-align:top">71,3</td>
+								<td align="center" style="vertical-align:top">84.911</td>
+							  </tr>
+							  <tr>
+								<td align="left" style="vertical-align:top">35 y más años</td>
+								<td align="center" style="vertical-align:top">14,1</td>
+								<td align="center" style="vertical-align:top">6.301</td>
+								<td align="center" style="vertical-align:top">16,6</td>
+								<td align="center" style="vertical-align:top">7.062</td>
+								<td align="center" style="vertical-align:top">19,0</td>
+								<td align="center" style="vertical-align:top">6.050</td>
+								<td align="center" style="vertical-align:top">16,3</td>
+								<td align="center" style="vertical-align:top">19.413</td>
+							  </tr>
+							  <tr>
+								<td align="left" style="vertical-align:top">Sin dato</td>
+								<td align="center" style="vertical-align:top">0,0</td>
+								<td align="center" style="vertical-align:top">1</td>
+								<td align="center" style="vertical-align:top">0,0</td>
+								<td align="center" style="vertical-align:top">1</td>
+								<td align="center" style="vertical-align:top">0,0</td>
+								<td align="center" style="vertical-align:top">1</td>
+								<td align="center" style="vertical-align:top">0,0</td>
+								<td align="center" style="vertical-align:top">3</td>
+							  </tr>
+							  <tr>
+								<td align="left" style="vertical-align:top"><bold>Nivel educativo de la persona gestante<sup>1</sup></bold></td>
+								<td align="center" style="vertical-align:top"></td>
+								<td align="center" style="vertical-align:top"></td>
+								<td align="center" style="vertical-align:top"></td>
+								<td align="center" style="vertical-align:top"></td>
+								<td align="center" style="vertical-align:top"></td>
+								<td align="center" style="vertical-align:top"></td>
+								<td align="center" style="vertical-align:top"></td>
+								<td align="center" style="vertical-align:top"></td>
+							  </tr>
+							  <tr>
+								<td align="left" style="vertical-align:top">Bajo</td>
+								<td align="center" style="vertical-align:top">41,8</td>
+								<td align="center" style="vertical-align:top">18.645</td>
+								<td align="center" style="vertical-align:top">37,3</td>
+								<td align="center" style="vertical-align:top">15.918</td>
+								<td align="center" style="vertical-align:top">39,0</td>
+								<td align="center" style="vertical-align:top">12.442</td>
+								<td align="center" style="vertical-align:top">39,5</td>
+								<td align="center" style="vertical-align:top">47.005</td>
+							  </tr>
+							  <tr>
+								<td align="left" style="vertical-align:top">Medio</td>
+								<td align="center" style="vertical-align:top">32,5</td>
+								<td align="center" style="vertical-align:top">14.485</td>
+								<td align="center" style="vertical-align:top">31,4</td>
+								<td align="center" style="vertical-align:top">13.386</td>
+								<td align="center" style="vertical-align:top">41,3</td>
+								<td align="center" style="vertical-align:top">13.173</td>
+								<td align="center" style="vertical-align:top">32,8</td>
+								<td align="center" style="vertical-align:top">39.044</td>
+							  </tr>
+							  <tr>
+								<td align="left" style="vertical-align:top">Alto</td>
+								<td align="center" style="vertical-align:top">12,2</td>
+								<td align="center" style="vertical-align:top">5.426</td>
+								<td align="center" style="vertical-align:top">14,4</td>
+								<td align="center" style="vertical-align:top">6.146</td>
+								<td align="center" style="vertical-align:top">19,3</td>
+								<td align="center" style="vertical-align:top">6.152</td>
+								<td align="center" style="vertical-align:top">14,9</td>
+								<td align="center" style="vertical-align:top">17.724</td>
+							  </tr>
+							  <tr>
+								<td align="left" style="vertical-align:top">Sin dato</td>
+								<td align="center" style="vertical-align:top">13,4</td>
+								<td align="center" style="vertical-align:top">5.989</td>
+								<td align="center" style="vertical-align:top">16,8</td>
+								<td align="center" style="vertical-align:top">7.177</td>
+								<td align="center" style="vertical-align:top">0,5</td>
+								<td align="center" style="vertical-align:top">156</td>
+								<td align="center" style="vertical-align:top">12,9</td>
+								<td align="center" style="vertical-align:top">15.324</td>
+							  </tr>
+							  <tr>
+								<td align="left" style="vertical-align:top"><bold>Tipo de parto</bold></td>
+								<td align="center" style="vertical-align:top"></td>
+								<td align="center" style="vertical-align:top"></td>
+								<td align="center" style="vertical-align:top"></td>
+								<td align="center" style="vertical-align:top"></td>
+								<td align="center" style="vertical-align:top"></td>
+								<td align="center" style="vertical-align:top"></td>
+								<td align="center" style="vertical-align:top"></td>
+								<td align="center" style="vertical-align:top"></td>
+							  </tr>
+							  <tr>
+								<td align="left" style="vertical-align:top">Vaginal</td>
+								<td align="center" style="vertical-align:top">59,1</td>
+								<td align="center" style="vertical-align:top">26.332</td>
+								<td align="center" style="vertical-align:top">56,0</td>
+								<td align="center" style="vertical-align:top">23.851</td>
+								<td align="center" style="vertical-align:top">51,6</td>
+								<td align="center" style="vertical-align:top">16.482</td>
+								<td align="center" style="vertical-align:top">56,0</td>
+								<td align="center" style="vertical-align:top">66.665</td>
+							  </tr>
+							  <tr>
+								<td align="left" style="vertical-align:top">Cesárea</td>
+								<td align="center" style="vertical-align:top">40,9</td>
+								<td align="center" style="vertical-align:top">18.213</td>
+								<td align="center" style="vertical-align:top">44,0</td>
+								<td align="center" style="vertical-align:top">18.778</td>
+								<td align="center" style="vertical-align:top">48,4</td>
+								<td align="center" style="vertical-align:top">15.433</td>
+								<td align="center" style="vertical-align:top">44,0</td>
+								<td align="center" style="vertical-align:top">52.424</td>
+							  </tr>
+							  <tr>
+								<td align="left" style="vertical-align:top">Sin dato</td>
+								<td align="center" style="vertical-align:top">-</td>
+								<td align="center" style="vertical-align:top">0</td>
+								<td align="center" style="vertical-align:top">-</td>
+								<td align="center" style="vertical-align:top">0</td>
+								<td align="center" style="vertical-align:top">0,1</td>
+								<td align="center" style="vertical-align:top">8</td>
+								<td align="center" style="vertical-align:top">0,0</td>
+								<td align="center" style="vertical-align:top">8</td>
+							  </tr>
+							  <tr>
+								<td align="left" style="vertical-align:top"><bold>Lugar del parto</bold></td>
+								<td align="center" style="vertical-align:top"></td>
+								<td align="center" style="vertical-align:top"></td>
+								<td align="center" style="vertical-align:top"></td>
+								<td align="center" style="vertical-align:top"></td>
+								<td align="center" style="vertical-align:top"></td>
+								<td align="center" style="vertical-align:top"></td>
+								<td align="center" style="vertical-align:top"></td>
+								<td align="center" style="vertical-align:top"></td>
+							  </tr>
+							  <tr>
+								<td align="left" style="vertical-align:top">Institución pública</td>
+								<td align="center" style="vertical-align:top">55,1</td>
+								<td align="center" style="vertical-align:top">24.535</td>
+								<td align="center" style="vertical-align:top">53,9</td>
+								<td align="center" style="vertical-align:top">22.967</td>
+								<td align="center" style="vertical-align:top">55,8</td>
+								<td align="center" style="vertical-align:top">17.820</td>
+								<td align="center" style="vertical-align:top">54,8</td>
+								<td align="center" style="vertical-align:top">65.322</td>
+							  </tr>
+							  <tr>
+								<td align="left" style="vertical-align:top">Institución privada</td>
+								<td align="center" style="vertical-align:top">44,7</td>
+								<td align="center" style="vertical-align:top">16.930</td>
+								<td align="center" style="vertical-align:top">45,9</td>
+								<td align="center" style="vertical-align:top">19.568</td>
+								<td align="center" style="vertical-align:top">44,0</td>
+								<td align="center" style="vertical-align:top">14.047</td>
+								<td align="center" style="vertical-align:top">45,0</td>
+								<td align="center" style="vertical-align:top">53.545</td>
+							  </tr>
+							  <tr>
+								<td align="left" style="vertical-align:top">Otro lugar<sup>2</sup></td>
+								<td align="center" style="vertical-align:top">0,1</td>
+								<td align="center" style="vertical-align:top">8</td>
+								<td align="center" style="vertical-align:top">0,1</td>
+								<td align="center" style="vertical-align:top">10</td>
+								<td align="center" style="vertical-align:top">0,0</td>
+								<td align="center" style="vertical-align:top">3</td>
+								<td align="center" style="vertical-align:top">0,1</td>
+								<td align="center" style="vertical-align:top">21</td>
+							  </tr>
+							  <tr>
+								<td align="left" style="vertical-align:top">Vivienda particular</td>
+								<td align="center" style="vertical-align:top">0,1</td>
+								<td align="center" style="vertical-align:top">64</td>
+								<td align="center" style="vertical-align:top">0,2</td>
+								<td align="center" style="vertical-align:top">74</td>
+								<td align="center" style="vertical-align:top">0,2</td>
+								<td align="center" style="vertical-align:top">51</td>
+								<td align="center" style="vertical-align:top">0,2</td>
+								<td align="center" style="vertical-align:top">189</td>
+							  </tr>
+							  <tr>
+								<td align="left" style="vertical-align:top">Sin dato</td>
+								<td align="center" style="vertical-align:top">0,0</td>
+								<td align="center" style="vertical-align:top">8</td>
+								<td align="center" style="vertical-align:top">0,1</td>
+								<td align="center" style="vertical-align:top">10</td>
+								<td align="center" style="vertical-align:top">0,1</td>
+								<td align="center" style="vertical-align:top">2</td>
+								<td align="center" style="vertical-align:top">0,1</td>
+								<td align="center" style="vertical-align:top">20</td>
+							  </tr>
+							  <tr>
+								<td align="left" style="vertical-align:top"><bold>Días de la semana</bold></td>
+								<td align="center" style="vertical-align:top"></td>
+								<td align="center" style="vertical-align:top"></td>
+								<td align="center" style="vertical-align:top"></td>
+								<td align="center" style="vertical-align:top"></td>
+								<td align="center" style="vertical-align:top"></td>
+								<td align="center" style="vertical-align:top"></td>
+								<td align="center" style="vertical-align:top"></td>
+								<td align="center" style="vertical-align:top"></td>
+							  </tr>
+							  <tr>
+								<td align="left" style="vertical-align:top">Días hábiles</td>
+								<td align="center" style="vertical-align:top">76,6</td>
+								<td align="center" style="vertical-align:top">34.100</td>
+								<td align="center" style="vertical-align:top">80,9</td>
+								<td align="center" style="vertical-align:top">34.485</td>
+								<td align="center" style="vertical-align:top">80,3</td>
+								<td align="center" style="vertical-align:top">25.629</td>
+								<td align="center" style="vertical-align:top">79,1</td>
+								<td align="center" style="vertical-align:top">94.214</td>
+							  </tr>
+							  <tr>
+								<td align="left" style="vertical-align:top">Sábados, domingos, feriados</td>
+								<td align="center" style="vertical-align:top">23,4</td>
+								<td align="center" style="vertical-align:top">10.445</td>
+								<td align="center" style="vertical-align:top">19,1</td>
+								<td align="center" style="vertical-align:top">8.144</td>
+								<td align="center" style="vertical-align:top">19,7</td>
+								<td align="center" style="vertical-align:top">6.294</td>
+								<td align="center" style="vertical-align:top">20,9</td>
+								<td align="center" style="vertical-align:top">24.883</td>
+							  </tr>
+							</tbody>
+						</table>
+						<table-wrap-foot>
+							<fn id="TFN1">
+								<p>Fuente: Elaboración propia con base en estadísticas vitales de la provincia del Neuquén.</p>
+								<p><sup>1</sup>Nivel educativo de la persona gestante: baja (hasta secundaria incompleta); media (secundaria completa o universitario, terciario incompleto); alto (universitaria o terciario completo). <sup>2</sup>Vía pública, transporte, etc.</p>
+							</fn>
+						</table-wrap-foot>
+					</table-wrap>
+				</p>
+				<p>Los nacimientos vivos presentaron diferencias entre establecimientos con financiamiento público o privado en su distribución temporal, relacionada con los horarios de trabajo. Entre los nacimientos en establecimientos públicos, los partos vaginales se mantuvieron relativamente estables a lo largo de los días de la semana, pero las cesáreas se concentraron de lunes a viernes, lo que se mantuvo estable a lo largo del tiempo (distintos cuatrienios). Sin embargo, en los establecimientos privados, tanto los partos vaginales como las cesáreas se concentraron principalmente de lunes a viernes en los tres cuatrienios (<xref ref-type="fig" rid="f2">Figura 2</xref>). </p>
+				<p>
+					<fig id="f2">
+						<label>Figura 2</label>
+						<caption>
+							<title>Porcentaje de nacimientos vivos por día de la semana, según tipo de parto (vaginal o cesária) y tipo de establecimiento (público o privado). Neuquén, Argentina, 2011-2022.</title>
+						</caption>
+						<graphic xlink:href="1851-8265-scol-22-e6032-gf2.png"/>
+						<attrib>Fuente: Elaboración propia con base en estadísticas vitales de la provincia del Neuquén.</attrib>
+					</fig>
+				</p>
+				<p>En la <xref ref-type="fig" rid="f3">Figura 3</xref> se grafica la distribución de los nacimientos vivos por hora y tipo de parto, estratificado por establecimientos públicos y privados, según días hábiles o sábados, domingos y feriados. Entre los establecimientos privados, todos los días de la semana los nacimientos se concentran a partir de las 8:00 de la mañana hasta las 20:00 hs y luego descienden hasta llegar a valores bajos en horas de la noche. En particular, los nacimientos por cesárea se concentran a partir de las 12:00 hs los días hábiles, en cambio los sábados, domingos y feriados no se observa gran cambio a lo largo del día. En los nacimientos en establecimientos públicos, se observa un cambio en el patrón de los nacimientos vivos: de lunes a viernes se observa una mayor proporción de nacimientos por la mañana y luego valores menores desde las 14:00 hasta la 1:00 de la madrugada, y un leve descenso entre las 2:00 y las 7:00 de la mañana. Los sábados, domingos y feriados se ve un patrón más estable a lo largo del día, en el que la proporción de cesáreas es más estable. ¿Estas variaciones responden al parto como un acontecimiento humano singular o a su transformación en un objeto de intervención anticipable y programable?</p>
+				<p>
+					<fig id="f3">
+						<label>Figura 3</label>
+						<caption>
+							<title>Número de nacimientos vivos por hora y día de la semana, según tipo de parto (vaginal o cesárea), y tipo de establecimiento (público o privado). Neuquén, Argentina, 2019-2022.</title>
+						</caption>
+						<graphic xlink:href="1851-8265-scol-22-e6032-gf3.png"/>
+						<attrib>Fuente: Elaboración propia con base en estadísticas vitales de la provincia del Neuquén. Nota: Se tomó solo el tercer cuatrienio ya que 2019 es el primer año con información sobre la hora de nacimiento en establecimientos privados. Datos faltantes para estos 4 años: privado = 33% (12.881/17.677), público = 27% (9.412/13.990)</attrib>
+					</fig>
+				</p>
+				<p>El análisis descriptivo de las variables presentadas en la <xref ref-type="table" rid="t2">Tabla 2</xref> muestra un incremento en la proporción de cesáreas a medida que aumenta la edad de las mujeres, tanto entre los nacimientos en establecimientos públicos como en privados. Con relación al nivel educativo, observamos diferencias solo entre los nacimientos en el sistema público (a mayor nivel educativo, más cesáreas) no así en el privado, donde se diluyen esas diferencias. Finalmente, observamos un incremento de las cesáreas a lo largo del tiempo en ambos tipos de establecimientos. </p>
+				<p>
+					<table-wrap id="t2">
+						<label>Tabla 2</label>
+						<caption>
+							<title>Proporción de cesáreas según características socioeconómicas, por tipo de establecimiento (público o privado). Neuquén, Argentina, 2011-2022.</title>
+						</caption>
+						<table>
+							<colgroup>
+								<col span="10"/>
+							</colgroup>
+							<thead>
+							  <tr>
+								<th rowspan="3" style="background-color: rgba(51,51,51,0.8);color: rgb(255,255,255); border-right: 1px solid #FFFFFF; vertical-align:top;">Características socioeconómicas</th>
+								<th colspan="3" style="background-color: rgba(51,51,51,0.8);color: rgb(255,255,255); border-right: 1px solid #FFFFFF; vertical-align:top;">Nacimientos vivos en establecimientos públicos</th>
+								<th colspan="3" style="background-color: rgba(51,51,51,0.8);color: rgb(255,255,255); border-right: 1px solid #FFFFFF; vertical-align:top;">Nacimientos vivos en establecimientos privados</th>
+								<th colspan="3" style="background-color: rgba(51,51,51,0.8);color: rgb(255,255,255); border-right: 1px solid #FFFFFF; vertical-align:top;">Total de  nacimientos vivos</th>
+							  </tr>
+							  <tr>
+								<th align="center" style="background-color: rgba(51,51,51,0.8);color: rgb(255,255,255); border-right: 1px solid #FFFFFF; vertical-align:top;">Nacimientos vivos</th>
+								<th colspan="2" align="center" style="background-color: rgba(51,51,51,0.8);color: rgb(255,255,255); border-right: 1px solid #FFFFFF; vertical-align:top;">Cesáreas</th>
+								<th align="center" style="background-color: rgba(51,51,51,0.8);color: rgb(255,255,255); border-right: 1px solid #FFFFFF; vertical-align:top;">Nacimientos vivos</th>
+								<th colspan="2" align="center" style="background-color: rgba(51,51,51,0.8);color: rgb(255,255,255); border-right: 1px solid #FFFFFF; vertical-align:top;">Cesáreas</th>
+								<th align="center" style="background-color: rgba(51,51,51,0.8);color: rgb(255,255,255); border-right: 1px solid #FFFFFF; vertical-align:top;">Nacimientos vivos</th>
+								<th colspan="2" align="center" style="background-color: rgba(51,51,51,0.8);color: rgb(255,255,255); border-right: 1px solid #FFFFFF; vertical-align:top;">Cesáreas</th>
+							  </tr>
+							  <tr>
+								<th align="center" style="background-color: rgba(51,51,51,0.8);color: rgb(255,255,255); border-right: 1px solid #FFFFFF; vertical-align:top;">n</th>
+								<th align="center" style="background-color: rgba(51,51,51,0.8);color: rgb(255,255,255); border-right: 1px solid #FFFFFF; vertical-align:top;">n</th>
+								<th align="center" style="background-color: rgba(51,51,51,0.8);color: rgb(255,255,255); border-right: 1px solid #FFFFFF; vertical-align:top;">%</th>
+								<th align="center" style="background-color: rgba(51,51,51,0.8);color: rgb(255,255,255); border-right: 1px solid #FFFFFF; vertical-align:top;">n</th>
+								<th align="center" style="background-color: rgba(51,51,51,0.8);color: rgb(255,255,255); border-right: 1px solid #FFFFFF; vertical-align:top;">n</th>
+								<th align="center" style="background-color: rgba(51,51,51,0.8);color: rgb(255,255,255); border-right: 1px solid #FFFFFF; vertical-align:top;">%</th>
+								<th align="center" style="background-color: rgba(51,51,51,0.8);color: rgb(255,255,255); border-right: 1px solid #FFFFFF; vertical-align:top;"> n</th>
+								<th align="center" style="background-color: rgba(51,51,51,0.8);color: rgb(255,255,255); border-right: 1px solid #FFFFFF; vertical-align:top;">n</th>
+								<th align="center" style="background-color: rgba(51,51,51,0.8);color: rgb(255,255,255); border-right: 1px solid #FFFFFF; vertical-align:top;">%</th>
+							  </tr>
+							</thead>
+							<tbody>
+							  <tr>
+								<td align="left" style="vertical-align:top">Total</td>
+								<td align="center" style="vertical-align:top">65.315</td>
+								<td align="center" style="vertical-align:top">19.817</td>
+								<td align="center" style="vertical-align:top">30,4</td>
+								<td align="center" style="vertical-align:top">53.544</td>
+								<td align="center" style="vertical-align:top">32.597</td>
+								<td align="center" style="vertical-align:top">61,0</td>
+								<td align="center" style="vertical-align:top">119.089</td>
+								<td align="center" style="vertical-align:top">52.424</td>
+								<td align="center" style="vertical-align:top">44,0</td>
+							  </tr>
+							  <tr>
+								<td align="left" style="vertical-align:top"><bold>Edad de la mujer</bold></td>
+								<td align="center" style="vertical-align:top"></td>
+								<td align="center" style="vertical-align:top"></td>
+								<td align="center" style="vertical-align:top"></td>
+								<td align="center" style="vertical-align:top"></td>
+								<td align="center" style="vertical-align:top"></td>
+								<td align="center" style="vertical-align:top"></td>
+								<td align="center" style="vertical-align:top"></td>
+								<td align="center" style="vertical-align:top"></td>
+								<td align="center" style="vertical-align:top"></td>
+							  </tr>
+							  <tr>
+								<td align="left" style="vertical-align:top">19 años o menos</td>
+								<td align="center" style="vertical-align:top">10.602</td>
+								<td align="center" style="vertical-align:top">2.489</td>
+								<td align="center" style="vertical-align:top">23,5</td>
+								<td align="center" style="vertical-align:top">4.144</td>
+								<td align="center" style="vertical-align:top">2.271</td>
+								<td align="center" style="vertical-align:top">54,8</td>
+								<td align="center" style="vertical-align:top">14.769</td>
+								<td align="center" style="vertical-align:top">4.762</td>
+								<td align="center" style="vertical-align:top">32,2</td>
+							  </tr>
+							  <tr>
+								<td align="left" style="vertical-align:top">20 - 34 años</td>
+								<td align="center" style="vertical-align:top">46.693</td>
+								<td align="center" style="vertical-align:top">14.342</td>
+								<td align="center" style="vertical-align:top">30,7</td>
+								<td align="center" style="vertical-align:top">38.051</td>
+								<td align="center" style="vertical-align:top">22.635</td>
+								<td align="center" style="vertical-align:top">59,5</td>
+								<td align="center" style="vertical-align:top">84.904</td>
+								<td align="center" style="vertical-align:top">36.983</td>
+								<td align="center" style="vertical-align:top">43,6</td>
+							  </tr>
+							  <tr>
+								<td align="left" style="vertical-align:top">35 y más años</td>
+								<td align="center" style="vertical-align:top">8.019</td>
+								<td align="center" style="vertical-align:top">2.986</td>
+								<td align="center" style="vertical-align:top">37,2</td>
+								<td align="center" style="vertical-align:top">11.348</td>
+								<td align="center" style="vertical-align:top">7.691</td>
+								<td align="center" style="vertical-align:top">67,8</td>
+								<td align="center" style="vertical-align:top">19.413</td>
+								<td align="center" style="vertical-align:top">10.678</td>
+								<td align="center" style="vertical-align:top">55,0</td>
+							  </tr>
+							  <tr>
+								<td align="left" style="vertical-align:top"><bold>Nivel educativo de la mujer</bold></td>
+								<td align="center" style="vertical-align:top"></td>
+								<td align="center" style="vertical-align:top"></td>
+								<td align="center" style="vertical-align:top"></td>
+								<td align="center" style="vertical-align:top"></td>
+								<td align="center" style="vertical-align:top"></td>
+								<td align="center" style="vertical-align:top"></td>
+								<td align="center" style="vertical-align:top"></td>
+								<td align="center" style="vertical-align:top"></td>
+								<td align="center" style="vertical-align:top"></td>
+							  </tr>
+							  <tr>
+								<td align="left" style="vertical-align:top">Bajo</td>
+								<td align="center" style="vertical-align:top">35.241</td>
+								<td align="center" style="vertical-align:top">10.011</td>
+								<td align="center" style="vertical-align:top">28,4</td>
+								<td align="center" style="vertical-align:top">11.680</td>
+								<td align="center" style="vertical-align:top">6.960</td>
+								<td align="center" style="vertical-align:top">59,6</td>
+								<td align="center" style="vertical-align:top">47.456</td>
+								<td align="center" style="vertical-align:top">16.964</td>
+								<td align="center" style="vertical-align:top">35,7</td>
+							  </tr>
+							  <tr>
+								<td align="left" style="vertical-align:top">Medio &nbsp;</td>
+								<td align="center" style="vertical-align:top">17.956</td>
+								<td align="center" style="vertical-align:top">5.994</td>
+								<td align="center" style="vertical-align:top">33,4</td>
+								<td align="center" style="vertical-align:top">21.024</td>
+								<td align="center" style="vertical-align:top">13.002</td>
+								<td align="center" style="vertical-align:top">61,8</td>
+								<td align="center" style="vertical-align:top">39.041</td>
+								<td align="center" style="vertical-align:top">19.000</td>
+								<td align="center" style="vertical-align:top">48,7</td>
+							  </tr>
+							  <tr>
+								<td align="left" style="vertical-align:top">Alto</td>
+								<td align="center" style="vertical-align:top">4.186</td>
+								<td align="center" style="vertical-align:top">1.579</td>
+								<td align="center" style="vertical-align:top">37,7</td>
+								<td align="center" style="vertical-align:top">13.506</td>
+								<td align="center" style="vertical-align:top">8.236</td>
+								<td align="center" style="vertical-align:top">61,0</td>
+								<td align="center" style="vertical-align:top">17.723</td>
+								<td align="center" style="vertical-align:top">9.817</td>
+								<td align="center" style="vertical-align:top">55,4</td>
+							  </tr>
+							  <tr>
+								<td align="left" style="vertical-align:top"><bold>Cuatrienios (período)</bold></td>
+								<td align="center" style="vertical-align:top"></td>
+								<td align="center" style="vertical-align:top"></td>
+								<td align="center" style="vertical-align:top"></td>
+								<td align="center" style="vertical-align:top"></td>
+								<td align="center" style="vertical-align:top"></td>
+								<td align="center" style="vertical-align:top"></td>
+								<td align="center" style="vertical-align:top"></td>
+								<td align="center" style="vertical-align:top"></td>
+								<td align="center" style="vertical-align:top"></td>
+							  </tr>
+							  <tr>
+								<td align="left" style="vertical-align:top">2011-2014</td>
+								<td align="center" style="vertical-align:top">24.535</td>
+								<td align="center" style="vertical-align:top">7.025</td>
+								<td align="center" style="vertical-align:top">28,6</td>
+								<td align="center" style="vertical-align:top">19.930</td>
+								<td align="center" style="vertical-align:top">11.186</td>
+								<td align="center" style="vertical-align:top">56,1</td>
+								<td align="center" style="vertical-align:top">44.545</td>
+								<td align="center" style="vertical-align:top">18.213</td>
+								<td align="center" style="vertical-align:top">40,9</td>
+							  </tr>
+							  <tr>
+								<td align="left" style="vertical-align:top">2015-2018</td>
+								<td align="center" style="vertical-align:top">22.967</td>
+								<td align="center" style="vertical-align:top">6.718</td>
+								<td align="center" style="vertical-align:top">29,3</td>
+								<td align="center" style="vertical-align:top">19.568</td>
+								<td align="center" style="vertical-align:top">12.054</td>
+								<td align="center" style="vertical-align:top">61,6</td>
+								<td align="center" style="vertical-align:top">42.629</td>
+								<td align="center" style="vertical-align:top">18.778</td>
+								<td align="center" style="vertical-align:top">44,1</td>
+							  </tr>
+							  <tr>
+								<td align="left" style="vertical-align:top">2019-2022</td>
+								<td align="center" style="vertical-align:top">17.813</td>
+								<td align="center" style="vertical-align:top">6.075</td>
+								<td align="center" style="vertical-align:top">34,1</td>
+								<td align="center" style="vertical-align:top">14.046</td>
+								<td align="center" style="vertical-align:top">9.357</td>
+								<td align="center" style="vertical-align:top">66,6</td>
+								<td align="center" style="vertical-align:top">31.915</td>
+								<td align="center" style="vertical-align:top">15.433</td>
+								<td align="center" style="vertical-align:top">48,9</td>
+							  </tr>
+							  <tr>
+								<td align="left" style="vertical-align:top"><bold>Días</bold></td>
+								<td align="center" style="vertical-align:top"></td>
+								<td align="center" style="vertical-align:top"></td>
+								<td align="center" style="vertical-align:top"></td>
+								<td align="center" style="vertical-align:top"></td>
+								<td align="center" style="vertical-align:top"></td>
+								<td align="center" style="vertical-align:top"></td>
+								<td align="center" style="vertical-align:top"></td>
+								<td align="center" style="vertical-align:top"></td>
+								<td align="center" style="vertical-align:top"></td>
+							  </tr>
+							  <tr>
+								<td align="left" style="vertical-align:top">Días hábiles</td>
+								<td align="center" style="vertical-align:top">48.904</td>
+								<td align="center" style="vertical-align:top">16.406</td>
+								<td align="center" style="vertical-align:top">33,5</td>
+								<td align="center" style="vertical-align:top">44.367</td>
+								<td align="center" style="vertical-align:top">28.272</td>
+								<td align="center" style="vertical-align:top">63,7</td>
+								<td align="center" style="vertical-align:top">93.438</td>
+								<td align="center" style="vertical-align:top">44.687</td>
+								<td align="center" style="vertical-align:top">47,8</td>
+							  </tr>
+							  <tr>
+								<td align="left" style="vertical-align:top">Sábados, domingos, feriados</td>
+								<td align="center" style="vertical-align:top">15.723</td>
+								<td align="center" style="vertical-align:top">3.412</td>
+								<td align="center" style="vertical-align:top">21,7</td>
+								<td align="center" style="vertical-align:top">8.898</td>
+								<td align="center" style="vertical-align:top">4.325</td>
+								<td align="center" style="vertical-align:top">48,6</td>
+								<td align="center" style="vertical-align:top">24.679</td>
+								<td align="center" style="vertical-align:top">7.737</td>
+								<td align="center" style="vertical-align:top">31,4</td>
+							  </tr>
+							</tbody>
+						</table>
+						<table-wrap-foot>
+							<fn id="TFN2">
+								<p>Fuente: Elaboración propia con base en estadísticas vitales de la provincia del Neuquén.</p>
+								<p>Nota: Nivel educativo: Bajo (primaria completa o menos); Medio (secundaria completa o universitaria incompleta); Alto (universitaria completa o más).</p>
+							</fn>
+						</table-wrap-foot>
+					</table-wrap>
+				</p>
+				<p>En la <xref ref-type="table" rid="t3">Tabla 3</xref> se muestran las tendencias en las tasas de cesáreas según las variables socioeconómicas seleccionadas. En total, las cesáreas se incrementan en un 11% cada 5 años [RP=1,10; IC95% (1,10-1,12)]. Respecto a la edad de las personas gestantes, si bien al inicio de la tendencia la tasa fue mayor entre las personas gestantes de 35 años y más, el incremento fue mayor entre las personas gestantes más jóvenes, de 19 años o menos. Respecto al nivel educativo, al inicio del período, las tasas fueron más elevadas entre aquellas personas gestantes de mayor educativo; sin embargo, el incremento cada 5 años en la tasa entre aquellas personas de nivel educativo más bajo fue del 10% [RP=1,10; IC95% (1,08-1,12)] y 5% entre las de nivel educativo más alto [RP=1,05; IC95% (1,03-1,07)]. Finalmente, en relación con el tipo de establecimiento sanitario, al inicio de la tendencia, las tasas fueron mayores entre aquellos nacimientos en establecimientos privados, y se observó un incremento del 11% cada 5 años entre aquellos nacimientos en establecimientos públicos [RP=1,11; IC95% (1,09-1,13)] y 9% entre los nacimientos en establecimientos privados [RP=1,09; IC95% (1,08-1,10)].</p>
+				<p>
+					<table-wrap id="t3">
+						<label>Tabla 3</label>
+						<caption>
+							<title>Tendencia temporal de cesáreas, según características socioeconómicas. Neuquén, Argentina, 2011-2022.</title>
+						</caption>
+						<table>
+							<colgroup>
+								<col span="5"/>
+							</colgroup>
+							<thead>
+							  <tr>
+								<th rowspan="2" style="background-color: rgba(51,51,51,0.8);color: rgb(255,255,255); border-right: 1px solid #FFFFFF; vertical-align:top;">Características  socioeconómicas</th>
+								<th colspan="2" style="background-color: rgba(51,51,51,0.8);color: rgb(255,255,255); border-right: 1px solid #FFFFFF; vertical-align:top;">Valores al inicio de la tendencia (2011)</th>
+								<th colspan="2" style="background-color: rgba(51,51,51,0.8);color: rgb(255,255,255); border-right: 1px solid #FFFFFF; vertical-align:top;">Tendencia temporal</th>
+							  </tr>
+							  <tr>
+								<th align="center" style="background-color: rgba(51,51,51,0.8);color: rgb(255,255,255); border-right: 1px solid #FFFFFF; vertical-align:top;">RP<sup>a</sup></th>
+								<th align="center" style="background-color: rgba(51,51,51,0.8);color: rgb(255,255,255); border-right: 1px solid #FFFFFF; vertical-align:top;">IC95%</th>
+								<th align="center" style="background-color: rgba(51,51,51,0.8);color: rgb(255,255,255); border-right: 1px solid #FFFFFF; vertical-align:top;">RP<sup>a</sup></th>
+								<th align="center" style="background-color: rgba(51,51,51,0.8);color: rgb(255,255,255); border-right: 1px solid #FFFFFF; vertical-align:top;">IC95%</th>
+							  </tr>
+							</thead>
+							<tbody>
+							  <tr>
+								<td align="left" style="vertical-align:top"><bold>Tiempo</bold></td>
+								<td align="center" style="vertical-align:top"></td>
+								<td align="center" style="vertical-align:top"></td>
+								<td align="center" style="vertical-align:top"></td>
+								<td align="center" style="vertical-align:top"></td>
+							  </tr>
+							  <tr>
+								<td align="left" style="vertical-align:top">Cada 5 años</td>
+								<td align="center" style="vertical-align:top">-</td>
+								<td align="center" style="vertical-align:top">-</td>
+								<td align="center" style="vertical-align:top">1,11</td>
+								<td align="center" style="vertical-align:top">1,10-1,12</td>
+							  </tr>
+							  <tr>
+								<td align="left" style="vertical-align:top"><bold>Edad de la persona gestante</bold></td>
+								<td align="center" style="vertical-align:top"></td>
+								<td align="center" style="vertical-align:top"></td>
+								<td align="center" style="vertical-align:top"></td>
+								<td align="center" style="vertical-align:top"></td>
+							  </tr>
+							  <tr>
+								<td align="left" style="vertical-align:top">19 años o menos</td>
+								<td align="center" style="vertical-align:top">1,00</td>
+								<td align="center" style="vertical-align:top">-</td>
+								<td align="center" style="vertical-align:top">1,10</td>
+								<td align="center" style="vertical-align:top">1,06-1,15</td>
+							  </tr>
+							  <tr>
+								<td align="left" style="vertical-align:top">20 a 34 años</td>
+								<td align="center" style="vertical-align:top">1,33</td>
+								<td align="center" style="vertical-align:top">1,27-1,39</td>
+								<td align="center" style="vertical-align:top">1,10</td>
+								<td align="center" style="vertical-align:top">1,09-1,11</td>
+							  </tr>
+							  <tr>
+								<td align="left" style="vertical-align:top">35 y más años</td>
+								<td align="center" style="vertical-align:top">1,72</td>
+								<td align="center" style="vertical-align:top">1,64-1,80</td>
+								<td align="center" style="vertical-align:top">1,07</td>
+								<td align="center" style="vertical-align:top">1,05-1,09</td>
+							  </tr>
+							  <tr>
+								<td align="left" style="vertical-align:top"><bold>Educación de la persona gestante</bold></td>
+								<td align="center" style="vertical-align:top"></td>
+								<td align="center" style="vertical-align:top"></td>
+								<td align="center" style="vertical-align:top"></td>
+								<td align="center" style="vertical-align:top"></td>
+							  </tr>
+							  <tr>
+								<td align="left" style="vertical-align:top">Baja</td>
+								<td align="center" style="vertical-align:top">1,00</td>
+								<td align="center" style="vertical-align:top">-</td>
+								<td align="center" style="vertical-align:top">1,10</td>
+								<td align="center" style="vertical-align:top">1,08-1,12</td>
+							  </tr>
+							  <tr>
+								<td align="left" style="vertical-align:top">Media</td>
+								<td align="center" style="vertical-align:top">1,32</td>
+								<td align="center" style="vertical-align:top">1,28-1,36</td>
+								<td align="center" style="vertical-align:top">1,07</td>
+								<td align="center" style="vertical-align:top">1,06-1,09</td>
+							  </tr>
+							  <tr>
+								<td align="left" style="vertical-align:top">Alta</td>
+								<td align="center" style="vertical-align:top">1,48</td>
+								<td align="center" style="vertical-align:top">1,43-1,53</td>
+								<td align="center" style="vertical-align:top">1,05</td>
+								<td align="center" style="vertical-align:top">1,03-1,07</td>
+							  </tr>
+							  <tr>
+								<td align="left" style="vertical-align:top"><bold>Tipo de establecimiento</bold></td>
+								<td align="center" style="vertical-align:top"></td>
+								<td align="center" style="vertical-align:top"></td>
+								<td align="center" style="vertical-align:top"></td>
+								<td align="center" style="vertical-align:top"></td>
+							  </tr>
+							  <tr>
+								<td align="left" style="vertical-align:top">Público</td>
+								<td align="center" style="vertical-align:top">1,00</td>
+								<td align="center" style="vertical-align:top">-</td>
+								<td align="center" style="vertical-align:top">1,11</td>
+								<td align="center" style="vertical-align:top">1,09-1,13</td>
+							  </tr>
+							  <tr>
+								<td align="left" style="vertical-align:top">Privado</td>
+								<td align="center" style="vertical-align:top">1,94</td>
+								<td align="center" style="vertical-align:top">1,89-2,00</td>
+								<td align="center" style="vertical-align:top">1,09</td>
+								<td align="center" style="vertical-align:top">1,08-1,10</td>
+							  </tr>
+							</tbody>
+						</table>
+						<table-wrap-foot>
+							<fn id="TFN3">
+								<p>Fuente: Elaboración propia con base en estadísticas vitales de la provincia del Neuquén.</p>
+								<p>RP: razón de prevalencias. IC95%: intervalo de confianza del 95%.</p>
+								<p>Nivel educativo: Bajo (Primaria completa o menos); Medio (Secundaria completa o universitaria incompleta); Alto (Universitaria completa o más)</p>
+								<p><sup>a</sup>Valores crudos sin ajustar. Estimación mediante modelos lineales generalizados, familia binomial.</p>
+							</fn>
+						</table-wrap-foot>
+					</table-wrap>
+				</p>
+				<p>En la <xref ref-type="fig" rid="f4">Figura 4</xref> se observan los cambios en el tiempo en las tasas de cesáreas según nivel socioeconómico. Resaltamos que, en todo el período, la tasa de cesáreas fue superior entre las mujeres de mayor nivel educativo. Sin embargo, el incremento en el tiempo fue más acentuado entre las mujeres de nivel educativo bajo (incremento en 10 años del 12,3% entre las de nivel educativo alto, 16,9% en el nivel medio y del 23,8% entre las de nivel bajo). </p>
+				<p>
+					<fig id="f4">
+						<label>Figura 4</label>
+						<caption>
+							<title>Tendencia estimada del porcentaje de cesáreas, según nivel socioeconómico de la persona gestante. Neuquén, Argentina, 2011-2022.</title>
+						</caption>
+						<graphic xlink:href="1851-8265-scol-22-e6032-gf4.png"/>
+						<attrib>Fuente: Elaboración propia con base en estadísticas vitales de la provincia del Neuquén. NSE= Nivel socioeconómico. NSE bajo= Hasta secundaria incompleta. NSE medio= secundaria completa o universitaria, terciario incompleto. NSE alto= universitaria, terciario completo</attrib>
+					</fig>
+				</p>
+			</sec>
+		</sec>
+		<sec sec-type="discussion">
+			<title>Discusión</title>
+			<p>En el caso de Argentina, este análisis fue posible en la provincia del Neuquén, dado que la recolección de estadísticas a fin de monitorear las políticas sanitarias fue parte de los ejes del plan de salud instaurado en la provincia en la década de 1970, estrategia que se mantuvo a lo largo de las décadas siguientes. </p>
+			<p>A partir del análisis de las series históricas y de los registros individuales de nacimientos en la provincia de Neuquén, se identifica un incremento sostenido de las cesáreas en el tiempo, que pasan del 20% en 1995 al 50% en 2022, proceso se da en un contexto de privatización, que lleva a un aumento de las instituciones privadas en la provincia de Neuquén, en detrimento de las instituciones públicas. </p>
+			<p>El incremento identificado de las cesáreas coincide con las tendencias globales y regionales de 154 países que muestran un aumento de las tasas de cesáreas en todas las regiones desde 1990. Según el estudio de Betran <italic>et al.</italic><xref ref-type="bibr" rid="B10"><sup>10</sup></xref><italic>,</italic> la región con las tasas de cesáreas más altas es América Latina y el Caribe (42,8%), región en la que se encuentran los dos países con la tasa más alta de cesáreas en todo el mundo: República Dominicana (58,1%) y Brasil (55,7%).</p>
+			<p>Mientras indicadores clásicos de salud materno-infantil, como la natalidad y la mortalidad infantil, muestran un descenso sostenido desde la década de 1970, la tasa de cesáreas se contrapone a esta tendencia, mostrando un cambio en las prácticas del parto, aspecto que se acentúa al observar la distribución temporal (en horas y días de la semana) de los nacimientos. Por el contrario, estos resultados sugieren que el crecimiento de las cesáreas se explicaría por transformaciones en las formas de organización, regulación e intervención sobre el nacimiento, más que por un incremento de los eventos que requieren atención obstétrica.</p>
+			<p>La tendencia al uso excesivo e innecesario de las cesáreas es motivo de gran preocupación a nivel mundial, dados los riesgos que entraña para las personas gestantes y para el recién nacido<xref ref-type="bibr" rid="B52"><sup>52</sup></xref>. Entre esos riesgos se han reportado complicaciones maternas evitables, como infecciones, hemorragias, complicaciones relacionadas con el uso de anestesia o transfusiones de sangre, rotura uterina, problemas de implantación placentaria y necesidad de histerectomía<xref ref-type="bibr" rid="B20"><sup>20</sup></xref><sup>,</sup><xref ref-type="bibr" rid="B53"><sup>53</sup></xref><sup>,</sup><xref ref-type="bibr" rid="B54"><sup>54</sup></xref> y en la niñez, problemas respiratorios, dermatitis atópica y obesidad<xref ref-type="bibr" rid="B55"><sup>55</sup></xref><sup>,</sup><xref ref-type="bibr" rid="B56"><sup>56</sup></xref><sup>,</sup><xref ref-type="bibr" rid="B57"><sup>57</sup></xref><sup>,</sup><xref ref-type="bibr" rid="B58"><sup>58</sup></xref>. </p>
+			<p>A pesar de estos riesgos, las estimaciones muestran que la cesárea ya se ha convertido en la modalidad de parto más frecuente en varios países<xref ref-type="bibr" rid="B10"><sup>10</sup></xref>, lo que revela que, más allá de factores y procesos específicos de cada país, la cesárea opera como un dispositivo complejo que actúa simultáneamente sobre múltiples planos que regulan, gestionan y normalizan las formas de nacer a nivel global. Desde la biopolítica del nacimiento, la cesárea se consolida como una tecnología orientada a gestionar la incertidumbre del parto, producir previsibilidad en un proceso biológico intrínsecamente incierto, mercantilizando y tecnificando el mundo vital. De hecho, las altas tasas de cesáreas también están asociadas con un aumento considerable de los costos sanitarios, lo que implica una carga para los sistemas de salud<xref ref-type="bibr" rid="B55"><sup>55</sup></xref>. En términos biopolíticos, el nacimiento deja de ser un acontecimiento singular para convertirse en un proceso regulado, más predecible, controlable y fácil de supervisar<xref ref-type="bibr" rid="B59"><sup>59</sup></xref>, en el que la cesárea programada se transforma en una solución para la gestión del tiempo<xref ref-type="bibr" rid="B60"><sup>60</sup></xref><sup>,</sup><xref ref-type="bibr" rid="B61"><sup>61</sup></xref>.</p>
+			<p>Por otro lado, los patrones temporales de los nacimientos con concentración en días hábiles y horarios diurnos son coincidentes con trabajos anteriores<xref ref-type="bibr" rid="B16"><sup>16</sup></xref><sup>,</sup><xref ref-type="bibr" rid="B62"><sup>62</sup></xref><sup>,</sup><xref ref-type="bibr" rid="B63"><sup>63</sup></xref>, y muestran una organización del nacimiento ajustada a lógicas laborales e institucionales, y exponen de manera empírica cómo la cesárea opera como una tecnología que alinea los tiempos biológicos con los tiempos institucionales, integrando el nacimiento a la racionalidad organizacional de los establecimientos de salud, pero también a las demandas (laborales y subjetivas) de las personas gestantes<xref ref-type="bibr" rid="B63"><sup>63</sup></xref><sup>,</sup><xref ref-type="bibr" rid="B64"><sup>64</sup></xref>. </p>
+			<p>En contraposición a una mirada que concibe a las personas gestantes como actores pasivos de sus propios partos<xref ref-type="bibr" rid="B65"><sup>65</sup></xref>, entendemos que la biopolítica del nacimiento atraviesa a todo el cuerpo social. En <italic>Microfísica del poder</italic>, Foucault señala que las relaciones de poder pueden “penetrar materialmente en el espesor mismo de los cuerpos sin que la representación de los sujetos tenga que relevarlas”<xref ref-type="bibr" rid="B66"><sup>66</sup></xref>. La expansión de la cesárea participa así de relaciones de poder y de la producción de una subjetividad social compartida, en la que la cesárea no se impone, sino que construye un escenario donde elegirla aparece como una decisión racional, técnicamente neutra y moralmente correcta.</p>
+			<p>En términos de Foucault, la biopolítica opera un poder-saber que transforma la vida humana<xref ref-type="bibr" rid="B21"><sup>21</sup></xref>. Así, el poder-saber de la medicina pone en acción mecanismos de transformación del parto y administración del cuerpo que envuelven a otros agentes, como los proveedores sanitarios, que reciben incentivos para emplear tecnologías sanitarias que proporcionan un monitoreo e intervención constante, lo que da lugar a la medicalización del embarazo y el parto<xref ref-type="bibr" rid="B16"><sup>16</sup></xref><sup>,</sup><xref ref-type="bibr" rid="B67"><sup>67</sup></xref> impulsada, además, por la mercantilización de la salud y por los intereses económicos sobre la salud<xref ref-type="bibr" rid="B68"><sup>68</sup></xref>. Esas articulaciones le permiten a la racionalidad médica relegar a un segundo plano la dimensión cuidadora de la persona gestante y el niño por nacer<xref ref-type="bibr" rid="B69"><sup>69</sup></xref>, y producir una experiencia tecnificada y medicalizada del parto que, en algunos casos, es interiorizada y exigida por las propias personas gestantes<xref ref-type="bibr" rid="B70"><sup>70</sup></xref> y, en otros, es atravesada como una experiencia indeseada, que fragmenta el cuerpo y los deseos de un parto humanizado<xref ref-type="bibr" rid="B71"><sup>71</sup></xref>. </p>
+			<p>Otro de los hallazgos es que las tasas más elevadas corresponden a personas gestantes de nivel educativo alto, lo que muestra cómo la cesárea se asocia históricamente a determinados capitales sociales y culturales, como también el uso del tiempo, el miedo al dolor, la reproducción de normas sociales<xref ref-type="bibr" rid="B67"><sup>67</sup></xref> o la percepción de calidad asistencial<xref ref-type="bibr" rid="B72"><sup>72</sup></xref>; mientras que el avance progresivo en los niveles educativos bajos sugiere que se va ampliando su alcance y normalización en distintos grupos sociales. </p>
+			<p>El incremento de las cesáreas en Neuquén, con tasas históricamente más elevadas en el subsector privado, pero con un incremento proporcionalmente mayor en el subsector público en los últimos años, indica que no se trata de una práctica restringida a un modelo de financiamiento específico, sino de una lógica transversal de gobierno del nacimiento, que atraviesa diferentes regímenes institucionales. La mayor aceleración en el sector público en los últimos años sugiere, además, una creciente convergencia de racionalidades asistenciales, que ha sido identificada también en Brasil, en el marco del Sistema Único de Salud<xref ref-type="bibr" rid="B24"><sup>24</sup></xref><sup>,</sup><xref ref-type="bibr" rid="B26"><sup>26</sup></xref><sup>,</sup><xref ref-type="bibr" rid="B73"><sup>73</sup></xref><sup>,</sup><xref ref-type="bibr" rid="B74"><sup>74</sup></xref>.</p>
+			<p>Finalmente, el aumento de las cesáreas entre personas gestantes más jóvenes y la persistencia de tasas elevadas aun en contextos con políticas explícitas de parto respetado y humanización de la atención<xref ref-type="bibr" rid="B26"><sup>26</sup></xref> refuerzan la idea de que la biopolítica del nacimiento no opera principalmente por imposición, sino por producción de consentimiento y de subjetividades. </p>
+			<p>En conjunto, los resultados analizados permiten sostener que la cesárea, lejos de ser únicamente una respuesta clínica a situaciones de riesgo, funciona como una tecnología biopolítica que no solo no elimina el riesgo, sino que lo produce como categoría de intervención. En este sentido, López <italic>et al</italic>. señalan que, incluso en el marco del Sistema Único de Salud (SUS) de Brasil, donde la humanización ha sido definida como una perspectiva orientadora de las políticas públicas brasileñas, “el parto por cesárea es construido como la alternativa más ‘segura’ frente a los ‘riesgos’ del parto vaginal”<xref ref-type="bibr" rid="B73"><sup>73</sup></xref>. </p>
+			<p>Desde esta perspectiva, la cesárea aparece como una tecnología central de la biopolítica del nacimiento, al permitir traducir la variabilidad del parto en procedimientos compatibles con las lógicas organizacionales del campo de la salud, aun en contextos donde existen políticas explícitas de promoción del parto respetado, como es el caso de la provincia del Neuquén.</p>
+			<p>Como limitaciones, podemos resaltar, entre otras, la falta de datos sobre etnia en los registros de nacimientos vivos, situación que se repite en otros registros oficiales de nuestro país, silenciando e invisibilizando diferencias étnicas que puedan dar cuenta de brechas de acceso y desigualdades sanitarias. </p>
+		</sec>
+		<sec sec-type="conclusions">
+			<title>Conclusiones</title>
+			<p>Los resultados muestran que en los 27 años que transcurrieron entre 1995 y 2022, la tasa de cesáreas en Neuquén tuvo un incremento relativo del 150% respecto al valor inicial, en paralelo con un marcado descenso de la natalidad y de la mortalidad infantil. El crecimiento de las cesáreas parece vincularse con transformaciones más profundas en las prácticas asistenciales y en las formas de organización institucional del nacimiento, que exceden el plano estrictamente clínico. </p>
+			<p>El análisis muestra, además, que las cesáreas se distribuyen de manera diferencial según variables sociodemográficas e institucionales, con mayores prevalencias entre personas gestantes de mayor nivel educativo, y en edades maternas más avanzadas. Asimismo, la concentración de cesáreas en días hábiles y horarios diurnos evidencia que el nacimiento se organiza según lógicas institucionales y laborales que tienden a producir previsibilidad en un proceso biológico caracterizado por su incertidumbre. </p>
+			<p>Desde la biopolítica del nacimiento, los resultados permiten interpretar la expansión de las cesáreas como parte de un proceso más amplio de regulación y normalización de las formas de nacer. En este sentido, la cesárea se configura como una tecnología que contribuye a producir previsibilidad y establecer estándares implícitos sobre cuándo y cómo debe ocurrir el nacimiento. Más que una respuesta exclusivamente clínica a situaciones de riesgo obstétrico, la cesárea aparece como un dispositivo que articula dimensiones médicas, organizacionales, sociales y simbólicas. </p>
+			<p>Finalmente, este estudio pone en evidencia que la articulación entre análisis epidemiológico y reflexión teórica abre una agenda orientada a comprender fenómenos sociales complejos, que exceden el plano estrictamente clínico, y abre caminos para comprender cómo los procesos poblacionales de salud se configuran en la intersección entre dinámicas biomédicas, racionalidades institucionales, intereses económicos y transformaciones sociales más amplias.</p>
+		</sec>
+	</body>
+	<back>
+		<ack>
+			<title>Agradecimientos</title>
+			<p>Agradecemos a la médica pediatra Mariana Casullo, jefa del servicio de Pediatría del Hospital Provincial Neuquén “Dr. Eduardo Castro Rendón”, por compartir el dato de la primera cesárea realizada en la provincia, dato que le aportó Alba Churrarin, quien ocupó diferentes cargos institucionales y docentes durante más de 30 años de servicio, entre ellos, jefa del Departamento de Enfermería del Hospital Provincial Neuquén “Dr. Eduardo Castro Rendón” (1970-2002), directora provincial de Enfermería de la Subsecretaría de Salud de Neuquén (1990-1991) (ver la entrevista realizada en el marco de la investigación Sistema de salud de la provincia de Neuquén, y publicada en el canal de Youtube del ISCo-UNLa: https://tinyurl.com/ynsur6nx).</p>
+		</ack>
+		<ref-list>
+			<title>Referencias bibliográficas</title>
+			<ref id="B1">
+				<label>1</label>
+				<mixed-citation>1. World Health Organization. Caesarean section rates continue to rise, amid growing inequalities in access [Internet]. 2021 [citado 26 nov 2025]. Disponible en: <comment>Disponible en: <ext-link ext-link-type="uri" xlink:href="https://tinyurl.com/42fst2cr">https://tinyurl.com/42fst2cr</ext-link>
+					</comment>
+				</mixed-citation>
+				<element-citation publication-type="webpage">
+					<person-group person-group-type="author">
+						<collab>World Health Organization</collab>
+					</person-group>
+					<source>Caesarean section rates continue to rise, amid growing inequalities in access</source>
+					<year>2021</year>
+					<date-in-citation content-type="access-date" iso-8601-date="2025-11-26">citado 26 nov 2025</date-in-citation>
+					<comment>Disponible en: <ext-link ext-link-type="uri" xlink:href="https://tinyurl.com/42fst2cr">https://tinyurl.com/42fst2cr</ext-link>
+					</comment>
+				</element-citation>
+			</ref>
+			<ref id="B2">
+				<label>2</label>
+				<mixed-citation>2. Organización Mundial de la Salud. Declaración de la OMS sobre tasas de cesárea [Internet]. 2015 [citado 20 nov 2025]. Disponible en: <comment>Disponible en: <ext-link ext-link-type="uri" xlink:href="https://tinyurl.com/6xnfd4j2">https://tinyurl.com/6xnfd4j2</ext-link>
+					</comment>
+				</mixed-citation>
+				<element-citation publication-type="book">
+					<person-group person-group-type="author">
+						<collab>Organización Mundial de la Salud</collab>
+					</person-group>
+					<source>Declaración de la OMS sobre tasas de cesárea</source>
+					<year>2015</year>
+					<date-in-citation content-type="access-date" iso-8601-date="2025-11-20">citado 20 nov 2025</date-in-citation>
+					<comment>Disponible en: <ext-link ext-link-type="uri" xlink:href="https://tinyurl.com/6xnfd4j2">https://tinyurl.com/6xnfd4j2</ext-link>
+					</comment>
+				</element-citation>
+			</ref>
+			<ref id="B3">
+				<label>3</label>
+				<mixed-citation>3. Tita ATN, Landon MB, Spong CY, Lai Y, Leveno KJ, Varner MW, et al. Timing of elective repeat cesarean delivery at term and neonatal outcomes. New England Journal of Medicine. 2009;360(2):111-120. doi: 10.1056/nejmoa0803267</mixed-citation>
+				<element-citation publication-type="journal">
+					<person-group person-group-type="author">
+						<name>
+							<surname>Tita</surname>
+							<given-names>ATN</given-names>
+						</name>
+						<name>
+							<surname>Landon</surname>
+							<given-names>MB</given-names>
+						</name>
+						<name>
+							<surname>Spong</surname>
+							<given-names>CY</given-names>
+						</name>
+						<name>
+							<surname>Lai</surname>
+							<given-names>Y</given-names>
+						</name>
+						<name>
+							<surname>Leveno</surname>
+							<given-names>KJ</given-names>
+						</name>
+						<name>
+							<surname>Varner</surname>
+							<given-names>MW</given-names>
+						</name>
+						<etal/>
+					</person-group>
+					<article-title>Timing of elective repeat cesarean delivery at term and neonatal outcomes</article-title>
+					<source>New England Journal of Medicine</source>
+					<year>2009</year>
+					<volume>360</volume>
+					<issue>2</issue>
+					<fpage>111</fpage>
+					<lpage>120</lpage>
+					<pub-id pub-id-type="doi">10.1056/nejmoa0803267</pub-id>
+				</element-citation>
+			</ref>
+			<ref id="B4">
+				<label>4</label>
+				<mixed-citation>4. March of Dimes, La Alianza, Safe the Children, Organización Mundial de la Salud. Nacidos demasiado pronto: Informe de Acción Global sobre Nacimientos Prematuros [Internet]. 2012 [citado 26 nov 2025]. Disponible en: <comment>Disponible en: <ext-link ext-link-type="uri" xlink:href="https://tinyurl.com/45k2zdj8">https://tinyurl.com/45k2zdj8</ext-link>
+					</comment>
+				</mixed-citation>
+				<element-citation publication-type="webpage">
+					<person-group person-group-type="author">
+						<collab>March of Dimes</collab>
+						<collab>La Alianza</collab>
+						<collab>Safe the Children</collab>
+						<collab>Organización Mundial de la Salud</collab>
+					</person-group>
+					<source>Nacidos demasiado pronto: Informe de Acción Global sobre Nacimientos Prematuros</source>
+					<year>2012</year>
+					<date-in-citation content-type="access-date" iso-8601-date="2025-11-26">citado 26 nov 2025</date-in-citation>
+					<comment>Disponible en: <ext-link ext-link-type="uri" xlink:href="https://tinyurl.com/45k2zdj8">https://tinyurl.com/45k2zdj8</ext-link>
+					</comment>
+				</element-citation>
+			</ref>
+			<ref id="B5">
+				<label>5</label>
+				<mixed-citation>5. Van Lieshout RJ, Boyle MH, Favotto L, Krzeczkowski JE, Savoy C, Saigal S, Schmidt LA. Impact of extremely low-birth-weight status on risk and resilience for depression and anxiety in adulthood. Journal of Child Psychology and Psychiatry, and Allied Disciplines. 2018;59(5):596-603. doi: 10.1111/jcpp.12826</mixed-citation>
+				<element-citation publication-type="journal">
+					<person-group person-group-type="author">
+						<name>
+							<surname>Van Lieshout</surname>
+							<given-names>RJ</given-names>
+						</name>
+						<name>
+							<surname>Boyle</surname>
+							<given-names>MH</given-names>
+						</name>
+						<name>
+							<surname>Favotto</surname>
+							<given-names>L</given-names>
+						</name>
+						<name>
+							<surname>Krzeczkowski</surname>
+							<given-names>JE</given-names>
+						</name>
+						<name>
+							<surname>Savoy</surname>
+							<given-names>C</given-names>
+						</name>
+						<name>
+							<surname>Saigal</surname>
+							<given-names>S</given-names>
+						</name>
+						<name>
+							<surname>Schmidt</surname>
+							<given-names>LA</given-names>
+						</name>
+					</person-group>
+					<article-title>Impact of extremely low-birth-weight status on risk and resilience for depression and anxiety in adulthood</article-title>
+					<source>Journal of Child Psychology and Psychiatry, and Allied Disciplines</source>
+					<year>2018</year>
+					<volume>59</volume>
+					<issue>5</issue>
+					<fpage>596</fpage>
+					<lpage>603</lpage>
+					<pub-id pub-id-type="doi">10.1111/jcpp.12826</pub-id>
+				</element-citation>
+			</ref>
+			<ref id="B6">
+				<label>6</label>
+				<mixed-citation>6. Taylor HG, Klein N, Anselmo MG, Minich N, Espy KA, Hack M. Learning problems in kindergarten students with extremely preterm birth. Archives of Pediatrics &amp; Adolescent Medicine. 2011;165(9):819-825. doi: 10.1001/archpediatrics.2011.137</mixed-citation>
+				<element-citation publication-type="journal">
+					<person-group person-group-type="author">
+						<name>
+							<surname>Taylor</surname>
+							<given-names>HG</given-names>
+						</name>
+						<name>
+							<surname>Klein</surname>
+							<given-names>N</given-names>
+						</name>
+						<name>
+							<surname>Anselmo</surname>
+							<given-names>MG</given-names>
+						</name>
+						<name>
+							<surname>Minich</surname>
+							<given-names>N</given-names>
+						</name>
+						<name>
+							<surname>Espy</surname>
+							<given-names>KA</given-names>
+						</name>
+						<name>
+							<surname>Hack</surname>
+							<given-names>M</given-names>
+						</name>
+					</person-group>
+					<article-title>Learning problems in kindergarten students with extremely preterm birth</article-title>
+					<source>Archives of Pediatrics &amp; Adolescent Medicine</source>
+					<year>2011</year>
+					<volume>165</volume>
+					<issue>9</issue>
+					<fpage>819</fpage>
+					<lpage>825</lpage>
+					<pub-id pub-id-type="doi">10.1001/archpediatrics.2011.137</pub-id>
+				</element-citation>
+			</ref>
+			<ref id="B7">
+				<label>7</label>
+				<mixed-citation>7. Kelly MM, Brace M. Cardiovascular risk emerges earlier by birth weight and preterm birth status in the United States Add Health sample. International Jounal of Cardiology. 2025;15:423:132994. doi: 10.1016/j.ijcard.2025.132994.</mixed-citation>
+				<element-citation publication-type="journal">
+					<person-group person-group-type="author">
+						<name>
+							<surname>Kelly</surname>
+							<given-names>MM</given-names>
+						</name>
+						<name>
+							<surname>Brace</surname>
+							<given-names>M</given-names>
+						</name>
+					</person-group>
+					<article-title>Cardiovascular risk emerges earlier by birth weight and preterm birth status in the United States Add Health sample</article-title>
+					<source>International Jounal of Cardiology</source>
+					<year>2025</year>
+					<volume>15</volume>
+					<fpage>423</fpage>
+					<lpage>423</lpage>
+					<pub-id pub-id-type="doi">10.1016/j.ijcard.2025.132994</pub-id>
+				</element-citation>
+			</ref>
+			<ref id="B8">
+				<label>8</label>
+				<mixed-citation>8. Been JV, Lugtenberg MJ, Smets E, van Schayck CP, Kramer BW, Mommers M, Sheikh A. Preterm birth and childhood wheezing disorders: A systematic review and meta-analysis. Plos Medicine. 2014;11(1):e1001596. 10.1371/journal.pmed.1001596</mixed-citation>
+				<element-citation publication-type="journal">
+					<person-group person-group-type="author">
+						<name>
+							<surname>Been</surname>
+							<given-names>JV</given-names>
+						</name>
+						<name>
+							<surname>Lugtenberg</surname>
+							<given-names>MJ</given-names>
+						</name>
+						<name>
+							<surname>Smets</surname>
+							<given-names>E</given-names>
+						</name>
+						<name>
+							<surname>van Schayck</surname>
+							<given-names>CP</given-names>
+						</name>
+						<name>
+							<surname>Kramer</surname>
+							<given-names>BW</given-names>
+						</name>
+						<name>
+							<surname>Mommers</surname>
+							<given-names>M</given-names>
+						</name>
+						<name>
+							<surname>Sheikh</surname>
+							<given-names>A</given-names>
+						</name>
+					</person-group>
+					<article-title>Preterm birth and childhood wheezing disorders: A systematic review and meta-analysis</article-title>
+					<source>Plos Medicine</source>
+					<year>2014</year>
+					<volume>11</volume>
+					<issue>1</issue>
+					<elocation-id>e1001596</elocation-id>
+					<pub-id pub-id-type="doi">10.1371/journal.pmed.1001596</pub-id>
+				</element-citation>
+			</ref>
+			<ref id="B9">
+				<label>9</label>
+				<mixed-citation>9. Gupta MP. Review on childhood obesity: Discussing effects of gestational age at birth and spotting association of postterm birth with childhood obesity. International Journal of Innovative Science and Research Technology. 2024;9(5):8-17. doi: 10.38124/ijisrt/IJISRT24MAY162</mixed-citation>
+				<element-citation publication-type="journal">
+					<person-group person-group-type="author">
+						<name>
+							<surname>Gupta</surname>
+							<given-names>MP</given-names>
+						</name>
+					</person-group>
+					<article-title>Review on childhood obesity: Discussing effects of gestational age at birth and spotting association of postterm birth with childhood obesity</article-title>
+					<source>International Journal of Innovative Science and Research Technology</source>
+					<year>2024</year>
+					<volume>9</volume>
+					<issue>5</issue>
+					<fpage>8</fpage>
+					<lpage>17</lpage>
+					<pub-id pub-id-type="doi">10.38124/ijisrt/IJISRT24MAY162</pub-id>
+				</element-citation>
+			</ref>
+			<ref id="B10">
+				<label>10</label>
+				<mixed-citation>10. Betran AP, Ye J, Moller AB, Souza JP, Zhang J. Trends and projections of caesarean section rates: global and regional estimates. BMJ Global Health. 2021;6(6):e005671. doi: 10.1136/bmjgh-2021-005671</mixed-citation>
+				<element-citation publication-type="journal">
+					<person-group person-group-type="author">
+						<name>
+							<surname>Betran</surname>
+							<given-names>AP</given-names>
+						</name>
+						<name>
+							<surname>Ye</surname>
+							<given-names>J</given-names>
+						</name>
+						<name>
+							<surname>Moller</surname>
+							<given-names>AB</given-names>
+						</name>
+						<name>
+							<surname>Souza</surname>
+							<given-names>JP</given-names>
+						</name>
+						<name>
+							<surname>Zhang</surname>
+							<given-names>J</given-names>
+						</name>
+					</person-group>
+					<article-title>Trends and projections of caesarean section rates: global and regional estimates</article-title>
+					<source>BMJ Global Health</source>
+					<year>2021</year>
+					<volume>6</volume>
+					<issue>6</issue>
+					<elocation-id>e005671</elocation-id>
+					<pub-id pub-id-type="doi">10.1136/bmjgh-2021-005671</pub-id>
+				</element-citation>
+			</ref>
+			<ref id="B11">
+				<label>11</label>
+				<mixed-citation>11. Wu ML, Nichols PM, Cormick G, Betran AP, Gibbons L, Belizan JM. Global inequities in cesarean section deliveries and required resources persist. European Journal of Obstetrics and Gynecology and Reproductive Biology. 2023;285:31-40. doi: 10.1016/j.ejogrb.2023.03.036</mixed-citation>
+				<element-citation publication-type="journal">
+					<person-group person-group-type="author">
+						<name>
+							<surname>Wu</surname>
+							<given-names>ML</given-names>
+						</name>
+						<name>
+							<surname>Nichols</surname>
+							<given-names>PM</given-names>
+						</name>
+						<name>
+							<surname>Cormick</surname>
+							<given-names>G</given-names>
+						</name>
+						<name>
+							<surname>Betran</surname>
+							<given-names>AP</given-names>
+						</name>
+						<name>
+							<surname>Gibbons</surname>
+							<given-names>L</given-names>
+						</name>
+						<name>
+							<surname>Belizan</surname>
+							<given-names>JM</given-names>
+						</name>
+					</person-group>
+					<article-title>Global inequities in cesarean section deliveries and required resources persist</article-title>
+					<source>European Journal of Obstetrics and Gynecology and Reproductive Biology</source>
+					<year>2023</year>
+					<volume>285</volume>
+					<fpage>31</fpage>
+					<lpage>40</lpage>
+					<pub-id pub-id-type="doi">10.1016/j.ejogrb.2023.03.036</pub-id>
+				</element-citation>
+			</ref>
+			<ref id="B12">
+				<label>12</label>
+				<mixed-citation>12. Belizán JM, Althabe F, Barros FC, Alexander S. Rates and implications of caesarean sections in Latin America: ecological study. BMJ. 1999;319(7222):1397-1402. doi: 10.1136/bmj.319.7222.1397</mixed-citation>
+				<element-citation publication-type="journal">
+					<person-group person-group-type="author">
+						<name>
+							<surname>Belizán</surname>
+							<given-names>JM</given-names>
+						</name>
+						<name>
+							<surname>Althabe</surname>
+							<given-names>F</given-names>
+						</name>
+						<name>
+							<surname>Barros</surname>
+							<given-names>FC</given-names>
+						</name>
+						<name>
+							<surname>Alexander</surname>
+							<given-names>S</given-names>
+						</name>
+					</person-group>
+					<article-title>Rates and implications of caesarean sections in Latin America: ecological study</article-title>
+					<source>BMJ</source>
+					<year>1999</year>
+					<volume>319</volume>
+					<issue>7222</issue>
+					<fpage>1397</fpage>
+					<lpage>1402</lpage>
+					<pub-id pub-id-type="doi">10.1136/bmj.319.7222.1397</pub-id>
+				</element-citation>
+			</ref>
+			<ref id="B13">
+				<label>13</label>
+				<mixed-citation>13. Barros FC, Vaughan JP, Victora CG. Why so many caesarean sections? The need for a further policy change in Brazil. Health Policy and Planning. 1986;1(1):19-29. doi: 10.1093/heapol/1.1.19</mixed-citation>
+				<element-citation publication-type="journal">
+					<person-group person-group-type="author">
+						<name>
+							<surname>Barros</surname>
+							<given-names>FC</given-names>
+						</name>
+						<name>
+							<surname>Vaughan</surname>
+							<given-names>JP</given-names>
+						</name>
+						<name>
+							<surname>Victora</surname>
+							<given-names>CG</given-names>
+						</name>
+					</person-group>
+					<article-title>Why so many caesarean sections? The need for a further policy change in Brazil</article-title>
+					<source>Health Policy and Planning</source>
+					<year>1986</year>
+					<volume>1</volume>
+					<issue>1</issue>
+					<fpage>19</fpage>
+					<lpage>29</lpage>
+					<pub-id pub-id-type="doi">10.1093/heapol/1.1.19</pub-id>
+				</element-citation>
+			</ref>
+			<ref id="B14">
+				<label>14</label>
+				<mixed-citation>14. Marmitt LP, Machado AKF, Cesar JA. Recent trends in cesarean section reduction in extreme south of Brazil: a reality only in the public sector? Ciência &amp; Saúde Coletiva. 2022;27(8):3307. doi: 10.1590/1413-81232022278.05742022</mixed-citation>
+				<element-citation publication-type="journal">
+					<person-group person-group-type="author">
+						<name>
+							<surname>Marmitt</surname>
+							<given-names>LP</given-names>
+						</name>
+						<name>
+							<surname>Machado</surname>
+							<given-names>AKF</given-names>
+						</name>
+						<name>
+							<surname>Cesar</surname>
+							<given-names>JA</given-names>
+						</name>
+					</person-group>
+					<article-title>Recent trends in cesarean section reduction in extreme south of Brazil: a reality only in the public sector?</article-title>
+					<source>Ciência &amp; Saúde Coletiva</source>
+					<year>2022</year>
+					<volume>27</volume>
+					<issue>8</issue>
+					<fpage>3307</fpage>
+					<lpage>3307</lpage>
+					<pub-id pub-id-type="doi">10.1590/1413-81232022278.05742022</pub-id>
+				</element-citation>
+			</ref>
+			<ref id="B15">
+				<label>15</label>
+				<mixed-citation>15. Rocha JSY, Ortiz PC, Tai Fung Y. La incidencia de cesáreas y la remuneración de la asistencia prestadas durante el parto. En: Investigaciones sobre servicios de salud: una antología. Washington DC: OPS; 1992. p. 1002-1008. (Publicación Científica No. 534).</mixed-citation>
+				<element-citation publication-type="book">
+					<person-group person-group-type="author">
+						<name>
+							<surname>Rocha</surname>
+							<given-names>JSY</given-names>
+						</name>
+						<name>
+							<surname>Ortiz</surname>
+							<given-names>PC</given-names>
+						</name>
+						<name>
+							<surname>Tai Fung</surname>
+							<given-names>Y</given-names>
+						</name>
+					</person-group>
+					<chapter-title>La incidencia de cesáreas y la remuneración de la asistencia prestadas durante el parto</chapter-title>
+					<source>Investigaciones sobre servicios de salud: una antología</source>
+					<publisher-loc>Washington DC</publisher-loc>
+					<publisher-name>OPS</publisher-name>
+					<year>1992</year>
+					<fpage>1002</fpage>
+					<lpage>1008</lpage>
+				</element-citation>
+			</ref>
+			<ref id="B16">
+				<label>16</label>
+				<mixed-citation>16. Rosemberg P, Alazraqui M, Spinelli H. “Las atendemos de lunes a viernes”: nacimientos según días de la semana en la Ciudad Autónoma de Buenos Aires, 2004-2013. Salud Colectiva. 2020;16:e3079. doi: 10.18294/sc.2020.3079</mixed-citation>
+				<element-citation publication-type="journal">
+					<person-group person-group-type="author">
+						<name>
+							<surname>Rosemberg</surname>
+							<given-names>P</given-names>
+						</name>
+						<name>
+							<surname>Alazraqui</surname>
+							<given-names>M</given-names>
+						</name>
+						<name>
+							<surname>Spinelli</surname>
+							<given-names>H</given-names>
+						</name>
+					</person-group>
+					<article-title>“Las atendemos de lunes a viernes”: nacimientos según días de la semana en la Ciudad Autónoma de Buenos Aires, 2004-2013</article-title>
+					<source>Salud Colectiva</source>
+					<year>2020</year>
+					<volume>16</volume>
+					<elocation-id>e3079</elocation-id>
+					<pub-id pub-id-type="doi">10.18294/sc.2020.3079</pub-id>
+				</element-citation>
+			</ref>
+			<ref id="B17">
+				<label>17</label>
+				<mixed-citation>17. Perner MS, Ortigoza A, Trotta A, Yamada G, Braverman Bronstein A, Friche AA, et al. Cesarean sections and social inequalities in 305 cities of Latin America. SSM - Population Health. 2022;19:101239. doi: 10.1016/j.ssmph.2022.101239</mixed-citation>
+				<element-citation publication-type="journal">
+					<person-group person-group-type="author">
+						<name>
+							<surname>Perner</surname>
+							<given-names>MS</given-names>
+						</name>
+						<name>
+							<surname>Ortigoza</surname>
+							<given-names>A</given-names>
+						</name>
+						<name>
+							<surname>Trotta</surname>
+							<given-names>A</given-names>
+						</name>
+						<name>
+							<surname>Yamada</surname>
+							<given-names>G</given-names>
+						</name>
+						<name>
+							<surname>Braverman Bronstein</surname>
+							<given-names>A</given-names>
+						</name>
+						<name>
+							<surname>Friche</surname>
+							<given-names>AA</given-names>
+						</name>
+						<etal/>
+					</person-group>
+					<article-title>Cesarean sections and social inequalities in 305 cities of Latin America</article-title>
+					<source>SSM - Population Health</source>
+					<year>2022</year>
+					<volume>19</volume>
+					<fpage>101239</fpage>
+					<lpage>101239</lpage>
+					<pub-id pub-id-type="doi">10.1016/j.ssmph.2022.101239</pub-id>
+				</element-citation>
+			</ref>
+			<ref id="B18">
+				<label>18</label>
+				<mixed-citation>18. Gregory KD, Jackson S, Korst L, Fridman M. Cesarean versus vaginal delivery: whose risks? Whose benefits? American Journal of Perinatology. 2012;29(1):7-18. doi: 10.1055/s-0031-1285829</mixed-citation>
+				<element-citation publication-type="journal">
+					<person-group person-group-type="author">
+						<name>
+							<surname>Gregory</surname>
+							<given-names>KD</given-names>
+						</name>
+						<name>
+							<surname>Jackson</surname>
+							<given-names>S</given-names>
+						</name>
+						<name>
+							<surname>Korst</surname>
+							<given-names>L</given-names>
+						</name>
+						<name>
+							<surname>Fridman</surname>
+							<given-names>M</given-names>
+						</name>
+					</person-group>
+					<article-title>Cesarean versus vaginal delivery: whose risks? Whose benefits?</article-title>
+					<source>American Journal of Perinatology</source>
+					<year>2012</year>
+					<volume>29</volume>
+					<issue>1</issue>
+					<fpage>7</fpage>
+					<lpage>18</lpage>
+					<pub-id pub-id-type="doi">10.1055/s-0031-1285829</pub-id>
+				</element-citation>
+			</ref>
+			<ref id="B19">
+				<label>19</label>
+				<mixed-citation>19. Silva AAM, Silva LM, Barbieri MA, Bettiol H, Carvalho LM, Ribeiro VS, et al. The epidemiologic paradox of low birth weight in Brazil. Revista de Saúde Pública. 2010;44:767-775. doi: 10.1590/s0034-89102010005000033</mixed-citation>
+				<element-citation publication-type="journal">
+					<person-group person-group-type="author">
+						<name>
+							<surname>Silva</surname>
+							<given-names>AAM</given-names>
+						</name>
+						<name>
+							<surname>Silva</surname>
+							<given-names>LM</given-names>
+						</name>
+						<name>
+							<surname>Barbieri</surname>
+							<given-names>MA</given-names>
+						</name>
+						<name>
+							<surname>Bettiol</surname>
+							<given-names>H</given-names>
+						</name>
+						<name>
+							<surname>Carvalho</surname>
+							<given-names>LM</given-names>
+						</name>
+						<name>
+							<surname>Ribeiro</surname>
+							<given-names>VS</given-names>
+						</name>
+						<etal/>
+					</person-group>
+					<article-title>The epidemiologic paradox of low birth weight in Brazil</article-title>
+					<source>Revista de Saúde Pública</source>
+					<year>2010</year>
+					<volume>44</volume>
+					<fpage>767</fpage>
+					<lpage>775</lpage>
+					<pub-id pub-id-type="doi">10.1590/s0034-89102010005000033</pub-id>
+				</element-citation>
+			</ref>
+			<ref id="B20">
+				<label>20</label>
+				<mixed-citation>20. Souza J, Gülmezoglu A, Lumbiganon P, Laopaiboon M, Carroli G, Fawole B, et al. Caesarean section without medical indications is associated with an increased risk of adverse short-term maternal outcomes: the 2004-2008 WHO Global Survey on Maternal and Perinatal Health. BMC Medicine. 2010;8:71. doi: 10.1186/1741-7015-8-71</mixed-citation>
+				<element-citation publication-type="journal">
+					<person-group person-group-type="author">
+						<name>
+							<surname>Souza</surname>
+							<given-names>J</given-names>
+						</name>
+						<name>
+							<surname>Gülmezoglu</surname>
+							<given-names>A</given-names>
+						</name>
+						<name>
+							<surname>Lumbiganon</surname>
+							<given-names>P</given-names>
+						</name>
+						<name>
+							<surname>Laopaiboon</surname>
+							<given-names>M</given-names>
+						</name>
+						<name>
+							<surname>Carroli</surname>
+							<given-names>G</given-names>
+						</name>
+						<name>
+							<surname>Fawole</surname>
+							<given-names>B</given-names>
+						</name>
+						<etal/>
+					</person-group>
+					<article-title>Caesarean section without medical indications is associated with an increased risk of adverse short-term maternal outcomes: the 2004-2008 WHO Global Survey on Maternal and Perinatal Health</article-title>
+					<source>BMC Medicine</source>
+					<year>2010</year>
+					<volume>8</volume>
+					<fpage>71</fpage>
+					<lpage>71</lpage>
+					<pub-id pub-id-type="doi">10.1186/1741-7015-8-71</pub-id>
+				</element-citation>
+			</ref>
+			<ref id="B21">
+				<label>21</label>
+				<mixed-citation>21. Foucault M. Historia de la sexualidad: la voluntad de saber. Mexico: Siglo XXI Editores; 2011.</mixed-citation>
+				<element-citation publication-type="book">
+					<person-group person-group-type="author">
+						<name>
+							<surname>Foucault</surname>
+							<given-names>M</given-names>
+						</name>
+					</person-group>
+					<source>Historia de la sexualidad: la voluntad de saber</source>
+					<publisher-loc>Mexico</publisher-loc>
+					<publisher-name>Siglo XXI Editores</publisher-name>
+					<year>2011</year>
+				</element-citation>
+			</ref>
+			<ref id="B22">
+				<label>22</label>
+				<mixed-citation>22. Revel J. Diccionario Foucault. Buenos Aires: Nueva Visión; 2009.</mixed-citation>
+				<element-citation publication-type="book">
+					<person-group person-group-type="author">
+						<name>
+							<surname>Revel</surname>
+							<given-names>J</given-names>
+						</name>
+					</person-group>
+					<source>Diccionario Foucault</source>
+					<publisher-loc>Buenos Aires</publisher-loc>
+					<publisher-name>Nueva Visión</publisher-name>
+					<year>2009</year>
+				</element-citation>
+			</ref>
+			<ref id="B23">
+				<label>23</label>
+				<mixed-citation>23. Marcuse H. El hombre unidimensional. Barcelona: Ariel; 1984.</mixed-citation>
+				<element-citation publication-type="book">
+					<person-group person-group-type="author">
+						<name>
+							<surname>Marcuse</surname>
+							<given-names>H</given-names>
+						</name>
+					</person-group>
+					<source>El hombre unidimensional</source>
+					<publisher-loc>Barcelona</publisher-loc>
+					<publisher-name>Ariel</publisher-name>
+					<year>1984</year>
+				</element-citation>
+			</ref>
+			<ref id="B24">
+				<label>24</label>
+				<mixed-citation>24. Serra MCM, Batalha GFOM. Do poder disciplinar ao biopoder: medicalização do parto a partir da incidência de cesarianas. Revista de Gênero, Sexualidade e Direito. 2019;5(2):74-95. doi: 10.26668/2525-9849/Index_Law_Journals/2019.v5i2.5923</mixed-citation>
+				<element-citation publication-type="journal">
+					<person-group person-group-type="author">
+						<name>
+							<surname>Serra</surname>
+							<given-names>MCM</given-names>
+						</name>
+						<name>
+							<surname>Batalha</surname>
+							<given-names>GFOM</given-names>
+						</name>
+					</person-group>
+					<article-title>Do poder disciplinar ao biopoder: medicalização do parto a partir da incidência de cesarianas</article-title>
+					<source>Revista de Gênero, Sexualidade e Direito</source>
+					<year>2019</year>
+					<volume>5</volume>
+					<issue>2</issue>
+					<fpage>74</fpage>
+					<lpage>95</lpage>
+					<pub-id pub-id-type="doi">10.26668/2525-9849/Index_Law_Journals/2019.v5i2.5923</pub-id>
+				</element-citation>
+			</ref>
+			<ref id="B25">
+				<label>25</label>
+				<mixed-citation>25. Rodríguez-Garrido P. Violencia obstétrica capacitista hacia mujeres con discapacidad: Una revisión integradora de la literatura. Salud Colectiva. 2023;19:e4676. doi: 10.18294/sc.2023.4676</mixed-citation>
+				<element-citation publication-type="journal">
+					<person-group person-group-type="author">
+						<name>
+							<surname>Rodríguez-Garrido</surname>
+							<given-names>P</given-names>
+						</name>
+					</person-group>
+					<article-title>Violencia obstétrica capacitista hacia mujeres con discapacidad: Una revisión integradora de la literatura</article-title>
+					<source>Salud Colectiva</source>
+					<year>2023</year>
+					<volume>19</volume>
+					<elocation-id>e4676</elocation-id>
+					<pub-id pub-id-type="doi">10.18294/sc.2023.4676</pub-id>
+				</element-citation>
+			</ref>
+			<ref id="B26">
+				<label>26</label>
+				<mixed-citation>26. Warmling CM, Fajardo AP, Meyer DE, Bedos C. Práticas sociais de medicalização &amp; humanização no cuidado de mulheres na gestação. Cadernos de Saúde Pública. 2018;34:e00009917. doi: 10.1590/0102-311X00009917</mixed-citation>
+				<element-citation publication-type="journal">
+					<person-group person-group-type="author">
+						<name>
+							<surname>Warmling</surname>
+							<given-names>CM</given-names>
+						</name>
+						<name>
+							<surname>Fajardo</surname>
+							<given-names>AP</given-names>
+						</name>
+						<name>
+							<surname>Meyer</surname>
+							<given-names>DE</given-names>
+						</name>
+						<name>
+							<surname>Bedos</surname>
+							<given-names>C</given-names>
+						</name>
+					</person-group>
+					<article-title>Práticas sociais de medicalização &amp; humanização no cuidado de mulheres na gestação</article-title>
+					<source>Cadernos de Saúde Pública</source>
+					<year>2018</year>
+					<volume>34</volume>
+					<elocation-id>e00009917</elocation-id>
+					<pub-id pub-id-type="doi">10.1590/0102-311X00009917</pub-id>
+				</element-citation>
+			</ref>
+			<ref id="B27">
+				<label>27</label>
+				<mixed-citation>27. Rose N. Políticas de la vida: Biomedicina, poder y subjetividad en el siglo XXI. La Plata: UNIPE; 2012.</mixed-citation>
+				<element-citation publication-type="book">
+					<person-group person-group-type="author">
+						<name>
+							<surname>Rose</surname>
+							<given-names>N</given-names>
+						</name>
+					</person-group>
+					<source>Políticas de la vida: Biomedicina, poder y subjetividad en el siglo XXI</source>
+					<publisher-loc>La Plata</publisher-loc>
+					<publisher-name>UNIPE</publisher-name>
+					<year>2012</year>
+				</element-citation>
+			</ref>
+			<ref id="B28">
+				<label>28</label>
+				<mixed-citation>28. Chipkin J. La cesárea y el parto natural: las opiniones de profesionales de la salud en la provincia de Buenos Aires / Cesarean section and natural birth: the opinions of health provinces in the province of Buenos Aires. Independent Study Project (ISP) Collection [Internet]. 2014 [citado 10 may 2025]. Disponible en: <comment>Disponible en: <ext-link ext-link-type="uri" xlink:href="https://tinyurl.com/4r9u7vwt">https://tinyurl.com/4r9u7vwt</ext-link>
+					</comment>
+				</mixed-citation>
+				<element-citation publication-type="webpage">
+					<person-group person-group-type="author">
+						<name>
+							<surname>Chipkin</surname>
+							<given-names>J</given-names>
+						</name>
+					</person-group>
+					<source>La cesárea y el parto natural: las opiniones de profesionales de la salud en la provincia de Buenos Aires / Cesarean section and natural birth: the opinions of health provinces in the province of Buenos Aires. Independent Study Project (ISP) Collection</source>
+					<year>2014</year>
+					<date-in-citation content-type="access-date" iso-8601-date="2025-05-10">citado 10 may 2025</date-in-citation>
+					<comment>Disponible en: <ext-link ext-link-type="uri" xlink:href="https://tinyurl.com/4r9u7vwt">https://tinyurl.com/4r9u7vwt</ext-link>
+					</comment>
+				</element-citation>
+			</ref>
+			<ref id="B29">
+				<label>29</label>
+				<mixed-citation>29. Castro RP, Martínez SF. Violencia obstétrica y ciencias sociales [Internet]. 2022 [citado 3 mar 2025]. Disponible en: <comment>Disponible en: <ext-link ext-link-type="uri" xlink:href="https://tinyurl.com/47p2fex5">https://tinyurl.com/47p2fex5</ext-link>
+					</comment>
+				</mixed-citation>
+				<element-citation publication-type="webpage">
+					<person-group person-group-type="author">
+						<name>
+							<surname>Castro</surname>
+							<given-names>RP</given-names>
+						</name>
+						<name>
+							<surname>Martínez</surname>
+							<given-names>SF</given-names>
+						</name>
+					</person-group>
+					<source>Violencia obstétrica y ciencias sociales</source>
+					<year>2022</year>
+					<date-in-citation content-type="access-date" iso-8601-date="2025-03-03">citado 3 mar 2025</date-in-citation>
+					<comment>Disponible en: <ext-link ext-link-type="uri" xlink:href="https://tinyurl.com/47p2fex5">https://tinyurl.com/47p2fex5</ext-link>
+					</comment>
+				</element-citation>
+			</ref>
+			<ref id="B30">
+				<label>30</label>
+				<mixed-citation>30. Argentina, Instituto Nacional de Estadística y Censos. Censo Nacional de Población, Hogares y Viviendas 2022. Población indígena o descendiente de pueblos indígenas u originarios [Internet]. 2024 [citado 10 may 2025]. Disponible en: <comment>Disponible en: <ext-link ext-link-type="uri" xlink:href="https://tinyurl.com/muh77c78">https://tinyurl.com/muh77c78</ext-link>
+					</comment>
+				</mixed-citation>
+				<element-citation publication-type="webpage">
+					<person-group person-group-type="author">
+						<collab>Argentina, Instituto Nacional de Estadística y Censos</collab>
+					</person-group>
+					<source>Censo Nacional de Población, Hogares y Viviendas 2022. Población indígena o descendiente de pueblos indígenas u originarios</source>
+					<year>2024</year>
+					<date-in-citation content-type="access-date" iso-8601-date="2025-05-10">citado 10 may 2025</date-in-citation>
+					<comment>Disponible en: <ext-link ext-link-type="uri" xlink:href="https://tinyurl.com/muh77c78">https://tinyurl.com/muh77c78</ext-link>
+					</comment>
+				</element-citation>
+			</ref>
+			<ref id="B31">
+				<label>31</label>
+				<mixed-citation>31. Gobierno de la Provincia de Neuquén. El Centro de Salud Intercultural Raguiñ Kien a un año de su apertura [Internet]. 2022 [citado 26 nov 2025]. Disponible en: <comment>Disponible en: <ext-link ext-link-type="uri" xlink:href="https://tinyurl.com/y8vyuhvs">https://tinyurl.com/y8vyuhvs</ext-link>
+					</comment>
+				</mixed-citation>
+				<element-citation publication-type="webpage">
+					<person-group person-group-type="author">
+						<collab>Gobierno de la Provincia de Neuquén</collab>
+					</person-group>
+					<source>El Centro de Salud Intercultural Raguiñ Kien a un año de su apertura</source>
+					<year>2022</year>
+					<date-in-citation content-type="access-date" iso-8601-date="2025-11-26">citado 26 nov 2025</date-in-citation>
+					<comment>Disponible en: <ext-link ext-link-type="uri" xlink:href="https://tinyurl.com/y8vyuhvs">https://tinyurl.com/y8vyuhvs</ext-link>
+					</comment>
+				</element-citation>
+			</ref>
+			<ref id="B32">
+				<label>32</label>
+				<mixed-citation>32. Alarcón AM, Nahuelcheo YS. Creencias sobre el embarazo, parto y puerperio en la mujer mapuche: conversaciones privadas. Chungará (Arica). 2008;40(2):193-202. doi: 10.4067/S0717-73562008000200007</mixed-citation>
+				<element-citation publication-type="journal">
+					<person-group person-group-type="author">
+						<name>
+							<surname>Alarcón</surname>
+							<given-names>AM</given-names>
+						</name>
+						<name>
+							<surname>Nahuelcheo</surname>
+							<given-names>YS</given-names>
+						</name>
+					</person-group>
+					<article-title>Creencias sobre el embarazo, parto y puerperio en la mujer mapuche: conversaciones privadas</article-title>
+					<source>Chungará (Arica)</source>
+					<year>2008</year>
+					<volume>40</volume>
+					<issue>2</issue>
+					<fpage>193</fpage>
+					<lpage>202</lpage>
+					<pub-id pub-id-type="doi">10.4067/S0717-73562008000200007</pub-id>
+				</element-citation>
+			</ref>
+			<ref id="B33">
+				<label>33</label>
+				<mixed-citation>33. Argentina, Ministerio de Salud. Centro de Salud Intercultural Ruca Choroi Ragniñ Kien - Ministerio de Salud de la Provincia del Neuquén [Internet]. 2024 [citado 14 jul 2025]. Disponible en: <comment>Disponible en: <ext-link ext-link-type="uri" xlink:href="https://tinyurl.com/7hdjuzvm">https://tinyurl.com/7hdjuzvm</ext-link>
+					</comment>
+				</mixed-citation>
+				<element-citation publication-type="webpage">
+					<person-group person-group-type="author">
+						<collab>Argentina, Ministerio de Salud</collab>
+					</person-group>
+					<source>Centro de Salud Intercultural Ruca Choroi Ragniñ Kien - Ministerio de Salud de la Provincia del Neuquén</source>
+					<year>2024</year>
+					<date-in-citation content-type="access-date" iso-8601-date="2025-07-14">citado 14 jul 2025</date-in-citation>
+					<comment>Disponible en: <ext-link ext-link-type="uri" xlink:href="https://tinyurl.com/7hdjuzvm">https://tinyurl.com/7hdjuzvm</ext-link>
+					</comment>
+				</element-citation>
+			</ref>
+			<ref id="B34">
+				<label>34</label>
+				<mixed-citation>34. Feltri AA, Arakaki J, Justo LF, Maglio F, Pichún FJ, Rosenberg MI, et al. Salud reproductiva e interculturalidad. Salud Colectiva. 2006;2(3):299-316. doi: 10.18294/sc.2006.75</mixed-citation>
+				<element-citation publication-type="journal">
+					<person-group person-group-type="author">
+						<name>
+							<surname>Feltri</surname>
+							<given-names>AA</given-names>
+						</name>
+						<name>
+							<surname>Arakaki</surname>
+							<given-names>J</given-names>
+						</name>
+						<name>
+							<surname>Justo</surname>
+							<given-names>LF</given-names>
+						</name>
+						<name>
+							<surname>Maglio</surname>
+							<given-names>F</given-names>
+						</name>
+						<name>
+							<surname>Pichún</surname>
+							<given-names>FJ</given-names>
+						</name>
+						<name>
+							<surname>Rosenberg</surname>
+							<given-names>MI</given-names>
+						</name>
+						<etal/>
+					</person-group>
+					<article-title>Salud reproductiva e interculturalidad</article-title>
+					<source>Salud Colectiva</source>
+					<year>2006</year>
+					<volume>2</volume>
+					<issue>3</issue>
+					<fpage>299</fpage>
+					<lpage>316</lpage>
+					<pub-id pub-id-type="doi">10.18294/sc.2006.75</pub-id>
+				</element-citation>
+			</ref>
+			<ref id="B35">
+				<label>35</label>
+				<mixed-citation>35. Consejo Federal de Inversiones, Ministerio de Salud, Instituto de Salud Colectiva-Universidad Nacional de Lanús, Sociedad de Medicina Rural. Historia oral del Sistema de Salud de la Provincia de Neuquén [Videos en Internet]. Neuquén: Consejo Federal de Inversiones; 2022 [citado 7 mar 2025]. Disponible en: <comment>Disponible en: <ext-link ext-link-type="uri" xlink:href="https://tinyurl.com/mtttwn2u">https://tinyurl.com/mtttwn2u</ext-link>
+					</comment>
+				</mixed-citation>
+				<element-citation publication-type="book">
+					<person-group person-group-type="author">
+						<collab>Consejo Federal de Inversiones</collab>
+						<collab>Ministerio de Salud</collab>
+						<collab>Instituto de Salud Colectiva-Universidad Nacional de Lanús</collab>
+						<collab>Sociedad de Medicina Rural</collab>
+					</person-group>
+					<source>Historia oral del Sistema de Salud de la Provincia de Neuquén</source>
+					<publisher-loc>Neuquén</publisher-loc>
+					<publisher-name>Consejo Federal de Inversiones</publisher-name>
+					<year>2022</year>
+					<date-in-citation content-type="access-date" iso-8601-date="2025-03-07">citado 7 mar 2025</date-in-citation>
+					<comment>Disponible en: <ext-link ext-link-type="uri" xlink:href="https://tinyurl.com/mtttwn2u">https://tinyurl.com/mtttwn2u</ext-link>
+					</comment>
+				</element-citation>
+			</ref>
+			<ref id="B36">
+				<label>36</label>
+				<mixed-citation>36. Leonfanti FL, Chiesa ME. Neuquen, Argentina: Provincial health policies and their results. The Journal of Rural Health. 1988;4(1):59-69. doi: 10.1111/j.1748-0361.1988.tb00302.x</mixed-citation>
+				<element-citation publication-type="journal">
+					<person-group person-group-type="author">
+						<name>
+							<surname>Leonfanti</surname>
+							<given-names>FL</given-names>
+						</name>
+						<name>
+							<surname>Chiesa</surname>
+							<given-names>ME</given-names>
+						</name>
+					</person-group>
+					<article-title>Neuquen, Argentina: Provincial health policies and their results</article-title>
+					<source>The Journal of Rural Health</source>
+					<year>1988</year>
+					<volume>4</volume>
+					<issue>1</issue>
+					<fpage>59</fpage>
+					<lpage>69</lpage>
+					<pub-id pub-id-type="doi">10.1111/j.1748-0361.1988.tb00302.x</pub-id>
+				</element-citation>
+			</ref>
+			<ref id="B37">
+				<label>37</label>
+				<mixed-citation>37. Mcguire J. Health policy and mortality decline in the Province of Neuquén, Argentina [Internet]. 2001 [citado 10 may 2025]. Disponible en: <comment>Disponible en: <ext-link ext-link-type="uri" xlink:href="https://tinyurl.com/y4mp3avx">https://tinyurl.com/y4mp3avx</ext-link>
+					</comment>
+				</mixed-citation>
+				<element-citation publication-type="webpage">
+					<person-group person-group-type="author">
+						<name>
+							<surname>Mcguire</surname>
+							<given-names>J</given-names>
+						</name>
+					</person-group>
+					<source>Health policy and mortality decline in the Province of Neuquén, Argentina</source>
+					<year>2001</year>
+					<date-in-citation content-type="access-date" iso-8601-date="2025-05-10">citado 10 may 2025</date-in-citation>
+					<comment>Disponible en: <ext-link ext-link-type="uri" xlink:href="https://tinyurl.com/y4mp3avx">https://tinyurl.com/y4mp3avx</ext-link>
+					</comment>
+				</element-citation>
+			</ref>
+			<ref id="B38">
+				<label>38</label>
+				<mixed-citation>38. Argentina, Ministerio de salud. 50 Años del Plan de Salud de 1970 [Internet]. 21 mar 2020 [citado 8 jul 2025]. Disponible en: <comment>Disponible en: <ext-link ext-link-type="uri" xlink:href="https://tinyurl.com/mpdz7ejh">https://tinyurl.com/mpdz7ejh</ext-link>
+					</comment>
+				</mixed-citation>
+				<element-citation publication-type="book">
+					<person-group person-group-type="author">
+						<collab>Argentina, Ministerio de salud</collab>
+					</person-group>
+					<source>50 Años del Plan de Salud de 1970</source>
+					<day>21</day>
+					<month>03</month>
+					<year>2020</year>
+					<date-in-citation content-type="access-date" iso-8601-date="2025-07-08">citado 8 jul 2025</date-in-citation>
+					<comment>Disponible en: <ext-link ext-link-type="uri" xlink:href="https://tinyurl.com/mpdz7ejh">https://tinyurl.com/mpdz7ejh</ext-link>
+					</comment>
+				</element-citation>
+			</ref>
+			<ref id="B39">
+				<label>39</label>
+				<mixed-citation>39. Consejo Federal de Inversiones, Ministerio de Salud, Instituto de Salud Colectiva-Universidad Nacional de Lanús, Sociedad de Medicina Rural. Allende, Daniel: Médico. En: Historia oral del Sistema de Salud de la provincia de Neuquén 1958-1983 [Videos en Internet]. Neuquén: Consejo Federal de Inversiones; 2022 [citado 18 mar 2025]. Disponible en: <comment>Disponible en: <ext-link ext-link-type="uri" xlink:href="https://tinyurl.com/nhh7wcw5">https://tinyurl.com/nhh7wcw5</ext-link>
+					</comment>
+				</mixed-citation>
+				<element-citation publication-type="book">
+					<person-group person-group-type="author">
+						<collab>Consejo Federal de Inversiones</collab>
+						<collab>Ministerio de Salud</collab>
+						<collab>Instituto de Salud Colectiva-Universidad Nacional de Lanús</collab>
+						<collab>Sociedad de Medicina Rural</collab>
+					</person-group>
+					<source>Allende, Daniel: Médico. En: Historia oral del Sistema de Salud de la provincia de Neuquén 1958-1983</source>
+					<publisher-loc>Neuquén</publisher-loc>
+					<publisher-name>Consejo Federal de Inversiones</publisher-name>
+					<year>2022</year>
+					<date-in-citation content-type="access-date" iso-8601-date="2025-03-18">citado 18 mar 2025</date-in-citation>
+					<comment>Disponible en: <ext-link ext-link-type="uri" xlink:href="https://tinyurl.com/nhh7wcw5">https://tinyurl.com/nhh7wcw5</ext-link>
+					</comment>
+				</element-citation>
+			</ref>
+			<ref id="B40">
+				<label>40</label>
+				<mixed-citation>40. Ministerio de Salud del Neuquén, Subsecretaría de Salud del Neuquén, Sociedad de Medicina Rural del Neuquén. Plan de Salud [Internet]. 1979 [citado 27 nov 2025]. Disponible en: <comment>Disponible en: <ext-link ext-link-type="uri" xlink:href="https://tinyurl.com/363ze7m3">https://tinyurl.com/363ze7m3</ext-link>
+					</comment>
+				</mixed-citation>
+				<element-citation publication-type="book">
+					<person-group person-group-type="author">
+						<collab>Ministerio de Salud del Neuquén</collab>
+						<collab>Subsecretaría de Salud del Neuquén</collab>
+						<collab>Sociedad de Medicina Rural del Neuquén</collab>
+					</person-group>
+					<source>Plan de Salud</source>
+					<year>1979</year>
+					<date-in-citation content-type="access-date" iso-8601-date="2025-11-27">citado 27 nov 2025</date-in-citation>
+					<comment>Disponible en: <ext-link ext-link-type="uri" xlink:href="https://tinyurl.com/363ze7m3">https://tinyurl.com/363ze7m3</ext-link>
+					</comment>
+				</element-citation>
+			</ref>
+			<ref id="B41">
+				<label>41</label>
+				<mixed-citation>41. Maceira D, Urrutia M. Actores, contratos y mecanismos de pago: el caso del sistema de salud de Neuquén. Estudios Económicos. 2013;30(60):3-36. doi: 10.52292/j.estudecon.2013.756</mixed-citation>
+				<element-citation publication-type="journal">
+					<person-group person-group-type="author">
+						<name>
+							<surname>Maceira</surname>
+							<given-names>D</given-names>
+						</name>
+						<name>
+							<surname>Urrutia</surname>
+							<given-names>M</given-names>
+						</name>
+					</person-group>
+					<article-title>Actores, contratos y mecanismos de pago: el caso del sistema de salud de Neuquén</article-title>
+					<source>Estudios Económicos</source>
+					<year>2013</year>
+					<volume>30</volume>
+					<issue>60</issue>
+					<fpage>3</fpage>
+					<lpage>36</lpage>
+					<pub-id pub-id-type="doi">10.52292/j.estudecon.2013.756</pub-id>
+				</element-citation>
+			</ref>
+			<ref id="B42">
+				<label>42</label>
+				<mixed-citation>42. Álvarez ME, Bercovich GA, Zanovello E. Características del proceso de la maternidad en la Provincia del Neuquén durante el periodo 1995/2014: La importancia del parto humanizado. Revista de Salud Pública. 2017;21(1):25-34. doi: 10.31052/1853.1180.v21.n1.14906</mixed-citation>
+				<element-citation publication-type="journal">
+					<person-group person-group-type="author">
+						<name>
+							<surname>Álvarez</surname>
+							<given-names>ME</given-names>
+						</name>
+						<name>
+							<surname>Bercovich</surname>
+							<given-names>GA</given-names>
+						</name>
+						<name>
+							<surname>Zanovello</surname>
+							<given-names>E</given-names>
+						</name>
+					</person-group>
+					<article-title>Características del proceso de la maternidad en la Provincia del Neuquén durante el periodo 1995/2014: La importancia del parto humanizado</article-title>
+					<source>Revista de Salud Pública</source>
+					<year>2017</year>
+					<volume>21</volume>
+					<issue>1</issue>
+					<fpage>25</fpage>
+					<lpage>34</lpage>
+					<pub-id pub-id-type="doi">10.31052/1853.1180.v21.n1.14906</pub-id>
+				</element-citation>
+			</ref>
+			<ref id="B43">
+				<label>43</label>
+				<mixed-citation>43. Larcade R, Rossato N, Bellecci C, Fernández A, García C, Vain N. Edad gestacional, vía de parto y relación con el día y hora de nacimiento en dos instituciones del sector privado de salud. Archivos Argentinos de Pediatría. 2021;119(1):18-24. doi: 10.5546/aap.2021.18</mixed-citation>
+				<element-citation publication-type="journal">
+					<person-group person-group-type="author">
+						<name>
+							<surname>Larcade</surname>
+							<given-names>R</given-names>
+						</name>
+						<name>
+							<surname>Rossato</surname>
+							<given-names>N</given-names>
+						</name>
+						<name>
+							<surname>Bellecci</surname>
+							<given-names>C</given-names>
+						</name>
+						<name>
+							<surname>Fernández</surname>
+							<given-names>A</given-names>
+						</name>
+						<name>
+							<surname>García</surname>
+							<given-names>C</given-names>
+						</name>
+						<name>
+							<surname>Vain</surname>
+							<given-names>N</given-names>
+						</name>
+					</person-group>
+					<article-title>Edad gestacional, vía de parto y relación con el día y hora de nacimiento en dos instituciones del sector privado de salud</article-title>
+					<source>Archivos Argentinos de Pediatría</source>
+					<year>2021</year>
+					<volume>119</volume>
+					<issue>1</issue>
+					<fpage>18</fpage>
+					<lpage>24</lpage>
+					<pub-id pub-id-type="doi">10.5546/aap.2021.18</pub-id>
+				</element-citation>
+			</ref>
+			<ref id="B44">
+				<label>44</label>
+				<mixed-citation>44. Paleari L, Gibbons L, Chacón S, Ramil V, Belizan J. Tasa de cesáreas en dos hospitales privados con normativas diferentes: abierto y cerrado. Ginecología y Obstetricia de México. 2011;80(4):263-269.</mixed-citation>
+				<element-citation publication-type="journal">
+					<person-group person-group-type="author">
+						<name>
+							<surname>Paleari</surname>
+							<given-names>L</given-names>
+						</name>
+						<name>
+							<surname>Gibbons</surname>
+							<given-names>L</given-names>
+						</name>
+						<name>
+							<surname>Chacón</surname>
+							<given-names>S</given-names>
+						</name>
+						<name>
+							<surname>Ramil</surname>
+							<given-names>V</given-names>
+						</name>
+						<name>
+							<surname>Belizan</surname>
+							<given-names>J</given-names>
+						</name>
+					</person-group>
+					<article-title>Tasa de cesáreas en dos hospitales privados con normativas diferentes: abierto y cerrado</article-title>
+					<source>Ginecología y Obstetricia de México</source>
+					<year>2011</year>
+					<volume>80</volume>
+					<issue>4</issue>
+					<fpage>263</fpage>
+					<lpage>269</lpage>
+				</element-citation>
+			</ref>
+			<ref id="B45">
+				<label>45</label>
+				<mixed-citation>45. Dirección General de Información y Control. Evaluación quinquenal años 1984-1988. Neuquén: Ministerio de Salud Pública; 1988.</mixed-citation>
+				<element-citation publication-type="book">
+					<person-group person-group-type="author">
+						<collab>Dirección General de Información y Control</collab>
+					</person-group>
+					<source>Evaluación quinquenal años 1984-1988</source>
+					<publisher-loc>Neuquén</publisher-loc>
+					<publisher-name>Ministerio de Salud Pública</publisher-name>
+					<year>1988</year>
+				</element-citation>
+			</ref>
+			<ref id="B46">
+				<label>46</label>
+				<mixed-citation>46. Dirección Provincial de Estadística y Censos. Provincia del Neuquén [Internet]. 2025 [citado 10 may 2025]. Disponible en: <comment>Disponible en: <ext-link ext-link-type="uri" xlink:href="https://tinyurl.com/ycx2466c">https://tinyurl.com/ycx2466c</ext-link>
+					</comment>
+				</mixed-citation>
+				<element-citation publication-type="webpage">
+					<person-group person-group-type="author">
+						<collab>Dirección Provincial de Estadística y Censos</collab>
+					</person-group>
+					<source>Provincia del Neuquén</source>
+					<year>2025</year>
+					<date-in-citation content-type="access-date" iso-8601-date="2025-05-10">citado 10 may 2025</date-in-citation>
+					<comment>Disponible en: <ext-link ext-link-type="uri" xlink:href="https://tinyurl.com/ycx2466c">https://tinyurl.com/ycx2466c</ext-link>
+					</comment>
+				</element-citation>
+			</ref>
+			<ref id="B47">
+				<label>47</label>
+				<mixed-citation>47. Álvarez ME, Bercovich GA, Zanovello E. Características del proceso de la maternidad: La importancia del parto humanizado [Internet]. Neuquén: Dirección Provincial de Estadísticas y Censos; 2016 [citado 10 may 2025] Disponible en: <comment>Disponible en: <ext-link ext-link-type="uri" xlink:href="https://tinyurl.com/y7jctcj3">https://tinyurl.com/y7jctcj3</ext-link>
+					</comment>
+				</mixed-citation>
+				<element-citation publication-type="webpage">
+					<person-group person-group-type="author">
+						<name>
+							<surname>Álvarez</surname>
+							<given-names>ME</given-names>
+						</name>
+						<name>
+							<surname>Bercovich</surname>
+							<given-names>GA</given-names>
+						</name>
+						<name>
+							<surname>Zanovello</surname>
+							<given-names>E</given-names>
+						</name>
+					</person-group>
+					<source>Características del proceso de la maternidad: La importancia del parto humanizado</source>
+					<publisher-loc>Neuquén</publisher-loc>
+					<publisher-name>Dirección Provincial de Estadísticas y Censos</publisher-name>
+					<year>2016</year>
+					<date-in-citation content-type="access-date" iso-8601-date="2025-05-10">citado 10 may 2025</date-in-citation>
+					<comment>Disponible en: <ext-link ext-link-type="uri" xlink:href="https://tinyurl.com/y7jctcj3">https://tinyurl.com/y7jctcj3</ext-link>
+					</comment>
+				</element-citation>
+			</ref>
+			<ref id="B48">
+				<label>48</label>
+				<mixed-citation>48. Consejo Federal de Inversiones, Ministerio de Salud, Instituto de Salud Colectiva-Universidad Nacional de Lanús, Sociedad de Medicina Rural. Churrarin, Alba: Enfermera. En: Historia oral del Sistema de Salud de la provincia de Neuquén 1958-1983 [Videos en Internet]. Neuquén: Consejo Federal de Inversiones; 2022 [citado 18 mar 2025]. Disponible en: <comment>Disponible en: <ext-link ext-link-type="uri" xlink:href="https://tinyurl.com/mypz8mxf">https://tinyurl.com/mypz8mxf</ext-link>
+					</comment>
+				</mixed-citation>
+				<element-citation publication-type="webpage">
+					<person-group person-group-type="author">
+						<collab>Consejo Federal de Inversiones</collab>
+						<collab>Ministerio de Salud</collab>
+						<collab>Instituto de Salud Colectiva-Universidad Nacional de Lanús</collab>
+						<collab>Sociedad de Medicina Rural</collab>
+					</person-group>
+					<chapter-title>Churrarin, Alba: Enfermera</chapter-title>
+					<source>Historia oral del Sistema de Salud de la provincia de Neuquén 1958-1983</source>
+					<publisher-loc>Neuquén</publisher-loc>
+					<publisher-name>Consejo Federal de Inversiones</publisher-name>
+					<year>2022</year>
+					<date-in-citation content-type="access-date" iso-8601-date="2025-03-18">citado 18 mar 2025</date-in-citation>
+					<comment>Disponible en: <ext-link ext-link-type="uri" xlink:href="https://tinyurl.com/mypz8mxf">https://tinyurl.com/mypz8mxf</ext-link>
+					</comment>
+				</element-citation>
+			</ref>
+			<ref id="B49">
+				<label>49</label>
+				<mixed-citation>49. Dirección Provincial de Estadística, Censos y Documentación. Anuario Estadístico [Internet]. Neuquén: Dirección Provincial de Estadística, Censos y Documentación; 1991 [citado 10 may 2025]. Disponible en: <comment>Disponible en: <ext-link ext-link-type="uri" xlink:href="https://tinyurl.com/mucfwzms">https://tinyurl.com/mucfwzms</ext-link>
+					</comment>
+				</mixed-citation>
+				<element-citation publication-type="webpage">
+					<person-group person-group-type="author">
+						<collab>Dirección Provincial de Estadística</collab>
+						<collab>Censos y Documentación</collab>
+					</person-group>
+					<source>Anuario Estadístico</source>
+					<publisher-loc>Neuquén</publisher-loc>
+					<publisher-name>Dirección Provincial de Estadística, Censos y Documentación</publisher-name>
+					<year>1991</year>
+					<date-in-citation content-type="access-date" iso-8601-date="2025-05-10">citado 10 may 2025</date-in-citation>
+					<comment>Disponible en: <ext-link ext-link-type="uri" xlink:href="https://tinyurl.com/mucfwzms">https://tinyurl.com/mucfwzms</ext-link>
+					</comment>
+				</element-citation>
+			</ref>
+			<ref id="B50">
+				<label>50</label>
+				<mixed-citation>50. Dirección Provincial de Estadística y Censos. Informes técnicos: Nacimientos en la provincia del Neuquén 2002/2019 [Internet]. Neuquén: Dirección Provincial de Estadística y Censos de la Provincia del Neuquen; 2021 [citado 10 may 2025]. Disponible en: <comment>Disponible en: <ext-link ext-link-type="uri" xlink:href="https://tinyurl.com/yfhbnsdx">https://tinyurl.com/yfhbnsdx</ext-link>
+					</comment>
+				</mixed-citation>
+				<element-citation publication-type="book">
+					<person-group person-group-type="author">
+						<collab>Dirección Provincial de Estadística y Censos</collab>
+					</person-group>
+					<source>Informes técnicos: Nacimientos en la provincia del Neuquén 2002/2019</source>
+					<publisher-loc>Neuquén</publisher-loc>
+					<publisher-name>Dirección Provincial de Estadística y Censos de la Provincia del Neuquen</publisher-name>
+					<year>2021</year>
+					<date-in-citation content-type="access-date" iso-8601-date="2025-05-10">citado 10 may 2025</date-in-citation>
+					<comment>Disponible en: <ext-link ext-link-type="uri" xlink:href="https://tinyurl.com/yfhbnsdx">https://tinyurl.com/yfhbnsdx</ext-link>
+					</comment>
+				</element-citation>
+			</ref>
+			<ref id="B51">
+				<label>51</label>
+				<mixed-citation>51. Dirección Provincial de Estadística, Censos y Documentación. Anuario estadístico 1992 [Internet]. Neuquén: Provincia del Neuquen; 1992 [citado 10 may 2025]. Disponible en: <comment>Disponible en: <ext-link ext-link-type="uri" xlink:href="https://tinyurl.com/se2d7b32">https://tinyurl.com/se2d7b32</ext-link>
+					</comment>
+				</mixed-citation>
+				<element-citation publication-type="webpage">
+					<person-group person-group-type="author">
+						<collab>Dirección Provincial de Estadística, Censos y Documentación</collab>
+					</person-group>
+					<source>Anuario estadístico 1992</source>
+					<publisher-loc>Neuquén</publisher-loc>
+					<publisher-name>Provincia del Neuquen</publisher-name>
+					<year>1992</year>
+					<date-in-citation content-type="access-date" iso-8601-date="2025-05-10">citado 10 may 2025</date-in-citation>
+					<comment>Disponible en: <ext-link ext-link-type="uri" xlink:href="https://tinyurl.com/se2d7b32">https://tinyurl.com/se2d7b32</ext-link>
+					</comment>
+				</element-citation>
+			</ref>
+			<ref id="B52">
+				<label>52</label>
+				<mixed-citation>52. Benítez A. Tendencia temporal de la retinopatía de la prematuridad en el sector público de Argentina en el período 2009-2013 [Tesis de Maestría]. Remedios de Escalada: Repositorio Digital Institucional “José María Rosa”; 2015. doi: 10.18294/rdi.2017.172284</mixed-citation>
+				<element-citation publication-type="thesis">
+					<person-group person-group-type="author">
+						<name>
+							<surname>Benítez</surname>
+							<given-names>A</given-names>
+						</name>
+					</person-group>
+					<source>Tendencia temporal de la retinopatía de la prematuridad en el sector público de Argentina en el período 2009-2013</source>
+					<comment content-type="degree">Tesis de Maestría</comment>
+					<publisher-loc>Remedios de Escalada</publisher-loc>
+					<publisher-name>Repositorio Digital Institucional “José María Rosa”</publisher-name>
+					<year>2015</year>
+					<pub-id pub-id-type="doi">10.18294/rdi.2017.172284</pub-id>
+				</element-citation>
+			</ref>
+			<ref id="B53">
+				<label>53</label>
+				<mixed-citation>53. Keag OE, Norman JE, Stock SJ. Long-term risks and benefits associated with cesarean delivery for mother, baby, and subsequent pregnancies: Systematic review and meta-analysis. PLOS Medicine. 2018;15(1):e1002494. doi: 10.1371/journal.pmed.1002494</mixed-citation>
+				<element-citation publication-type="journal">
+					<person-group person-group-type="author">
+						<name>
+							<surname>Keag</surname>
+							<given-names>OE</given-names>
+						</name>
+						<name>
+							<surname>Norman</surname>
+							<given-names>JE</given-names>
+						</name>
+						<name>
+							<surname>Stock</surname>
+							<given-names>SJ</given-names>
+						</name>
+					</person-group>
+					<article-title>Long-term risks and benefits associated with cesarean delivery for mother, baby, and subsequent pregnancies: Systematic review and meta-analysis</article-title>
+					<source>PLOS Medicine</source>
+					<year>2018</year>
+					<volume>15</volume>
+					<issue>1</issue>
+					<elocation-id>e1002494</elocation-id>
+					<pub-id pub-id-type="doi">10.1371/journal.pmed.1002494</pub-id>
+				</element-citation>
+			</ref>
+			<ref id="B54">
+				<label>54</label>
+				<mixed-citation>54. Villar J, Carroli G, Zavaleta N, Donner A, Wojdyla D, Faundes A, et al. Maternal and neonatal individual risks and benefits associated with caesarean delivery: multicentre prospective study. BMJ. 2007;335(7628):1025. doi: 10.1136/bmj.39363.706956.55</mixed-citation>
+				<element-citation publication-type="journal">
+					<person-group person-group-type="author">
+						<name>
+							<surname>Villar</surname>
+							<given-names>J</given-names>
+						</name>
+						<name>
+							<surname>Carroli</surname>
+							<given-names>G</given-names>
+						</name>
+						<name>
+							<surname>Zavaleta</surname>
+							<given-names>N</given-names>
+						</name>
+						<name>
+							<surname>Donner</surname>
+							<given-names>A</given-names>
+						</name>
+						<name>
+							<surname>Wojdyla</surname>
+							<given-names>D</given-names>
+						</name>
+						<name>
+							<surname>Faundes</surname>
+							<given-names>A</given-names>
+						</name>
+						<etal/>
+					</person-group>
+					<article-title>Maternal and neonatal individual risks and benefits associated with caesarean delivery: multicentre prospective study</article-title>
+					<source>BMJ</source>
+					<year>2007</year>
+					<volume>335</volume>
+					<issue>7628</issue>
+					<fpage>1025</fpage>
+					<lpage>1025</lpage>
+					<pub-id pub-id-type="doi">10.1136/bmj.39363.706956.55</pub-id>
+				</element-citation>
+			</ref>
+			<ref id="B55">
+				<label>55</label>
+				<mixed-citation>55. Opiyo N, Kingdon C, Oladapo OT, Souza JP, Vogel JP, Bonet M, et al. Non-clinical interventions to reduce unnecessary caesarean sections: WHO recommendations. Bulletin of the World Health Organization. 2020;98(1):66-68. doi: 10.2471/BLT.19.236729</mixed-citation>
+				<element-citation publication-type="journal">
+					<person-group person-group-type="author">
+						<name>
+							<surname>Opiyo</surname>
+							<given-names>N</given-names>
+						</name>
+						<name>
+							<surname>Kingdon</surname>
+							<given-names>C</given-names>
+						</name>
+						<name>
+							<surname>Oladapo</surname>
+							<given-names>OT</given-names>
+						</name>
+						<name>
+							<surname>Souza</surname>
+							<given-names>JP</given-names>
+						</name>
+						<name>
+							<surname>Vogel</surname>
+							<given-names>JP</given-names>
+						</name>
+						<name>
+							<surname>Bonet</surname>
+							<given-names>M</given-names>
+						</name>
+						<etal/>
+					</person-group>
+					<article-title>Non-clinical interventions to reduce unnecessary caesarean sections: WHO recommendations</article-title>
+					<source>Bulletin of the World Health Organization</source>
+					<year>2020</year>
+					<volume>98</volume>
+					<issue>1</issue>
+					<fpage>66</fpage>
+					<lpage>68</lpage>
+					<pub-id pub-id-type="doi">10.2471/BLT.19.236729</pub-id>
+				</element-citation>
+			</ref>
+			<ref id="B56">
+				<label>56</label>
+				<mixed-citation>56. Al Yassen A, Al-Asadi J, Khalaf S. The role of Caesarean section in childhood asthma. Malaysian Family Physician. 2019;14(3):10-17.</mixed-citation>
+				<element-citation publication-type="journal">
+					<person-group person-group-type="author">
+						<name>
+							<surname>Al Yassen</surname>
+							<given-names>A</given-names>
+						</name>
+						<name>
+							<surname>Al-Asadi</surname>
+							<given-names>J</given-names>
+						</name>
+						<name>
+							<surname>Khalaf</surname>
+							<given-names>S</given-names>
+						</name>
+					</person-group>
+					<article-title>The role of Caesarean section in childhood asthma</article-title>
+					<source>Malaysian Family Physician</source>
+					<year>2019</year>
+					<volume>14</volume>
+					<issue>3</issue>
+					<fpage>10</fpage>
+					<lpage>17</lpage>
+				</element-citation>
+			</ref>
+			<ref id="B57">
+				<label>57</label>
+				<mixed-citation>57. Hoel ST, Wiik J, Carlsen KCL, Endre KMA, Gudmundsdóttir HK, Haugen G, et al. Birth mode is associated with development of atopic dermatitis in infancy and early childhood. Journal of Allergy and Clinical Immunology Global. 2023;2(3):100104. doi: 10.1016/j.jacig.2023.100104</mixed-citation>
+				<element-citation publication-type="journal">
+					<person-group person-group-type="author">
+						<name>
+							<surname>Hoel</surname>
+							<given-names>ST</given-names>
+						</name>
+						<name>
+							<surname>Wiik</surname>
+							<given-names>J</given-names>
+						</name>
+						<name>
+							<surname>Carlsen</surname>
+							<given-names>KCL</given-names>
+						</name>
+						<name>
+							<surname>Endre</surname>
+							<given-names>KMA</given-names>
+						</name>
+						<name>
+							<surname>Gudmundsdóttir</surname>
+							<given-names>HK</given-names>
+						</name>
+						<name>
+							<surname>Haugen</surname>
+							<given-names>G</given-names>
+						</name>
+						<etal/>
+					</person-group>
+					<article-title>Birth mode is associated with development of atopic dermatitis in infancy and early childhood</article-title>
+					<source>Journal of Allergy and Clinical Immunology Global</source>
+					<year>2023</year>
+					<volume>2</volume>
+					<issue>3</issue>
+					<fpage>100104</fpage>
+					<lpage>100104</lpage>
+					<pub-id pub-id-type="doi">10.1016/j.jacig.2023.100104</pub-id>
+				</element-citation>
+			</ref>
+			<ref id="B58">
+				<label>58</label>
+				<mixed-citation>58. Yeganegi M, Bahrami R, Azizi S, Marzbanrad Z, Hajizadeh N, Mirjalili SR, et al. Caesarean section and respiratory system disorders in newborns. European Journal of Obstetrics &amp; Gynecology and Reproductive Biology: X. 2024;23:100336. doi: 10.1016/j.eurox.2024.100336</mixed-citation>
+				<element-citation publication-type="journal">
+					<person-group person-group-type="author">
+						<name>
+							<surname>Yeganegi</surname>
+							<given-names>M</given-names>
+						</name>
+						<name>
+							<surname>Bahrami</surname>
+							<given-names>R</given-names>
+						</name>
+						<name>
+							<surname>Azizi</surname>
+							<given-names>S</given-names>
+						</name>
+						<name>
+							<surname>Marzbanrad</surname>
+							<given-names>Z</given-names>
+						</name>
+						<name>
+							<surname>Hajizadeh</surname>
+							<given-names>N</given-names>
+						</name>
+						<name>
+							<surname>Mirjalili</surname>
+							<given-names>SR</given-names>
+						</name>
+						<etal/>
+					</person-group>
+					<article-title>Caesarean section and respiratory system disorders in newborns</article-title>
+					<source>European Journal of Obstetrics &amp; Gynecology and Reproductive Biology: X.</source>
+					<year>2024</year>
+					<volume>23</volume>
+					<fpage>100336</fpage>
+					<lpage>100336</lpage>
+					<pub-id pub-id-type="doi">10.1016/j.eurox.2024.100336</pub-id>
+				</element-citation>
+			</ref>
+			<ref id="B59">
+				<label>59</label>
+				<mixed-citation>59. Cartwright J. The birthing paradox: Understanding the c-section epidemic in America. Sex Roles. 2016;75:531-533. doi: 10.1007/s11199-016-0681-3</mixed-citation>
+				<element-citation publication-type="journal">
+					<person-group person-group-type="author">
+						<name>
+							<surname>Cartwright</surname>
+							<given-names>J</given-names>
+						</name>
+					</person-group>
+					<article-title>The birthing paradox: Understanding the c-section epidemic in America</article-title>
+					<source>Sex Roles</source>
+					<year>2016</year>
+					<volume>75</volume>
+					<fpage>531</fpage>
+					<lpage>533</lpage>
+					<pub-id pub-id-type="doi">10.1007/s11199-016-0681-3</pub-id>
+				</element-citation>
+			</ref>
+			<ref id="B60">
+				<label>60</label>
+				<mixed-citation>60. Lin HC, Xirasagar S. Institutional factors in cesarean delivery rates: policy and research implications. Obstetrics and Gynecology. 2004;103(1):128-136. doi: 10.1097/01.aog.0000 102935.91389.53</mixed-citation>
+				<element-citation publication-type="journal">
+					<person-group person-group-type="author">
+						<name>
+							<surname>Lin</surname>
+							<given-names>HC</given-names>
+						</name>
+						<name>
+							<surname>Xirasagar</surname>
+							<given-names>S</given-names>
+						</name>
+					</person-group>
+					<article-title>Institutional factors in cesarean delivery rates: policy and research implications</article-title>
+					<source>Obstetrics and Gynecology</source>
+					<year>2004</year>
+					<volume>103</volume>
+					<issue>1</issue>
+					<fpage>128</fpage>
+					<lpage>136</lpage>
+					<pub-id pub-id-type="doi">10.1097/01.aog.0000 102935.91389.53</pub-id>
+				</element-citation>
+			</ref>
+			<ref id="B61">
+				<label>61</label>
+				<mixed-citation>61. Rebelo F, Rocha CMM, Cortes TR, Dutra CL, Kac G. High cesarean prevalence in a national population-based study in Brazil: the role of private practice. Acta Obstetricia et Gynecologica Scandinavica. 2010;89(7):903-908. doi: 10.3109/ 00016349.2010.484044</mixed-citation>
+				<element-citation publication-type="journal">
+					<person-group person-group-type="author">
+						<name>
+							<surname>Rebelo</surname>
+							<given-names>F</given-names>
+						</name>
+						<name>
+							<surname>Rocha</surname>
+							<given-names>CMM</given-names>
+						</name>
+						<name>
+							<surname>Cortes</surname>
+							<given-names>TR</given-names>
+						</name>
+						<name>
+							<surname>Dutra</surname>
+							<given-names>CL</given-names>
+						</name>
+						<name>
+							<surname>Kac</surname>
+							<given-names>G</given-names>
+						</name>
+					</person-group>
+					<article-title>High cesarean prevalence in a national population-based study in Brazil: the role of private practice</article-title>
+					<source>Acta Obstetricia et Gynecologica Scandinavica</source>
+					<year>2010</year>
+					<volume>89</volume>
+					<issue>7</issue>
+					<fpage>903</fpage>
+					<lpage>908</lpage>
+					<pub-id pub-id-type="doi">10.3109/ 00016349.2010.484044</pub-id>
+				</element-citation>
+			</ref>
+			<ref id="B62">
+				<label>62</label>
+				<mixed-citation>62. Del Carmen GA, Stapleton S, Qadan M, del Carmen MG, Chang D. Does the day of the week predict a cesarean section? A statewide analysis. Journal of Surgical Research. 2020;245:288-294. doi: 10.1016/j.jss.2019.07.027</mixed-citation>
+				<element-citation publication-type="journal">
+					<person-group person-group-type="author">
+						<name>
+							<surname>Del Carmen</surname>
+							<given-names>GA</given-names>
+						</name>
+						<name>
+							<surname>Stapleton</surname>
+							<given-names>S</given-names>
+						</name>
+						<name>
+							<surname>Qadan</surname>
+							<given-names>M</given-names>
+						</name>
+						<name>
+							<surname>del Carmen</surname>
+							<given-names>MG</given-names>
+						</name>
+						<name>
+							<surname>Chang</surname>
+							<given-names>D</given-names>
+						</name>
+					</person-group>
+					<article-title>Does the day of the week predict a cesarean section? A statewide analysis</article-title>
+					<source>Journal of Surgical Research</source>
+					<year>2020</year>
+					<volume>245</volume>
+					<fpage>288</fpage>
+					<lpage>294</lpage>
+					<pub-id pub-id-type="doi">10.1016/j.jss.2019.07.027</pub-id>
+				</element-citation>
+			</ref>
+			<ref id="B63">
+				<label>63</label>
+				<mixed-citation>63. Márquez-Calderón S, Ruiz-Ramos M, Juárez S, Librero López J. Frecuencia de la cesárea en Andalucía: Relación con factores sociales, clínicos y de los servicios sanitarios (2007-2009). Revista Española de Salud Pública. 2011;85(2):205-215. doi: 10.1590/s1135-57272011000200008</mixed-citation>
+				<element-citation publication-type="journal">
+					<person-group person-group-type="author">
+						<name>
+							<surname>Márquez-Calderón</surname>
+							<given-names>S</given-names>
+						</name>
+						<name>
+							<surname>Ruiz-Ramos</surname>
+							<given-names>M</given-names>
+						</name>
+						<name>
+							<surname>Juárez</surname>
+							<given-names>S</given-names>
+						</name>
+						<name>
+							<surname>Librero López</surname>
+							<given-names>J</given-names>
+						</name>
+					</person-group>
+					<article-title>Frecuencia de la cesárea en Andalucía: Relación con factores sociales, clínicos y de los servicios sanitarios (2007-2009)</article-title>
+					<source>Revista Española de Salud Pública</source>
+					<year>2011</year>
+					<volume>85</volume>
+					<issue>2</issue>
+					<fpage>205</fpage>
+					<lpage>215</lpage>
+					<pub-id pub-id-type="doi">10.1590/s1135-57272011000200008</pub-id>
+				</element-citation>
+			</ref>
+			<ref id="B64">
+				<label>64</label>
+				<mixed-citation>64. Ruiz-Sánchez J, Espino y Sosa S, Vallejos-Parés A, Durán-Arenas L. Cesárea: Tendencias y resultados. Perinatología y Reproducción Humana. 2014;28(1):33-40.</mixed-citation>
+				<element-citation publication-type="journal">
+					<person-group person-group-type="author">
+						<name>
+							<surname>Ruiz-Sánchez</surname>
+							<given-names>J</given-names>
+						</name>
+						<name>
+							<surname>Espino y Sosa</surname>
+							<given-names>S</given-names>
+						</name>
+						<name>
+							<surname>Vallejos-Parés</surname>
+							<given-names>A</given-names>
+						</name>
+						<name>
+							<surname>Durán-Arenas</surname>
+							<given-names>L</given-names>
+						</name>
+					</person-group>
+					<article-title>Cesárea: Tendencias y resultados</article-title>
+					<source>Perinatología y Reproducción Humana</source>
+					<year>2014</year>
+					<volume>28</volume>
+					<issue>1</issue>
+					<fpage>33</fpage>
+					<lpage>40</lpage>
+				</element-citation>
+			</ref>
+			<ref id="B65">
+				<label>65</label>
+				<mixed-citation>65. Hernández Garre JM, Echevarría Pérez P. La parte negada del parto institucionalizado: explorando sus bases antropológicas. Disparidades Revista de Antropología,. 2014;69(2):327-348. doi: 10.3989/rdtp.2014.02.004</mixed-citation>
+				<element-citation publication-type="journal">
+					<person-group person-group-type="author">
+						<name>
+							<surname>Hernández Garre</surname>
+							<given-names>JM</given-names>
+						</name>
+						<name>
+							<surname>Echevarría Pérez</surname>
+							<given-names>P</given-names>
+						</name>
+					</person-group>
+					<article-title>La parte negada del parto institucionalizado: explorando sus bases antropológicas</article-title>
+					<source>Disparidades Revista de Antropología</source>
+					<year>2014</year>
+					<volume>69</volume>
+					<issue>2</issue>
+					<fpage>327</fpage>
+					<lpage>348</lpage>
+					<pub-id pub-id-type="doi">10.3989/rdtp.2014.02.004</pub-id>
+				</element-citation>
+			</ref>
+			<ref id="B66">
+				<label>66</label>
+				<mixed-citation>66. Foucault M. Microfísica del poder. Buenos Aires: Siglo Veintiuno Editores Argentina; 2019.</mixed-citation>
+				<element-citation publication-type="book">
+					<person-group person-group-type="author">
+						<name>
+							<surname>Foucault</surname>
+							<given-names>M</given-names>
+						</name>
+					</person-group>
+					<source>Microfísica del poder</source>
+					<publisher-loc>Buenos Aires</publisher-loc>
+					<publisher-name>Siglo Veintiuno Editores Argentina</publisher-name>
+					<year>2019</year>
+				</element-citation>
+			</ref>
+			<ref id="B67">
+				<label>67</label>
+				<mixed-citation>67. Unicef, ReliefWeb. Health Equity Report 2016: Analysis of reproductive, maternal, newborn, child and adolescent health inequities in Latin America and the Caribbean to inform policymaking [Internet]. 2016 [citado 2 may 2025]. Disponible en: <comment>Disponible en: <ext-link ext-link-type="uri" xlink:href="https://tinyurl.com/526rn2kt">https://tinyurl.com/526rn2kt</ext-link>
+					</comment>
+				</mixed-citation>
+				<element-citation publication-type="webpage">
+					<person-group person-group-type="author">
+						<collab>Unicef</collab>
+						<collab>ReliefWeb</collab>
+					</person-group>
+					<source>Health Equity Report 2016: Analysis of reproductive, maternal, newborn, child and adolescent health inequities in Latin America and the Caribbean to inform policymaking</source>
+					<year>2016</year>
+					<date-in-citation content-type="access-date" iso-8601-date="2025-05-02">citado 2 may 2025</date-in-citation>
+					<comment>Disponible en: <ext-link ext-link-type="uri" xlink:href="https://tinyurl.com/526rn2kt">https://tinyurl.com/526rn2kt</ext-link>
+					</comment>
+				</element-citation>
+			</ref>
+			<ref id="B68">
+				<label>68</label>
+				<mixed-citation>68. Cernadas J. Is it possible to reverse the epidemics of unnecessary cesarean sections? Archivos Argentinos de Pediatría. 2019;117:66-67. doi: 10.5546/aap.2019.eng.66</mixed-citation>
+				<element-citation publication-type="journal">
+					<person-group person-group-type="author">
+						<name>
+							<surname>Cernadas</surname>
+							<given-names>J</given-names>
+						</name>
+					</person-group>
+					<article-title>Is it possible to reverse the epidemics of unnecessary cesarean sections?</article-title>
+					<source>Archivos Argentinos de Pediatría</source>
+					<year>2019</year>
+					<volume>117</volume>
+					<fpage>66</fpage>
+					<lpage>67</lpage>
+					<pub-id pub-id-type="doi">10.5546/aap.2019.eng.66</pub-id>
+				</element-citation>
+			</ref>
+			<ref id="B69">
+				<label>69</label>
+				<mixed-citation>69. Franco TB, Merhy EE. Trabajo, producción de cuidado y subjetividad en salud. Remedios de Escalada: De la UNLa - Universidad Nacional de Lanús; 2023. doi: 10.18294/9789878926513</mixed-citation>
+				<element-citation publication-type="book">
+					<person-group person-group-type="author">
+						<name>
+							<surname>Franco</surname>
+							<given-names>TB</given-names>
+						</name>
+						<name>
+							<surname>Merhy</surname>
+							<given-names>EE</given-names>
+						</name>
+					</person-group>
+					<source>Trabajo, producción de cuidado y subjetividad en salud</source>
+					<publisher-loc>Remedios de Escalada</publisher-loc>
+					<publisher-name>De la UNLa - Universidad Nacional de Lanús</publisher-name>
+					<year>2023</year>
+					<pub-id pub-id-type="doi">10.18294/9789878926513</pub-id>
+				</element-citation>
+			</ref>
+			<ref id="B70">
+				<label>70</label>
+				<mixed-citation>70. Menéndez EL. El modelo médico y la salud de los trabajadores. Salud Colectiva. 2005;1(1):9-32. doi: 10.18294/sc.2005.1</mixed-citation>
+				<element-citation publication-type="journal">
+					<person-group person-group-type="author">
+						<name>
+							<surname>Menéndez</surname>
+							<given-names>EL</given-names>
+						</name>
+					</person-group>
+					<article-title>El modelo médico y la salud de los trabajadores</article-title>
+					<source>Salud Colectiva</source>
+					<year>2005</year>
+					<volume>1</volume>
+					<issue>1</issue>
+					<fpage>9</fpage>
+					<lpage>32</lpage>
+					<pub-id pub-id-type="doi">10.18294/sc.2005.1</pub-id>
+				</element-citation>
+			</ref>
+			<ref id="B71">
+				<label>71</label>
+				<mixed-citation>71. Carneiro R. “Para chegar ao Bojador, é preciso ir além da dor”: sofrimento no parto e suas potencialidades. Sexualidad, Salud y Sociedad (Rio de Janeiro). 2015;20:91-112. doi: 10.1590/1984-6487.sess.2015.20.08.a</mixed-citation>
+				<element-citation publication-type="journal">
+					<person-group person-group-type="author">
+						<name>
+							<surname>Carneiro</surname>
+							<given-names>R</given-names>
+						</name>
+					</person-group>
+					<article-title>“Para chegar ao Bojador, é preciso ir além da dor”: sofrimento no parto e suas potencialidades</article-title>
+					<source>Sexualidad, Salud y Sociedad (Rio de Janeiro)</source>
+					<year>2015</year>
+					<volume>20</volume>
+					<fpage>91</fpage>
+					<lpage>112</lpage>
+					<pub-id pub-id-type="doi">10.1590/1984-6487.sess.2015.20.08.a</pub-id>
+				</element-citation>
+			</ref>
+			<ref id="B72">
+				<label>72</label>
+				<mixed-citation>72. Barros AJD, Santos IS, Matijasevich A, Domingues MR, Silveira M, Barros FC, et al. Patterns of deliveries in a Brazilian birth cohort: almost universal cesarean sections for the better-off. Revista de Saúde Pública. 2011;45:635-643. doi: 10.1590/s0034-89102011005000039</mixed-citation>
+				<element-citation publication-type="journal">
+					<person-group person-group-type="author">
+						<name>
+							<surname>Barros</surname>
+							<given-names>AJD</given-names>
+						</name>
+						<name>
+							<surname>Santos</surname>
+							<given-names>IS</given-names>
+						</name>
+						<name>
+							<surname>Matijasevich</surname>
+							<given-names>A</given-names>
+						</name>
+						<name>
+							<surname>Domingues</surname>
+							<given-names>MR</given-names>
+						</name>
+						<name>
+							<surname>Silveira</surname>
+							<given-names>M</given-names>
+						</name>
+						<name>
+							<surname>Barros</surname>
+							<given-names>FC</given-names>
+						</name>
+						<etal/>
+					</person-group>
+					<article-title>Patterns of deliveries in a Brazilian birth cohort: almost universal cesarean sections for the better-off</article-title>
+					<source>Revista de Saúde Pública</source>
+					<year>2011</year>
+					<volume>45</volume>
+					<fpage>635</fpage>
+					<lpage>643</lpage>
+					<pub-id pub-id-type="doi">10.1590/s0034-89102011005000039</pub-id>
+				</element-citation>
+			</ref>
+			<ref id="B73">
+				<label>73</label>
+				<mixed-citation>73. López LC, Wermuth MÂD, Gomes PRF. Biopolítica e “produção de cesarianas” durante a assistência pré-natal no sul do Brasil. Revista Videre. 2021;13(27):57-77. doi: 10.30612/videre.v13i27.12976</mixed-citation>
+				<element-citation publication-type="journal">
+					<person-group person-group-type="author">
+						<name>
+							<surname>López</surname>
+							<given-names>LC</given-names>
+						</name>
+						<name>
+							<surname>Wermuth</surname>
+							<given-names>MÂD</given-names>
+						</name>
+						<name>
+							<surname>Gomes</surname>
+							<given-names>PRF</given-names>
+						</name>
+					</person-group>
+					<article-title>Biopolítica e “produção de cesarianas” durante a assistência pré-natal no sul do Brasil</article-title>
+					<source>Revista Videre</source>
+					<year>2021</year>
+					<volume>13</volume>
+					<issue>27</issue>
+					<fpage>57</fpage>
+					<lpage>77</lpage>
+					<pub-id pub-id-type="doi">10.30612/videre.v13i27.12976</pub-id>
+				</element-citation>
+			</ref>
+			<ref id="B74">
+				<label>74</label>
+				<mixed-citation>74. Carmo Leal M, Silva AAM, Dias MAB, Gama SGN, Rattner D, Moreira ME, et al. Birth in Brazil: national survey into labour and birth. Reproductive Health. 2012;9(1):15. doi: 10.1186/1742-4755-9-15</mixed-citation>
+				<element-citation publication-type="journal">
+					<person-group person-group-type="author">
+						<name>
+							<surname>Carmo Leal</surname>
+							<given-names>M</given-names>
+						</name>
+						<name>
+							<surname>Silva</surname>
+							<given-names>AAM</given-names>
+						</name>
+						<name>
+							<surname>Dias</surname>
+							<given-names>MAB</given-names>
+						</name>
+						<name>
+							<surname>Gama</surname>
+							<given-names>SGN</given-names>
+						</name>
+						<name>
+							<surname>Rattner</surname>
+							<given-names>D</given-names>
+						</name>
+						<name>
+							<surname>Moreira</surname>
+							<given-names>ME</given-names>
+						</name>
+						<etal/>
+					</person-group>
+					<article-title>Birth in Brazil: national survey into labour and birth</article-title>
+					<source>Reproductive Health</source>
+					<year>2012</year>
+					<volume>9</volume>
+					<issue>1</issue>
+					<fpage>15</fpage>
+					<lpage>15</lpage>
+					<pub-id pub-id-type="doi">10.1186/1742-4755-9-15</pub-id>
+				</element-citation>
+			</ref>
+		</ref-list>
+		<fn-group>
+			<fn fn-type="financial-disclosure" id="fn1">
+				<label>Financiamiento</label>
+				<p> Este trabajo se realizó sin financiamiento específico.</p>
+			</fn>
+		</fn-group>
+	</back>
+</article>
