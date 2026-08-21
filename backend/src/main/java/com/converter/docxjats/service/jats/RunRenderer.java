@@ -1,11 +1,13 @@
 package com.converter.docxjats.service.jats;
 
+import java.util.Locale;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import org.apache.poi.xwpf.usermodel.UnderlinePatterns;
 import org.apache.poi.xwpf.usermodel.XWPFParagraph;
 import org.apache.poi.xwpf.usermodel.XWPFPicture;
 import org.apache.poi.xwpf.usermodel.XWPFRun;
-
-import java.util.Locale;
 
 /**
  * Convierte los runs de un párrafo de Word (negrita, cursiva, subrayado,
@@ -13,6 +15,9 @@ import java.util.Locale;
  * Usado tanto por el body como por el resumen (front) y las referencias (back).
  */
 public class RunRenderer {
+
+    private static final Pattern BIBLIOGRAPHIC_CITATION =
+            Pattern.compile("(\\d+)|([^\\d]+)");
 
     private final ImageRegistry imageRegistry;
 
@@ -50,12 +55,36 @@ public class RunRenderer {
             Object valign = run.getVerticalAlignment();
             String valignStr = valign == null ? "" : valign.toString().toLowerCase(Locale.ROOT);
             if (valignStr.contains("superscript")) {
-                escaped = "<sup>" + escaped + "</sup>";
+                escaped = renderSuperscript(escaped, text);
             } else if (valignStr.contains("subscript")) {
                 escaped = "<sub>" + escaped + "</sub>";
             }
             sb.append(escaped);
         }
         return sb.toString();
+    }
+
+    private String renderSuperscript(String escaped, String originalText) {
+        if (!originalText.matches(".*\\d.*")) {
+            return "<sup>" + escaped + "</sup>";
+        }
+
+        Matcher matcher = BIBLIOGRAPHIC_CITATION.matcher(originalText);
+        StringBuilder result = new StringBuilder();
+        while (matcher.find()) {
+            String token = matcher.group();
+            if (token.matches("\\d+")) {
+                result.append("<xref ref-type=\"bibr\" rid=\"B")
+                        .append(token)
+                        .append("\"><sup>")
+                        .append(token)
+                        .append("</sup></xref>");
+            } else {
+                result.append("<sup>")
+                        .append(XmlUtils.escape(token))
+                        .append("</sup>");
+            }
+        }
+        return result.toString();
     }
 }

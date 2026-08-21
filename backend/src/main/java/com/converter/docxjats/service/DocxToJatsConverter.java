@@ -61,6 +61,10 @@ public class DocxToJatsConverter {
 
     private static final Pattern HEADING_PATTERN =
             Pattern.compile("(?i)^(heading|t[ií]tulo)\\s*([1-6])$");
+        private static final Pattern QUOTE_STYLE =
+            Pattern.compile("(?i)(quote|cita|block.?quote|epigraph)");
+        private static final Pattern SECTION_TYPE =
+            Pattern.compile("(?i)^(introducci[oó]n|introduction|metodolog[ií]a|m[eé]todos|methods|resultados|results|discusi[oó]n|discussion|conclusiones|conclusion).*$");
 
     private enum Mode { BODY, REFERENCES }
 
@@ -147,7 +151,7 @@ public class DocxToJatsConverter {
                             int level = Integer.parseInt(hm.group(2));
                             if (mode == Mode.REFERENCES) back.closeReferences();
                             mode = Mode.BODY;
-                            body.openSection(level, trimmedText);
+                            body.openSection(level, trimmedText, sectionType(trimmedText));
                             continue;
                         }
 
@@ -179,14 +183,18 @@ public class DocxToJatsConverter {
                         }
 
                         String runsXml = runRenderer.render(paragraph);
-                        body.appendParagraph(runsXml);
+                        if (styleName != null && QUOTE_STYLE.matcher(styleName).find()) {
+                            body.appendDispQuote(runsXml);
+                        } else {
+                            body.appendParagraph(runsXml);
+                        }
 
                     } else if (element instanceof XWPFTable table) {
                         if (mode == Mode.REFERENCES) {
                             back.closeReferences();
                             mode = Mode.BODY;
                         }
-                        body.appendTable(table);
+                        body.appendTable(table, null, null, runRenderer);
                     }
                 }
 
@@ -209,10 +217,10 @@ public class DocxToJatsConverter {
     private String assembleArticle(String frontXml, String bodyXml, String backXml) {
         StringBuilder sb = new StringBuilder();
         sb.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
-        sb.append("<!DOCTYPE article PUBLIC \"-//NLM//DTD JATS (Z39.96) Journal Publishing DTD v1.3 20210610//EN\" ")
-          .append("\"JATS-journalpublishing1.dtd\">\n");
-        sb.append("<article xmlns:xlink=\"http://www.w3.org/1999/xlink\" ")
-          .append("article-type=\"research-article\" dtd-version=\"1.3\">\n");
+                sb.append("<!DOCTYPE article PUBLIC \"-//NLM//DTD JATS (Z39.96) Journal Publishing DTD v1.1 20151215//EN\" ")
+                    .append("\"https://jats.nlm.nih.gov/publishing/1.1/JATS-journalpublishing1.dtd\">\n");
+                sb.append("<article article-type=\"research-article\" dtd-version=\"1.1\" specific-use=\"sps-1.9\" xml:lang=\"es\" ")
+                    .append("xmlns:mml=\"http://www.w3.org/1998/Math/MathML\" xmlns:xlink=\"http://www.w3.org/1999/xlink\">\n");
         sb.append(frontXml);
         sb.append(bodyXml);
         sb.append(backXml);
@@ -287,5 +295,18 @@ public class DocxToJatsConverter {
         if (filename == null) return "Documento sin título";
         int idx = filename.lastIndexOf('.');
         return idx > 0 ? filename.substring(0, idx) : filename;
+    }
+
+    private String sectionType(String title) {
+        if (title == null) return null;
+        Matcher matcher = SECTION_TYPE.matcher(title.trim());
+        if (!matcher.matches()) return null;
+        String normalized = normalizeHeading(title);
+        if (normalized.startsWith("introduccion") || normalized.startsWith("introduction")) return "intro";
+        if (normalized.startsWith("metodologia") || normalized.startsWith("metodos") || normalized.startsWith("methods")) return "methods";
+        if (normalized.startsWith("resultado") || normalized.startsWith("results")) return "results";
+        if (normalized.startsWith("discusion") || normalized.startsWith("discussion")) return "discussion";
+        if (normalized.startsWith("conclusion")) return "conclusions";
+        return null;
     }
 }

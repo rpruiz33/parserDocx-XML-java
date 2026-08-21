@@ -1,10 +1,17 @@
 package com.converter.docxjats.service.jats;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 /**
  * Construye el bloque {@code <back>} del artículo JATS.
  * Genera la estructura <back><ref-list>...</ref-list></back>.
  */
 public class JatsBackBuilder {
+
+    private static final Pattern REFERENCE_NUMBER = Pattern.compile("^\\s*(?:\\[(\\d+)\\]|(\\d+))[.)]?\\s*(.*)$");
+    private static final Pattern DOI = Pattern.compile("(?i)\\b(10\\.\\d{4,9}/[-._;()/:a-z0-9]+)");
+    private static final Pattern URL = Pattern.compile("https?://\\S+");
 
     private final StringBuilder refList = new StringBuilder();
     private boolean started = false;
@@ -35,9 +42,30 @@ public class JatsBackBuilder {
             openReferences("Referencias");
         }
 
-        refList.append("<ref id=\"ref").append(refCounter++).append("\">\n")
-               .append("<mixed-citation>").append(XmlUtils.escape(text)).append("</mixed-citation>\n")
-               .append("</ref>\n");
+         Matcher numbered = REFERENCE_NUMBER.matcher(text);
+         String referenceId = numbered.matches() && numbered.group(1) != null
+              ? numbered.group(1)
+              : numbered.matches() && numbered.group(2) != null ? numbered.group(2) : String.valueOf(refCounter);
+         String citationText = numbered.matches() ? numbered.group(3) : text.trim();
+         Matcher doi = DOI.matcher(citationText);
+         Matcher url = URL.matcher(citationText);
+
+         refList.append("<ref id=\"B").append(referenceId).append("\">\n")
+             .append("<mixed-citation>").append(XmlUtils.escape(citationText)).append("</mixed-citation>\n");
+         if (doi.find()) {
+             refList.append("<pub-id pub-id-type=\"doi\">")
+                 .append(XmlUtils.escape(doi.group(1)))
+                 .append("</pub-id>\n");
+         }
+         if (url.find()) {
+             refList.append("<ext-link ext-link-type=\"uri\" xlink:href=\"")
+                 .append(XmlUtils.escape(url.group()))
+                 .append("\">")
+                 .append(XmlUtils.escape(url.group()))
+                 .append("</ext-link>\n");
+         }
+         refList.append("</ref>\n");
+         refCounter++;
     }
 
     public void closeReferences() {

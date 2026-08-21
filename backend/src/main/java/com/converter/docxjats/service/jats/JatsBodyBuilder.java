@@ -1,12 +1,12 @@
 package com.converter.docxjats.service.jats;
 
-import org.apache.poi.xwpf.usermodel.XWPFTable;
-import org.apache.poi.xwpf.usermodel.XWPFTableCell;
-import org.apache.poi.xwpf.usermodel.XWPFTableRow;
-
 import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.List;
+
+import org.apache.poi.xwpf.usermodel.XWPFTable;
+import org.apache.poi.xwpf.usermodel.XWPFTableCell;
+import org.apache.poi.xwpf.usermodel.XWPFTableRow;
 
 /**
  * Construye el bloque {@code <body>} del artículo JATS: secciones anidadas
@@ -48,6 +48,12 @@ public class JatsBodyBuilder {
         body.append("<p>").append(runsXml).append("</p>\n");
     }
 
+    public void appendDispQuote(String runsXml) {
+        if (runsXml == null || runsXml.isBlank()) return;
+        listTracker.closeIfOpen(body);
+        body.append("<disp-quote><p>").append(runsXml).append("</p></disp-quote>\n");
+    }
+
     public void appendListItem(String listType, String numId, String runsXml) {
         listTracker.open(body, listType, numId);
         body.append("<list-item list-item-type=\"").append(listType).append("\"><p>").append(runsXml).append("</p></list-item>\n");
@@ -67,28 +73,53 @@ public class JatsBodyBuilder {
     }
 
     public void appendTable(XWPFTable table) {
+        appendTable(table, null, null, null);
+    }
+
+    public void appendTable(XWPFTable table, String label, String caption, RunRenderer runRenderer) {
         listTracker.closeIfOpen(body);
         tableCounter++;
-        body.append("<table-wrap id=\"table").append(tableCounter).append("\">\n<table table-type=\"regular\">\n");
+        body.append("<table-wrap id=\"t").append(tableCounter).append("\">\n");
+        if (label != null && !label.isBlank()) {
+            body.append("<label>").append(XmlUtils.escape(label)).append("</label>\n");
+        }
+        if (caption != null && !caption.isBlank()) {
+            body.append("<caption><title>").append(XmlUtils.escape(caption)).append("</title></caption>\n");
+        }
+        body.append("<table table-type=\"regular\">\n<colgroup>\n");
+        int columnCount = table.getRows().isEmpty() ? 0 : table.getRows().get(0).getTableCells().size();
+        if (columnCount > 0) body.append("<col span=\"").append(columnCount).append("\"/>\n");
+        body.append("</colgroup>\n");
         List<XWPFTableRow> rows = table.getRows();
         boolean firstRow = true;
         for (XWPFTableRow row : rows) {
             if (firstRow) {
                 body.append("<thead>\n<tr>\n");
                 for (XWPFTableCell cell : row.getTableCells()) {
-                    body.append("<th>").append(XmlUtils.escape(cell.getText())).append("</th>\n");
+                    body.append("<th>").append(renderCell(cell, runRenderer)).append("</th>\n");
                 }
                 body.append("</tr>\n</thead>\n<tbody>\n");
                 firstRow = false;
             } else {
                 body.append("<tr>\n");
                 for (XWPFTableCell cell : row.getTableCells()) {
-                    body.append("<td>").append(XmlUtils.escape(cell.getText())).append("</td>\n");
+                    body.append("<td>").append(renderCell(cell, runRenderer)).append("</td>\n");
                 }
                 body.append("</tr>\n");
             }
         }
         body.append("</tbody>\n</table>\n</table-wrap>\n");
+    }
+
+    private String renderCell(XWPFTableCell cell, RunRenderer runRenderer) {
+        StringBuilder result = new StringBuilder();
+        for (var paragraph : cell.getParagraphs()) {
+            String content = runRenderer == null
+                    ? XmlUtils.escape(paragraph.getText())
+                    : runRenderer.render(paragraph);
+            if (!content.isBlank()) result.append("<p>").append(content).append("</p>");
+        }
+        return result.length() == 0 ? "<p/>" : result.toString();
     }
 
     /** Cierra listas y secciones pendientes y devuelve el XML final del <body>. */
