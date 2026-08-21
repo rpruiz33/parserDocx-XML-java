@@ -2,6 +2,9 @@ package com.converter.docxjats.service;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.text.Normalizer;
 import java.util.List;
 import java.util.Locale;
@@ -18,178 +21,188 @@ import org.apache.poi.xwpf.usermodel.XWPFPicture;
 import org.apache.poi.xwpf.usermodel.XWPFRun;
 import org.apache.poi.xwpf.usermodel.XWPFStyle;
 import org.apache.poi.xwpf.usermodel.XWPFTable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import com.converter.docxjats.dto.ConversionResult;
+import com.converter.docxjats.service.jats.DocxFrontParser;
 import com.converter.docxjats.service.jats.ImageRegistry;
 import com.converter.docxjats.service.jats.JatsBackBuilder;
 import com.converter.docxjats.service.jats.JatsBodyBuilder;
 import com.converter.docxjats.service.jats.JatsFrontBuilder;
 import com.converter.docxjats.service.jats.RunRenderer;
 
+/**
+ * Orquesta la conversión completa .docx -&gt; JATS.
+ *
+ * <p>El {@code <front>} lo arma {@link DocxFrontParser} (metadatos de revista,
+ * título, autores + ORCID + afiliaciones reales, resumen/abstract, palabras
+ * clave, financiamiento, conflicto de intereses, contribución autoral e
+ * historia editorial), leyendo directamente {@code word/document.xml} del
+ * .docx. Esta clase recorre el documento una <b>segunda vez</b> con Apache
+ * POI, pero <b>solo</b> para {@code <body>} y {@code <back>} (referencias):
+ * el rango de párrafos que ya consumió {@link DocxFrontParser} —al principio
+ * (metadatos/título/autores/afiliaciones/resumen/keywords) y al final
+ * (financiamiento/conflicto/contribución/historia)— se salta explícitamente
+ * para no duplicar contenido, usando los límites que expone el parser
+ * ({@link DocxFrontParser#getBodyStartParaIndex()} /
+ * {@link DocxFrontParser#getBodyEndParaIndex()}).
+ *
+ * <p>Los párrafos de "Referencias bibliográficas" quedan fuera de ese rango
+ * de body pero SÍ se procesan igual (vía {@link #isReferencesHeading}) porque
+ * quien arma el {@code <ref-list>} real sigue siendo {@link JatsBackBuilder};
+ * {@link DocxFrontParser} solo cuenta cuántas hay, para {@code ref-count}.
+ */
 @Service
 public class DocxToJatsConverter {
 
+    private static final Logger log = LoggerFactory.getLogger(DocxToJatsConverter.class);
+
     private static final Pattern HEADING_PATTERN =
             Pattern.compile("(?i)^(heading|t[ií]tulo)\\s*([1-6])$");
-    private static final Pattern TITLE_STYLE_PATTERN =
-            Pattern.compile("(?i)^(title|t[ií]tulo)$");
 
-    private enum Mode { BODY, ABSTRACT, AUTHORS, REFERENCES }
+    private enum Mode { BODY, REFERENCES }
 
     public ConversionResult convert(InputStream docxStream, String originalFilename) throws IOException {
-        try (XWPFDocument document = new XWPFDocument(docxStream)) {
+        // DocxFrontParser lee el .docx como zip (ZipFile), así que necesita un
+        // File real; XWPFDocument puede leer el mismo stream desde ese File
+        // sin problema. Se bufferea una sola vez a un temporal.
+        Path tempFile = Files.createTempFile("docxjats-", ".docx");
+        try {
+            Files.copy(docxStream, tempFile, StandardCopyOption.REPLACE_EXISTING);
 
-            ImageRegistry imageRegistry = new ImageRegistry();
-            RunRenderer runRenderer = new RunRenderer(imageRegistry);
+            JatsFrontBuilder front;
+            int bodyStart;
+            int bodyEnd;
+            try {
+                DocxFrontParser frontParser = new DocxFrontParser();
+                front = frontParser.parse(tempFile.toFile());
+                bodyStart = frontParser.getBodyStartParaIndex();
+                bodyEnd = frontParser.getBodyEndParaIndex();
+                for (DocxFrontParser.ParseWarning w : frontParser.getWarnings()) {
+                    log.warn("[front-parser][{}] {}", w.section(), w.message());
+                }
+            } catch (Exception e) {
+                // El front es best-effort: si el .docx no sigue la plantilla
+                // esperada, no tiene sentido tirar abajo toda la conversión.
+                log.warn("No se pudo parsear el front con DocxFrontParser, se usa uno vacío con título de archivo: {}",
+                        e.getMessage());
+                front = new JatsFrontBuilder();
+                bodyStart = -1; // -1 => no saltear nada (procesar todo el documento como body)
+                bodyEnd = Integer.MAX_VALUE;
+            }
 
-            JatsFrontBuilder front = new JatsFrontBuilder();
-            JatsBodyBuilder body = new JatsBodyBuilder();
-            JatsBackBuilder back = new JatsBackBuilder();
+            try (InputStream bodyStream = Files.newInputStream(tempFile);
+                 XWPFDocument document = new XWPFDocument(bodyStream)) {
 
-            Mode mode = Mode.BODY;
-            List<IBodyElement> elements = document.getBodyElements();
+                ImageRegistry imageRegistry = new ImageRegistry();
+                RunRenderer runRenderer = new RunRenderer(imageRegistry);
 
-            for (IBodyElement element : elements) {
+                JatsBodyBuilder body = new JatsBodyBuilder();
+                JatsBackBuilder back = new JatsBackBuilder();
 
-                if (element instanceof XWPFParagraph paragraph) {
-                    String styleName = resolveStyleName(document, paragraph);
-                    String rawText = paragraph.getText();
-                    String trimmedText = rawText != null ? rawText.trim() : "";
+                Mode mode = Mode.BODY;
+                List<IBodyElement> elements = document.getBodyElements();
+                int paraOrdinal = -1; // solo cuenta párrafos (<w:p>), igual que DocxFrontParser
 
-                    // Si el párrafo está completamente vacío, lo salta sin alterar estados
-                    if (trimmedText.isEmpty() && !isImageOnlyParagraph(paragraph)) {
-                        continue;
-                    }
+                for (IBodyElement element : elements) {
 
-                    String normalizedText = normalizeHeading(trimmedText);
+                    if (element instanceof XWPFParagraph paragraph) {
+                        paraOrdinal++;
+                        String rawText = paragraph.getText();
+                        String trimmedText = rawText != null ? rawText.trim() : "";
+                        String normalizedText = normalizeHeading(trimmedText);
 
-                    // --- Título / subtítulo principal -> FRONT ---
-                    if (!front.hasTitle() && styleName != null && TITLE_STYLE_PATTERN.matcher(styleName).matches()) {
-                        front.setTitle(trimmedText.isBlank() ? originalFilename : trimmedText);
-                        continue;
-                    }
-                    if (styleName != null && (styleName.equalsIgnoreCase("Subtitle") || styleName.equalsIgnoreCase("Subt\u00edtulo"))) {
-                        front.setSubtitle(trimmedText);
-                        continue;
-                    }
-                    if (processFrontMetadata(trimmedText, front)) {
-                         continue; 
-                   }
+                        boolean isReferencesHeadingLine = isReferencesHeading(normalizedText);
 
-                    // --- DETECCIÓN PRIORITARIA DE SECCIONES (Especialmente Referencias/Back) ---
-                    // Se verifica el texto primero, independiente de si Word le asignó estilo Heading o Normal.
-                    if (isReferencesHeading(normalizedText)) {
-                        if (mode == Mode.REFERENCES) back.closeReferences();
-                        back.openReferences(trimmedText);
-                        mode = Mode.REFERENCES;
-                        continue;
-                    }
-
-                    if (isAbstractHeading(normalizedText)) {
-                        if (mode == Mode.REFERENCES) back.closeReferences();
-                        mode = Mode.ABSTRACT;
-                        continue;
-                    }
-
-                    if (isAuthorsHeading(normalizedText)) {
-                        if (mode == Mode.REFERENCES) back.closeReferences();
-                        mode = Mode.AUTHORS;
-                        continue;
-                    }
-
-                    // --- ENCABEZADOS DE TIPO HEADING GENERAL (Secciones del Body) ---
-                    Matcher hm = styleName != null ? HEADING_PATTERN.matcher(styleName) : null;
-                    if (hm != null && hm.matches()) {
-                        int level = Integer.parseInt(hm.group(2));
-                        
-                        // Si veníamos de referencias u otro modo especial y encontramos un heading normal, salimos
-                        if (mode == Mode.REFERENCES) back.closeReferences();
-                        mode = Mode.BODY;
-
-                        body.openSection(level, trimmedText);
-                        continue;
-                    }
-
-                    // --- PROCESAMIENTO SEGÚN MODO ACTIVO ---
-
-                    // 1. Modo REFERENCIAS -> envía líneas directamente a JatsBackBuilder
-                    if (mode == Mode.REFERENCES) {
-                        back.appendReference(trimmedText);
-                        continue;
-                    }
-
-                    // 2. Modo AUTORES -> asigna metadata de autores
-                    if (mode == Mode.AUTHORS) {
-                        for (String segment : trimmedText.split(";")) {
-                            String trimmed = segment.trim();
-                            if (trimmed.isEmpty()) continue;
-                            String[] parts = trimmed.split("\\s*[-\u2013\u2014]\\s*", 2);
-                            if (parts.length == 2) {
-                                front.appendAuthor(parts[0], parts[1]);
-                            } else {
-                                front.appendAuthor(trimmed, null);
-                            }
+                        // Rango ya consumido por el front: metadatos, título, autores,
+                        // afiliaciones, resumen/abstract, keywords -> saltear.
+                        if (bodyStart >= 0 && paraOrdinal < bodyStart) {
+                            continue;
                         }
-                        continue;
-                    }
+                        // Cierre ya consumido por el front (financiamiento, conflicto,
+                        // contribución, historia), EXCEPTO la sección de referencias,
+                        // que sigue armándose acá con JatsBackBuilder.
+                        if (bodyEnd < Integer.MAX_VALUE && paraOrdinal >= bodyEnd
+                                && mode != Mode.REFERENCES && !isReferencesHeadingLine) {
+                            continue;
+                        }
 
-                    // 3. Listas (viñetas / numeradas)
-                    String numId = getNumId(paragraph);
-                    if (numId != null) {
-                        String listType = resolveListType(document, paragraph);
-                        String runsXml = runRenderer.render(paragraph);
-                        if (mode == Mode.ABSTRACT) {
-                            front.appendAbstractParagraph(runsXml);
-                        } else {
+                        // Si el párrafo está completamente vacío, lo salta sin alterar estados
+                        if (trimmedText.isEmpty() && !isImageOnlyParagraph(paragraph)) {
+                            continue;
+                        }
+
+                        if (isReferencesHeadingLine) {
+                            if (mode == Mode.REFERENCES) back.closeReferences();
+                            back.openReferences(trimmedText);
+                            mode = Mode.REFERENCES;
+                            continue;
+                        }
+
+                        String styleName = resolveStyleName(document, paragraph);
+                        Matcher hm = styleName != null ? HEADING_PATTERN.matcher(styleName) : null;
+                        if (hm != null && hm.matches()) {
+                            int level = Integer.parseInt(hm.group(2));
+                            if (mode == Mode.REFERENCES) back.closeReferences();
+                            mode = Mode.BODY;
+                            body.openSection(level, trimmedText);
+                            continue;
+                        }
+
+                        if (mode == Mode.REFERENCES) {
+                            back.appendReference(trimmedText);
+                            continue;
+                        }
+
+                        String numId = getNumId(paragraph);
+                        if (numId != null) {
+                            String listType = resolveListType(document, paragraph);
+                            String runsXml = runRenderer.render(paragraph);
                             body.appendListItem(listType, numId, runsXml);
+                            continue;
+                        } else {
+                            body.closeListIfOpen();
                         }
-                        continue;
-                    } else {
-                        body.closeListIfOpen();
-                    }
 
-                    // 4. Imágenes aisladas
-                    if (isImageOnlyParagraph(paragraph) && trimmedText.isBlank()) {
-                        for (XWPFRun run : paragraph.getRuns()) {
-                            for (XWPFPicture picture : run.getEmbeddedPictures()) {
-                                String filename = imageRegistry.register(picture);
-                                if (filename != null) {
-                                    body.appendFigure(filename);
+                        if (isImageOnlyParagraph(paragraph) && trimmedText.isBlank()) {
+                            for (XWPFRun run : paragraph.getRuns()) {
+                                for (XWPFPicture picture : run.getEmbeddedPictures()) {
+                                    String filename = imageRegistry.register(picture);
+                                    if (filename != null) {
+                                        body.appendFigure(filename);
+                                    }
                                 }
                             }
+                            continue;
                         }
-                        continue;
-                    }
 
-                    // 5. Párrafos normales -> ABSTRACT o BODY
-                    String runsXml = runRenderer.render(paragraph);
-                    if (mode == Mode.ABSTRACT) {
-                        front.appendAbstractParagraph(runsXml);
-                    } else {
+                        String runsXml = runRenderer.render(paragraph);
                         body.appendParagraph(runsXml);
-                    }
 
-                } else if (element instanceof XWPFTable table) {
-                    if (mode == Mode.REFERENCES) {
-                        back.closeReferences();
-                        mode = Mode.BODY;
+                    } else if (element instanceof XWPFTable table) {
+                        if (mode == Mode.REFERENCES) {
+                            back.closeReferences();
+                            mode = Mode.BODY;
+                        }
+                        body.appendTable(table);
                     }
-                    body.appendTable(table);
                 }
+
+                if (mode == Mode.REFERENCES) {
+                    back.closeReferences();
+                }
+
+                String fallbackTitle = stripExtension(originalFilename);
+                String xml = assembleArticle(front.build(fallbackTitle), body.build(), back.build());
+
+                ConversionResult result = new ConversionResult(xml);
+                imageRegistry.getImages().forEach(result::addImage);
+                return result;
             }
-
-            // Asegura el cierre de las referencias si el documento termina en esa sección
-            if (mode == Mode.REFERENCES) {
-                back.closeReferences();
-            }
-
-            String fallbackTitle = stripExtension(originalFilename);
-            String xml = assembleArticle(front.build(fallbackTitle), body.build(), back.build());
-
-            ConversionResult result = new ConversionResult(xml);
-            imageRegistry.getImages().forEach(result::addImage);
-            return result;
+        } finally {
+            Files.deleteIfExists(tempFile);
         }
     }
 
@@ -264,16 +277,8 @@ public class DocxToJatsConverter {
         return noAccents.toLowerCase(Locale.ROOT).trim();
     }
 
-    private boolean isAbstractHeading(String normalized) {
-        return normalized.equals("resumen") || normalized.equals("abstract") || normalized.equals("resumo");
-    }
-
-    private boolean isAuthorsHeading(String normalized) {
-        return normalized.equals("autor") || normalized.equals("autores") || normalized.equals("authors") || normalized.equals("author");
-    }
-
     private boolean isReferencesHeading(String normalized) {
-        return normalized.startsWith("referenc") 
+        return normalized.startsWith("referenc")
                 || normalized.startsWith("bibliograf")
                 || normalized.equals("referencias bibliograficas");
     }
@@ -283,45 +288,4 @@ public class DocxToJatsConverter {
         int idx = filename.lastIndexOf('.');
         return idx > 0 ? filename.substring(0, idx) : filename;
     }
-    private boolean processFrontMetadata(String line, JatsFrontBuilder front) {
-    if (line == null || line.isBlank()) return false;
-    String text = line.trim();
-
-    // Detección de versión SPS / SciELO
-    if (text.matches("(?i)^sps-\\d+\\.\\d+$")) {
-        front.setSpsVersion(text);
-        return true;
-    }
-    // Detección de idioma de 2 letras
-    if (text.matches("(?i)^(es|en|pt)$")) {
-        front.setLang(text.toLowerCase());
-        return true;
-    }
-    // Detección de DOI
-    if (text.contains("10.") && text.contains("/")) {
-        front.setArticleIdDoi(text.replaceAll("(?i)^https?://doi\\.org/", ""));
-        return true;
-    }
-    // Detección de ISSNs (ej: 1669-2381)
-    if (text.matches("^\\d{4}-\\d{3}[0-9X]$")) {
-        front.setIssnPrint(text);
-        return true;
-    }
-    // Detección de Nombre/Abreviatura de Revista o Universidad
-    if (text.equalsIgnoreCase("Salud Colectiva") || text.equalsIgnoreCase("Salud Colect")) {
-        front.setJournalName("Salud Colectiva");
-        front.setJournalAbbrev("Salud Colect");
-        return true;
-    }
-    if (text.equalsIgnoreCase("scol")) {
-        front.setJournalId("scol");
-        return true;
-    }
-    if (text.equalsIgnoreCase("Universidad Nacional de Lanús")) {
-        front.setPublisherName(text);
-        return true;
-    }
-
-    return false;
-}
 }
