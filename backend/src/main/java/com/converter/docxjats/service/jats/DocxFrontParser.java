@@ -108,7 +108,7 @@ public class DocxFrontParser {
             Pattern.CASE_INSENSITIVE);
     private static final Pattern INSTITUCION = Pattern.compile(
             "(Universidade|Universidad|Universit[eé]|Facultad|Faculdade|Instituto)\\s+[^,.;]+", Pattern.CASE_INSENSITIVE);
-    private static final Pattern STATE_COUNTRY_TAIL = Pattern.compile(",\\s*([^,]+),\\s*([^,.]+)\\.\\s*$");
+    private static final Pattern LOCATION_COUNTRY_TAIL = Pattern.compile(",\\s*([^,]+),\\s*([^,.]+)\\.\\s*$");
     private static final Pattern FUNDING_AWARD_ID = Pattern.compile("No\\.?\\s*([\\w./-]+)");
     private static final Pattern FUNDING_INSTITUTION = Pattern.compile(
             "(?:de la|del|de)\\s+([A-ZÀ-Ý][^,]*?(?:\\([A-Z]{2,}\\))?)(?:,|$)");
@@ -202,8 +202,8 @@ public class DocxFrontParser {
         parseTitle(c, b);
         parseTransTitle(c, b);
         List<AuthorRef> authorRefs = parseAuthors(c);
-        Map<String, String> affIdByLabel = parseAffiliations(c, b);
-        linkAuthors(b, authorRefs, affIdByLabel);
+        AffiliationParseResult affResult = parseAffiliations(c, b);
+        linkAuthors(b, authorRefs, affResult);
         parseAbstractAndKeywords(c, b);
         bodyStartParaIndex = c.i;
         skipBodyUntilBackMatter(c);
@@ -253,7 +253,18 @@ public class DocxFrontParser {
     // =================================================================
 
     private void parseJournalMeta(Cursor c, JatsFrontBuilder b) {
-        String spsVersion = textOf(c.nextNonBlank());
+        Para first = c.nextNonBlank();
+        if (first == null) return;
+
+        String firstText = textOf(first);
+        if (DOI.matcher(firstText).matches()) {
+            // Algunos DOCX arrancan directamente con DOI/categoría/título y no
+            // incluyen el bloque fijo de journal-meta.
+            b.setArticleIdDoi(firstText);
+            return;
+        }
+
+        String spsVersion = firstText;
         String lang = textOf(c.nextNonBlank());
         String journalAbbrev = textOf(c.nextNonBlank());
         String journalId = textOf(c.nextNonBlank());
@@ -327,13 +338,27 @@ public class DocxFrontParser {
     private record AuthorRef(String name, String orcid, List<String> affLabels) {
     }
 
+    private record AffiliationParseResult(Map<String, String> idByLabel, Map<String, String> bioByLabel) {
+    }
+
     /** ORCID hipervinculado (ideal) o, si el .docx no lo linkeó, un ID con forma de ORCID como texto plano. */
     private boolean looksLikeAuthorLine(Para p) {
+        if (p == null || p.isBlank()) return false;
         for (Run r : p.runs()) {
             if (r.hyperlink() != null && r.hyperlink().contains("orcid.org")) return true;
             if (!r.superscript() && BARE_ORCID.matcher(r.text().trim()).matches()) return true;
         }
-        return false;
+        boolean sawBaseText = false;
+        boolean sawSupAfterBase = false;
+        for (Run r : p.runs()) {
+            if (r.text().isBlank()) continue;
+            if (r.superscript()) {
+                if (sawBaseText) sawSupAfterBase = true;
+            } else {
+                sawBaseText = true;
+            }
+        }
+        return sawSupAfterBase;
     }
 
     private List<AuthorRef> parseAuthors(Cursor c) {
@@ -398,8 +423,9 @@ public class DocxFrontParser {
     }
 
     /** @return mapa label ("1","2",...) -&gt; id de aff generado ("aff1","aff2",...) en orden de aparición. */
-    private Map<String, String> parseAffiliations(Cursor c, JatsFrontBuilder b) {
+    private AffiliationParseResult parseAffiliations(Cursor c, JatsFrontBuilder b) {
         Map<String, String> idByLabel = new LinkedHashMap<>();
+        Map<String, String> bioByLabel = new LinkedHashMap<>();
         int n = 0;
         while (c.hasNext()) {
             Para p = c.peek();
@@ -413,9 +439,10 @@ public class DocxFrontParser {
             String id = "aff" + n;
             String label = extractLabel(p);
             idByLabel.put(label, id);
-            appendAffiliationFromParagraph(b, id, label, p);
+            String bio = appendAffiliationFromParagraph(b, id, label, p);
+            if (notBlank(bio)) bioByLabel.put(label, bio);
         }
-        return idByLabel;
+        return new AffiliationParseResult(idByLabel, bioByLabel);
     }
 
     private String extractLabel(Para p) {
@@ -428,7 +455,7 @@ public class DocxFrontParser {
         return sup.toString().trim();
     }
 
-    private void appendAffiliationFromParagraph(JatsFrontBuilder b, String id, String label, Para p) {
+    private String appendAffiliationFromParagraph(JatsFrontBuilder b, String id, String label, Para p) {
         String fullText = p.text().trim();
         Matcher m = AFF_LABEL_PREFIX.matcher(fullText);
         String body = m.matches() ? m.group(2).trim() : fullText;
@@ -470,15 +497,27 @@ public class DocxFrontParser {
             orgdiv1 = dept;
         }
 
-        String orgname = mostFrequentInstitution(bodyNoEmail);
+        String orgname = outerInstitution(bodyNoEmail);
+        String bio = extractBioPrefix(bodyNoEmail, orgname);
 
-        String state = null, country = null;
-        Matcher tailM = STATE_COUNTRY_TAIL.matcher(bodyNoEmail);
+        String city = null, state = null, country = null;
+        Matcher tailM = LOCATION_COUNTRY_TAIL.matcher(bodyNoEmail);
         if (tailM.find()) {
-            state = tailM.group(1).trim();
+            String location = tailM.group(1).trim();
             country = tailM.group(2).trim();
             String display = COUNTRY_DISPLAY_EN.get(country.toLowerCase());
             if (display != null) country = display;
+
+            String countryKey = country.toLowerCase();
+            if (countryKey.equals("brasil") || countryKey.equals("brazil")) {
+                state = location;
+            } else if (countryKey.equals("argentina")) {
+                city = location;
+            } else {
+                // En otros países priorizamos el nivel urbano porque suele ser
+                // el dato más estable en la afiliación del patrón de esta revista.
+                city = location;
+            }
         } else {
             warn("aff:" + id, "No se pudo separar estado/país al final de la afiliación; texto: '"
                     + bodyNoEmail + "'.");
@@ -489,40 +528,67 @@ public class DocxFrontParser {
                     + "revisar 'normalized'/'orgname' manualmente.");
         }
 
-        b.appendAffiliation(id, label, original, orgname, orgdiv1, orgdiv2, orgname, state, country, email);
-    }
-
-    private String mostFrequentInstitution(String text) {
-        Matcher m = INSTITUCION.matcher(text);
-        Map<String, Integer> counts = new LinkedHashMap<>();
-        while (m.find()) {
-            String candidate = m.group().trim();
-            counts.merge(candidate, 1, Integer::sum);
-        }
-        String best = null;
-        int bestCount = -1;
-        for (Map.Entry<String, Integer> e : counts.entrySet()) {
-            if (e.getValue() > bestCount) {
-                best = e.getKey();
-                bestCount = e.getValue();
+        if (orgdiv1 == null) {
+            String firstInstitution = firstInstitution(bodyNoEmail);
+            if (firstInstitution != null && !firstInstitution.equals(orgname)) {
+                orgdiv1 = firstInstitution;
             }
         }
-        return best;
+
+        b.appendAffiliation(id, label, original, orgname, orgdiv1, orgdiv2, orgname, city, state, country, email);
+        return bio;
     }
 
-    private void linkAuthors(JatsFrontBuilder b, List<AuthorRef> authorRefs, Map<String, String> affIdByLabel) {
+    private String extractBioPrefix(String text, String orgname) {
+        if (text == null || text.isBlank()) return null;
+        String candidate = text;
+        if (orgname != null && !orgname.isBlank()) {
+            int idx = text.indexOf(orgname);
+            if (idx > 0) candidate = text.substring(0, idx).trim();
+        } else {
+            Matcher m = INSTITUCION.matcher(text);
+            if (m.find()) {
+                int idx = m.start();
+                if (idx > 0) candidate = text.substring(0, idx).trim();
+            }
+        }
+
+        if (candidate.isBlank()) return null;
+        if (!candidate.matches("(?i)^(Doctora?|Doctor|Mag[íi]ster|M[aá]ster|Posdoctorand[ao]|Doctorand[ao]|Estudiante|Licenciado|Licenciada|Ingeniero|Ingeniera|M[eé]dico|M[eé]dica|Profesor[a]?|Docente|Investigador[a]?|Director[a]?)\\b.*")) {
+            return null;
+        }
+        return candidate.replaceAll("[\s,.;:-]+$", "");
+    }
+
+    private String outerInstitution(String text) {
+        Matcher m = INSTITUCION.matcher(text);
+        String last = null;
+        while (m.find()) {
+            last = m.group().trim();
+        }
+        return last;
+    }
+
+    private String firstInstitution(String text) {
+        Matcher m = INSTITUCION.matcher(text);
+        return m.find() ? m.group().trim() : null;
+    }
+
+    private void linkAuthors(JatsFrontBuilder b, List<AuthorRef> authorRefs, AffiliationParseResult affResult) {
         for (AuthorRef a : authorRefs) {
             List<String> rids = new ArrayList<>();
+            String bio = null;
             for (String label : a.affLabels()) {
-                String rid = affIdByLabel.get(label);
+                String rid = affResult.idByLabel().get(label);
                 if (rid != null) {
                     rids.add(rid);
+                    if (bio == null) bio = affResult.bioByLabel().get(label);
                 } else {
                     warn("authors", "El autor '" + a.name() + "' referencia la afiliación '" + label
                             + "' pero no se encontró esa afiliación en el documento.");
                 }
             }
-            b.appendAuthor(a.name(), rids, a.orcid(), false, null);
+            b.appendAuthor(a.name(), rids, a.orcid(), null, bio, false, null, false);
         }
     }
 
@@ -648,7 +714,7 @@ public class DocxFrontParser {
             Para p = c.peek();
             if (!p.isBlank() && p.isFullyBold()) {
                 String t = p.text().trim();
-                if (t.equals(H_FUNDING) || t.equals(H_CONFLICT) || t.equals(H_CONTRIB) || t.equals(H_REFERENCES)) {
+                if (isBackMatterHeading(t)) {
                     return; // dejamos el heading sin consumir para el siguiente estado
                 }
             }
@@ -668,16 +734,16 @@ public class DocxFrontParser {
                 continue;
             }
             String t = p.text().trim();
-            if (p.isFullyBold() && t.equals(H_FUNDING)) {
+            if (p.isFullyBold() && t.equalsIgnoreCase(H_FUNDING)) {
                 c.next();
                 parseFunding(c, b);
-            } else if (p.isFullyBold() && t.equals(H_CONFLICT)) {
+            } else if (p.isFullyBold() && t.equalsIgnoreCase(H_CONFLICT)) {
                 c.next();
                 parseConflict(c, b);
-            } else if (p.isFullyBold() && t.equals(H_CONTRIB)) {
+            } else if (p.isFullyBold() && t.equalsIgnoreCase(H_CONTRIB)) {
                 c.next();
                 parseContribution(c, b);
-            } else if (p.isFullyBold() && t.equals(H_REFERENCES)) {
+            } else if (p.isFullyBold() && t.equalsIgnoreCase(H_REFERENCES)) {
                 c.next();
                 parseReferences(c, b);
             } else if (HISTORY_LINE.matcher(t).matches()) {
@@ -698,7 +764,7 @@ public class DocxFrontParser {
             }
             if (p.isFullyBold()) {
                 String t = p.text().trim();
-                if (t.equals(H_FUNDING) || t.equals(H_CONFLICT) || t.equals(H_CONTRIB) || t.equals(H_REFERENCES)
+                if (isBackMatterHeading(t)
                         || HISTORY_LINE.matcher(t).matches()) {
                     break;
                 }
@@ -756,6 +822,13 @@ public class DocxFrontParser {
             c.next();
         }
         b.setRefCount(count);
+    }
+
+    private boolean isBackMatterHeading(String text) {
+        return text.equalsIgnoreCase(H_FUNDING)
+                || text.equalsIgnoreCase(H_CONFLICT)
+                || text.equalsIgnoreCase(H_CONTRIB)
+                || text.equalsIgnoreCase(H_REFERENCES);
     }
 
     private void parseHistory(Cursor c, JatsFrontBuilder b) {

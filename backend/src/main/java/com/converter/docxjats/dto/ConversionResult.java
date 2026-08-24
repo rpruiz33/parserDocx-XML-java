@@ -28,4 +28,12 @@ public class ConversionResult {
     public void addImage(String filename, byte[] data) {
         images.put(filename, data);
     }
+
+    public int getHeadingWarnings() {
+        return headingWarnings;
+    }
+
+    public void setHeadingWarnings(int headingWarnings) {
+        this.headingWarnings = Math.max(headingWarnings, 0);
+    }
 }

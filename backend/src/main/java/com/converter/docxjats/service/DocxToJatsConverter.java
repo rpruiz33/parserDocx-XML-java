@@ -79,11 +79,13 @@ public class DocxToJatsConverter {
             JatsFrontBuilder front;
             int bodyStart;
             int bodyEnd;
+            int headingWarningsCount = 0;
             try {
                 DocxFrontParser frontParser = new DocxFrontParser();
                 front = frontParser.parse(tempFile.toFile());
                 bodyStart = frontParser.getBodyStartParaIndex();
                 bodyEnd = frontParser.getBodyEndParaIndex();
+                headingWarningsCount = frontParser.getWarnings().size();
                 for (DocxFrontParser.ParseWarning w : frontParser.getWarnings()) {
                     log.warn("[front-parser][{}] {}", w.section(), w.message());
                 }
@@ -206,6 +208,7 @@ public class DocxToJatsConverter {
                 String xml = assembleArticle(front.build(fallbackTitle), body.build(), back.build());
 
                 ConversionResult result = new ConversionResult(xml);
+                result.setHeadingWarnings(headingWarningsCount);
                 imageRegistry.getImages().forEach(result::addImage);
                 return result;
             }
