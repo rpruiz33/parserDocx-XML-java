@@ -96,14 +96,14 @@ public class JatsBodyBuilder {
             if (firstRow) {
                 body.append("<thead>\n<tr>\n");
                 for (XWPFTableCell cell : row.getTableCells()) {
-                    body.append("<th>").append(renderCell(cell, runRenderer)).append("</th>\n");
+                    body.append("<th>").append(renderCell(cell, runRenderer, false)).append("</th>\n");
                 }
                 body.append("</tr>\n</thead>\n<tbody>\n");
                 firstRow = false;
             } else {
                 body.append("<tr>\n");
                 for (XWPFTableCell cell : row.getTableCells()) {
-                    body.append("<td>").append(renderCell(cell, runRenderer)).append("</td>\n");
+                    body.append("<td>").append(renderCell(cell, runRenderer, true)).append("</td>\n");
                 }
                 body.append("</tr>\n");
             }
@@ -111,13 +111,17 @@ public class JatsBodyBuilder {
         body.append("</tbody>\n</table>\n</table-wrap>\n");
     }
 
-    private String renderCell(XWPFTableCell cell, RunRenderer runRenderer) {
+    private String renderCell(XWPFTableCell cell, RunRenderer runRenderer, boolean paragraphWrapper) {
         StringBuilder result = new StringBuilder();
         for (var paragraph : cell.getParagraphs()) {
             String content = runRenderer == null
                     ? XmlUtils.escape(paragraph.getText())
                     : runRenderer.render(paragraph);
-            if (!content.isBlank()) result.append("<p>").append(content).append("</p>");
+            if (!content.isBlank()) {
+                result.append(paragraphWrapper ? "<p>" : "")
+                        .append(content)
+                        .append(paragraphWrapper ? "</p>" : "");
+            }
         }
         return result.length() == 0 ? "<p/>" : result.toString();
     }

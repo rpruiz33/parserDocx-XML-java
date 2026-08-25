@@ -76,13 +76,11 @@ public class RunRenderer {
             if (token.matches("\\d+")) {
                 result.append("<xref ref-type=\"bibr\" rid=\"B")
                         .append(token)
-                        .append("\"><sup>")
+                        .append(">")
                         .append(token)
-                        .append("</sup></xref>");
+                        .append("</xref>");
             } else {
-                result.append("<sup>")
-                        .append(XmlUtils.escape(token))
-                        .append("</sup>");
+                result.append(XmlUtils.escape(token));
             }
         }
         return result.toString();

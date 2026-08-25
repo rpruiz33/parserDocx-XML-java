@@ -464,7 +464,7 @@ public class DocxFrontParser {
         String email = emailM.find() ? emailM.group() : null;
         String bodyNoEmail = email != null ? body.substring(0, emailM.start()).trim() : body;
 
-        String original = bodyNoEmail + (email != null ? " " + email : "");
+        String original = bodyNoEmail;
 
         Matcher deptM = DEPARTAMENTO.matcher(bodyNoEmail);
         Matcher progM = PROGRAMA.matcher(bodyNoEmail);
@@ -805,7 +805,14 @@ public class DocxFrontParser {
 
     private void parseContribution(Cursor c, JatsFrontBuilder b) {
         List<String> lines = collectUntilNextHeading(c);
-        b.addAuthorNoteFn("equal", "fn3", "Contribución autoral", String.join(" ", lines));
+        String contribution = String.join(" ", lines);
+        for (String authorContribution : contribution.split("(?<=\\.)\\s+(?=[^:]+:)", -1)) {
+            int separator = authorContribution.indexOf(':');
+            if (separator < 1) continue;
+            String authorName = authorContribution.substring(0, separator).trim();
+            String role = authorContribution.substring(separator + 1).trim();
+            b.setAuthorRole(authorName, role);
+        }
     }
 
     private void parseReferences(Cursor c, JatsFrontBuilder b) {

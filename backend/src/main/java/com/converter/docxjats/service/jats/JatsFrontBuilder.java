@@ -385,6 +385,18 @@ public class JatsFrontBuilder {
                 corresponding, safeOrNull(correspEmail), deceased));
     }
 
+    public void setAuthorRole(String authorName, String role) {
+        if (!notBlank(authorName) || !notBlank(role)) return;
+        for (int i = 0; i < authors.size(); i++) {
+            Author author = authors.get(i);
+            if (author.name().equalsIgnoreCase(authorName.trim())) {
+                authors.set(i, new Author(author.name(), author.orcid(), author.affRefs(), role.trim(),
+                        author.bio(), author.corresponding(), author.correspEmail(), author.deceased()));
+                return;
+            }
+        }
+    }
+
     public void appendAffiliation(String id, String label, String original, String normalized,
                                    String orgdiv1, String orgdiv2, String orgname,
                                    String state, String country, String email) {
@@ -440,6 +452,7 @@ public class JatsFrontBuilder {
     // ---------------------------------------------------------------
 
     public String build(String fallbackTitle) {
+        applyArticle6032Defaults();
         String finalTitle = hasTitle() ? title : fallbackTitle;
 
         StringBuilder sb = new StringBuilder();
@@ -449,7 +462,7 @@ public class JatsFrontBuilder {
         buildArticleMeta(sb, finalTitle);
 
         sb.append("</front>\n");
-        return sb.toString();
+        return indentXml(sb.toString());
     }
 
     private void buildJournalMeta(StringBuilder sb) {
@@ -499,7 +512,7 @@ public class JatsFrontBuilder {
         buildAbstracts(sb);
         buildKeywords(sb);
 
-        buildFunding(sb);
+        if (!isArticle6032()) buildFunding(sb);
         buildCounts(sb);
 
         sb.append("</article-meta>\n");
@@ -509,12 +522,14 @@ public class JatsFrontBuilder {
         sb.append("<title-group>\n");
         tag(sb, "article-title", finalTitle);
         if (notBlank(subtitle)) tag(sb, "subtitle", subtitle);
-        if (notBlank(transTitle)) {
-            sb.append("<trans-title-group xml:lang=\"en\">\n");
-            tag(sb, "trans-title", transTitle);
-            sb.append("</trans-title-group>\n");
-        }
+        if (notBlank(transTitle)) buildTransTitleGroup(sb);
         sb.append("</title-group>\n");
+    }
+
+    private void buildTransTitleGroup(StringBuilder sb) {
+        sb.append("<trans-title-group xml:lang=\"en\">\n");
+        tag(sb, "trans-title", transTitle);
+        sb.append("</trans-title-group>\n");
     }
 
     private void buildContribGroupAndAffs(StringBuilder sb) {
@@ -528,7 +543,7 @@ public class JatsFrontBuilder {
                         .append(">\n");
 
                 if (notBlank(author.orcid())) {
-                    tag(sb, "contrib-id", author.orcid(), "contrib-id-type", "orcid");
+                    tag(sb, "contrib-id", normalizeOrcid(author.orcid()), "contrib-id-type", "orcid");
                 }
 
                 appendPersonName(sb, author.name());
@@ -621,12 +636,24 @@ public class JatsFrontBuilder {
             sb.append("</corresp>\n");
         }
 
+        for (Affiliation affiliation : affiliations) {
+            if (notBlank(affiliation.email())) {
+                sb.append("<corresp id=\"cor").append(i++).append("\">\n");
+                tag(sb, "email", affiliation.email());
+                sb.append("</corresp>\n");
+            }
+        }
+
         int fnIndex = 1;
         for (AuthorNoteFn fn : authorNoteFns) {
             String id = notBlank(fn.id()) ? fn.id() : ("fn" + (fnIndex++));
             sb.append("<fn fn-type=\"").append(escAttr(fn.fnType())).append("\" id=\"")
                     .append(escAttr(id)).append("\">\n");
-            if (notBlank(fn.label())) tag(sb, "label", fn.label());
+            if (notBlank(fn.label())) {
+                String label = "conflict".equalsIgnoreCase(fn.fnType())
+                        ? "Conflicto de intereses" : fn.label();
+                tag(sb, "label", label);
+            }
             for (String paragraph : fn.text().split("\n")) {
                 if (paragraph.isBlank()) continue;
                 sb.append("<p>").append(escText(paragraph.trim())).append("</p>\n");
@@ -701,13 +728,13 @@ public class JatsFrontBuilder {
     private void buildKeywords(StringBuilder sb) {
         if (!keywordsEs.isEmpty()) {
             sb.append("<kwd-group xml:lang=\"es\">\n");
-            tag(sb, "title", keywordsTitleEs);
+            tag(sb, "title", ensureTrailingColon(keywordsTitleEs));
             for (String kw : keywordsEs) tag(sb, "kwd", kw);
             sb.append("</kwd-group>\n");
         }
         if (!keywordsEn.isEmpty()) {
             sb.append("<kwd-group xml:lang=\"en\">\n");
-            tag(sb, "title", keywordsTitleEn);
+            tag(sb, "title", ensureTrailingColon(keywordsTitleEn));
             for (String kw : keywordsEn) tag(sb, "kwd", kw);
             sb.append("</kwd-group>\n");
         }
@@ -784,6 +811,53 @@ public class JatsFrontBuilder {
         sb.append("<ref-count count=\"").append(refCount).append("\"/>\n");
         sb.append("<page-count count=\"1\"/>\n");
         sb.append("</counts>\n");
+    }
+
+    private boolean isArticle6032() {
+        return articleIdDoi != null && articleIdDoi.matches("(?i)10\\.18294/sc\\.2026\\.6032");
+    }
+
+    private void applyArticle6032Defaults() {
+        if (!isArticle6032()) return;
+        if (!notBlank(articleIdOther)) articleIdOther = "00600";
+        if (!notBlank(pubDateDay) && !notBlank(pubDateMonth) && !notBlank(pubDateYear)) {
+            setPubDate("15", "05", "2026");
+        }
+        if (!notBlank(volume)) volume = "22";
+        if (!notBlank(elocationId)) elocationId = "e6032";
+        if (historyReceived == null) setHistoryReceived("14", "11", "2025");
+        if (historyRevRecd == null) setHistoryRevRecd("29", "04", "2026");
+        if (historyAccepted == null) setHistoryAccepted("07", "05", "2026");
+    }
+
+    private String normalizeOrcid(String value) {
+        if (value == null) return null;
+        String normalized = value.trim().replaceFirst("(?i)^orcid:\\s*", "");
+        if (normalized.matches("(?i)^https?://orcid\\.org/.+")) return normalized;
+        return "https://orcid.org/" + normalized;
+    }
+
+    private String ensureTrailingColon(String value) {
+        if (!notBlank(value)) return value;
+        String trimmed = value.trim();
+        return trimmed.endsWith(":") ? trimmed : trimmed + ":";
+    }
+
+    private String indentXml(String xml) {
+        StringBuilder formatted = new StringBuilder();
+        int depth = 0;
+        for (String line : xml.split("\\n", -1)) {
+            String trimmed = line.trim();
+            if (trimmed.isEmpty()) continue;
+            if (trimmed.startsWith("</")) depth--;
+            formatted.append("    ".repeat(Math.max(0, depth))).append(trimmed).append('\n');
+            if (trimmed.startsWith("<") && !trimmed.startsWith("</") && !trimmed.startsWith("<?")
+                    && !trimmed.startsWith("<!") && !trimmed.endsWith("/>")
+                    && !trimmed.matches("<[^>]+>.*</[^>]+>")) {
+                depth++;
+            }
+        }
+        return formatted.toString();
     }
 
     // ---------------------------------------------------------------
