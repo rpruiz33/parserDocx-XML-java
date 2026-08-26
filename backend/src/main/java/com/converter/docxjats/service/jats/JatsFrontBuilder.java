@@ -832,9 +832,7 @@ public class JatsFrontBuilder {
 
     private String normalizeOrcid(String value) {
         if (value == null) return null;
-        String normalized = value.trim().replaceFirst("(?i)^orcid:\\s*", "");
-        if (normalized.matches("(?i)^https?://orcid\\.org/.+")) return normalized;
-        return "https://orcid.org/" + normalized;
+        return value.trim().replaceFirst("(?i)^orcid:\\s*", "").trim();
     }
 
     private String ensureTrailingColon(String value) {
