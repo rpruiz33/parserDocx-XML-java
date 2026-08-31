@@ -72,21 +72,21 @@ public class JatsBodyBuilder {
             .append("</fig>\n");
     }
 
-    public void appendTable(XWPFTable table) {
-        appendTable(table, null, null, null);
+    public void appendTable(XWPFTable table, String label, String caption, RunRenderer runRenderer) {
+        appendTable(table, label, caption, null, runRenderer);
     }
 
-    public void appendTable(XWPFTable table, String label, String caption, RunRenderer runRenderer) {
+    public void appendTable(XWPFTable table, String label, String caption, String footnote, RunRenderer runRenderer) {
         listTracker.closeIfOpen(body);
         tableCounter++;
-        body.append("<table-wrap id=\"t").append(tableCounter).append("\">\n");
+        body.append("<table-wrap id=\"t").append(tableCounter).append("\" specific-use=\"sps-1.9\">\n");
         if (label != null && !label.isBlank()) {
             body.append("<label>").append(XmlUtils.escape(label)).append("</label>\n");
         }
         if (caption != null && !caption.isBlank()) {
             body.append("<caption><title>").append(XmlUtils.escape(caption)).append("</title></caption>\n");
         }
-        body.append("<table table-type=\"regular\">\n<colgroup>\n");
+        body.append("<table frame=\"hsides\" rules=\"groups\">\n<colgroup>\n");
         int columnCount = table.getRows().isEmpty() ? 0 : table.getRows().get(0).getTableCells().size();
         if (columnCount > 0) body.append("<col span=\"").append(columnCount).append("\"/>\n");
         body.append("</colgroup>\n");
@@ -108,7 +108,11 @@ public class JatsBodyBuilder {
                 body.append("</tr>\n");
             }
         }
-        body.append("</tbody>\n</table>\n</table-wrap>\n");
+        body.append("</tbody>\n</table>\n");
+        if (footnote != null && !footnote.isBlank()) {
+            body.append("<table-wrap-foot>\n<fn><p>").append(XmlUtils.escape(footnote)).append("</p></fn>\n</table-wrap-foot>\n");
+        }
+        body.append("</table-wrap>\n");
     }
 
     private String renderCell(XWPFTableCell cell, RunRenderer runRenderer, boolean paragraphWrapper) {

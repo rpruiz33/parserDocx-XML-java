@@ -40,7 +40,7 @@ public class JatsEndpointController {
             byte[] xmlBytes = response.xml().getBytes(StandardCharsets.UTF_8);
 
             HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.APPLICATION_XML);
+            headers.setContentType(new MediaType("application", "xml", StandardCharsets.UTF_8));
             headers.setContentDisposition(
                     org.springframework.http.ContentDisposition.attachment().filename("article-" + id + "-jats.xml").build());
 

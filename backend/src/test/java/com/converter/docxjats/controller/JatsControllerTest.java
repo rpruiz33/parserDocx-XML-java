@@ -1,5 +1,6 @@
 package com.converter.docxjats.controller;
 
+import com.converter.docxjats.service.jats.JatsFrontBuilder;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -7,6 +8,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.util.List;
+
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -23,7 +27,7 @@ public class JatsControllerTest {
     public void testGetJatsForArticle6032() throws Exception {
         mockMvc.perform(get("/jats/6032"))
                 .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_XML))
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_XML))
                 .andExpect(content().string(containsString("<article")))
                 .andExpect(content().string(containsString("<journal-meta>")))
                 .andExpect(content().string(containsString("<article-id pub-id-type=\"doi\">10.18294/sc.2026.6032</article-id>")))
@@ -35,7 +39,7 @@ public class JatsControllerTest {
     public void testGetJatsForArticle5939() throws Exception {
         mockMvc.perform(get("/jats/5939"))
                 .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_XML))
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_XML))
                 .andExpect(content().string(containsString("<article")))
                 .andExpect(content().string(containsString("<journal-meta>")))
                 .andExpect(content().string(containsString("<article-id pub-id-type=\"doi\">10.18294/sc.2026.5939</article-id>")))
@@ -49,8 +53,35 @@ public class JatsControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"articleId\": \"6032\"}"))
                 .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_XML))
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_XML))
                 .andExpect(content().string(containsString("6032")));
+    }
+
+    @Test
+    public void testFrontBuilderProducesStructuredJatsFront() {
+        JatsFrontBuilder builder = new JatsFrontBuilder();
+        builder.setSpsVersion("sps-1.9");
+        builder.setLang("es");
+        builder.setTitle("Artículo de ejemplo");
+        builder.appendAuthor("Ana Pérez", List.of("aff1"), "0000-0001-2345-6789", false, null);
+        builder.appendAffiliation("aff1", "1", "Universidad X, Ciudad, País.", "Universidad X", "Facultad de Salud",
+                null, "Universidad X", "Ciudad", "Provincia", "País", "ana@example.com");
+        builder.appendAbstractParagraph("<italic>Resumen</italic> de prueba.");
+        builder.addKeywordEs("salud");
+        builder.addKeywordEn("health");
+
+        String xml = builder.build("Fallback title");
+
+        assertThat(xml, containsString("<front"));
+        assertThat(xml, containsString("<journal-meta>"));
+        assertThat(xml, containsString("<article-meta"));
+        assertThat(xml, containsString("specific-use=\"sps-1.9\""));
+        assertThat(xml, containsString("xml:lang=\"es\""));
+        assertThat(xml, containsString("<title-group>"));
+        assertThat(xml, containsString("<contrib-group>"));
+        assertThat(xml, containsString("<aff id=\"aff1\""));
+        assertThat(xml, containsString("<abstract>"));
+        assertThat(xml, containsString("<kwd-group"));
     }
 
     @Test

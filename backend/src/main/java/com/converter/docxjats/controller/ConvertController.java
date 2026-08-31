@@ -64,7 +64,7 @@ public class ConvertController {
             String baseName = stripExtension(file.getOriginalFilename());
 
             HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.valueOf("application/xml"));
+            headers.setContentType(new MediaType("application", "xml", java.nio.charset.StandardCharsets.UTF_8));
             headers.setContentDisposition(
                     ContentDisposition.attachment().filename(baseName + "-jats.xml").build());
 

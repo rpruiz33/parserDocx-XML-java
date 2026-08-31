@@ -456,7 +456,14 @@ public class JatsFrontBuilder {
         String finalTitle = hasTitle() ? title : fallbackTitle;
 
         StringBuilder sb = new StringBuilder();
-        sb.append("<front>\n");
+        sb.append("<front");
+        if (notBlank(spsVersion)) {
+            sb.append(" specific-use=\"").append(escAttr(spsVersion)).append("\"");
+        }
+        if (notBlank(lang)) {
+            sb.append(" xml:lang=\"").append(escAttr(lang)).append("\"");
+        }
+        sb.append(">\n");
 
         buildJournalMeta(sb);
         buildArticleMeta(sb, finalTitle);
@@ -553,7 +560,9 @@ public class JatsFrontBuilder {
                 }
 
                 if (notBlank(author.role())) {
-                    tag(sb, "role", author.role());
+                    sb.append("<role vocab=\"CRediT\" vocab-identifier=\"http://credit.niso.org/\">")
+                      .append(escText(author.role()))
+                      .append("</role>\n");
                 }
 
                 // Vínculo real con afiliaciones por rid, no por posición.

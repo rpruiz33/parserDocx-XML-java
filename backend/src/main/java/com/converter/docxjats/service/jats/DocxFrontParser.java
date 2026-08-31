@@ -85,16 +85,6 @@ public class DocxFrontParser {
     }
 
     // =================================================================
-    // Máquina de estados
-    // =================================================================
-
-    private enum State {
-        JOURNAL_META, ARTICLE_CATEGORY, TITLE, TRANS_TITLE, AUTHORS, AFFILIATIONS,
-        ABSTRACT_ES, KEYWORDS_ES, ABSTRACT_EN, KEYWORDS_EN, BODY,
-        FUNDING, CONFLICT, CONTRIB, REFERENCES, HISTORY, DONE
-    }
-
-    // =================================================================
     // Patrones (regex)
     // =================================================================
 
