@@ -12,6 +12,7 @@ import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.not;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -82,6 +83,32 @@ public class JatsControllerTest {
         assertThat(xml, containsString("<aff id=\"aff1\""));
         assertThat(xml, containsString("<abstract>"));
         assertThat(xml, containsString("<kwd-group"));
+    }
+
+    @Test
+    public void testFrontBuilderUsesRequestedAuthorAndPublicationStructure() {
+        JatsFrontBuilder builder = new JatsFrontBuilder();
+        builder.setTitle("Artículo de ejemplo");
+        builder.setVolume("22");
+        builder.setElocationId("e5939");
+        builder.setPubDate("11", "03", "2026");
+        builder.appendAuthor("Ana Pérez", List.of("aff1"), "0000-0001-2345-6789", "Conceptualización", true, "ana@universidad.edu", false);
+        builder.appendAuthor("Luis Gómez", List.of("aff1"), null, null, "Biógrafo del autor", false, null, false);
+        builder.appendAffiliation("aff1", "1", "Universidad X", "Universidad X", "Facultad de Salud",
+                null, "Universidad X", "Ciudad", "Provincia", "País", "contacto@universidad.edu");
+        builder.addAuthorNoteFn("con", "fn-con", "Contribución", "Ana Pérez: conceptualización; Luis Gómez: revisión crítica.");
+
+        String xml = builder.build("Fallback title");
+
+        assertThat(xml, containsString("<pub-date date-type=\"pub\" publication-format=\"electronic\">"));
+        assertThat(xml, containsString("<year>2026</year>"));
+        assertThat(xml, containsString("<volume>22</volume>"));
+        assertThat(xml, containsString("<elocation-id>e5939</elocation-id>"));
+        assertThat(xml, containsString("<email>ana@universidad.edu</email>"));
+        assertThat(xml, containsString("<fn fn-type=\"con\" id=\"fn-con\">"));
+        assertThat(xml, containsString("<xref ref-type=\"aff\" rid=\"aff1\">"));
+        assertThat(xml, not(containsString("<bio>")));
+        assertThat(xml, not(containsString("<role vocab=\"CRediT\"")));
     }
 
     @Test

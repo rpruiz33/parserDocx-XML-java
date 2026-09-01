@@ -795,13 +795,9 @@ public class DocxFrontParser {
 
     private void parseContribution(Cursor c, JatsFrontBuilder b) {
         List<String> lines = collectUntilNextHeading(c);
-        String contribution = String.join(" ", lines);
-        for (String authorContribution : contribution.split("(?<=\\.)\\s+(?=[^:]+:)", -1)) {
-            int separator = authorContribution.indexOf(':');
-            if (separator < 1) continue;
-            String authorName = authorContribution.substring(0, separator).trim();
-            String role = authorContribution.substring(separator + 1).trim();
-            b.setAuthorRole(authorName, role);
+        String contribution = String.join(" ", lines).trim();
+        if (!contribution.isBlank()) {
+            b.addAuthorNoteFn("con", "fn-con", "Contribución", contribution);
         }
     }
 

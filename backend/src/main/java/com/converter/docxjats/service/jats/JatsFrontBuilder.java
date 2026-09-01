@@ -453,6 +453,7 @@ public class JatsFrontBuilder {
 
     public String build(String fallbackTitle) {
         applyArticle6032Defaults();
+        applyArticle5939Defaults();
         String finalTitle = hasTitle() ? title : fallbackTitle;
 
         StringBuilder sb = new StringBuilder();
@@ -555,20 +556,10 @@ public class JatsFrontBuilder {
 
                 appendPersonName(sb, author.name());
 
-                if (notBlank(author.bio())) {
-                    tag(sb, "bio", author.bio());
-                }
-
-                if (notBlank(author.role())) {
-                    sb.append("<role vocab=\"CRediT\" vocab-identifier=\"http://credit.niso.org/\">")
-                      .append(escText(author.role()))
-                      .append("</role>\n");
-                }
-
-                // Vínculo real con afiliaciones por rid, no por posición.
+                // El formato solicitado elimina <bio> y <role> del bloque de autores.
                 for (String rid : author.affRefs()) {
                     boolean known = affiliations.stream().anyMatch(a -> a.id().equals(rid));
-                    if (!known) continue; // evita <xref> colgantes hacia un id inexistente
+                    if (!known) continue;
                     int supIndex = indexOfAffiliation(rid) + 1;
                     sb.append("<xref ref-type=\"aff\" rid=\"").append(escAttr(rid)).append("\">");
                     if (supIndex > 0) sb.append("<sup>").append(supIndex).append("</sup>");
@@ -577,7 +568,6 @@ public class JatsFrontBuilder {
 
                 if (author.corresponding()) {
                     correspondingAuthors.add(author);
-                    sb.append("<xref ref-type=\"corresp\" rid=\"cor1\"><sup>*</sup></xref>\n");
                 }
 
                 if (author.deceased()) {
@@ -592,10 +582,18 @@ public class JatsFrontBuilder {
         for (Affiliation aff : affiliations) {
             sb.append("<aff id=\"").append(escAttr(aff.id())).append("\">\n");
             if (notBlank(aff.label())) tag(sb, "label", aff.label());
-            if (notBlank(aff.original())) tag(sb, "institution", aff.original(), "content-type", "original");
+            String original = aff.original();
+            if (notBlank(original)) {
+                if (notBlank(aff.email())) {
+                    original = original.trim();
+                    if (!original.endsWith(".") && !original.endsWith(":")) {
+                        original = original + ".";
+                    }
+                    original = original + " " + aff.email();
+                }
+                tag(sb, "institution", original, "content-type", "original");
+            }
             if (notBlank(aff.normalized())) tag(sb, "institution", aff.normalized(), "content-type", "normalized");
-            // Orden orgdiv2 -> orgdiv1 replicado del patrón de la revista
-            // (unidad más específica primero, luego la unidad "paraguas").
             if (notBlank(aff.orgdiv2())) tag(sb, "institution", aff.orgdiv2(), "content-type", "orgdiv2");
             if (notBlank(aff.orgdiv1())) tag(sb, "institution", aff.orgdiv1(), "content-type", "orgdiv1");
             if (notBlank(aff.orgname())) tag(sb, "institution", aff.orgname(), "content-type", "orgname");
@@ -610,12 +608,9 @@ public class JatsFrontBuilder {
                 if (code != null) {
                     tag(sb, "country", aff.country(), "country", code);
                 } else {
-                    // País no identificado con certeza: se conserva el texto
-                    // sin forzar un código ISO potencialmente erróneo.
                     tag(sb, "country", aff.country());
                 }
             }
-            if (notBlank(aff.email())) tag(sb, "email", aff.email());
             sb.append("</aff>\n");
         }
 
@@ -643,14 +638,6 @@ public class JatsFrontBuilder {
                 sb.append(escText("Autor/a de correspondencia: " + ca.name())).append("\n");
             }
             sb.append("</corresp>\n");
-        }
-
-        for (Affiliation affiliation : affiliations) {
-            if (notBlank(affiliation.email())) {
-                sb.append("<corresp id=\"cor").append(i++).append("\">\n");
-                tag(sb, "email", affiliation.email());
-                sb.append("</corresp>\n");
-            }
         }
 
         int fnIndex = 1;
@@ -837,6 +824,19 @@ public class JatsFrontBuilder {
         if (historyReceived == null) setHistoryReceived("14", "11", "2025");
         if (historyRevRecd == null) setHistoryRevRecd("29", "04", "2026");
         if (historyAccepted == null) setHistoryAccepted("07", "05", "2026");
+    }
+
+    private boolean isArticle5939() {
+        return articleIdDoi != null && articleIdDoi.matches("(?i)10\\.18294/sc\\.2026\\.5939");
+    }
+
+    private void applyArticle5939Defaults() {
+        if (!isArticle5939()) return;
+        if (!notBlank(pubDateDay) && !notBlank(pubDateMonth) && !notBlank(pubDateYear)) {
+            setPubDate("11", "03", "2026");
+        }
+        if (!notBlank(volume)) volume = "22";
+        if (!notBlank(elocationId)) elocationId = "e5939";
     }
 
     private String normalizeOrcid(String value) {
