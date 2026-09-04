@@ -449,22 +449,33 @@ public class DocxFrontParser {
         return null;
     }
     // Parser corregido para evitar falsos positivos con expresiones como "código de financiamiento No."
-    public void parseFundingGroup(JatsFrontBuilder b, String fundingStatementText) {
+    public void parseFundingGroup(JatsFrontBuilder builder, String fundingStatementText) {
         if (fundingStatementText == null || fundingStatementText.isBlank()) return;
 
-        b.setFundingStatement(fundingStatementText);
+        // Guardar el texto completo del funding-statement
+        builder.setFundingStatement(fundingStatementText);
 
-        // Mapeo explícito de entidades financiadoras e identificadores de contrato/beca
-        Pattern pattern = Pattern.compile(
-            "(Coordenação de Aperfeiçoamento de Pessoal de Nível Superior|CAPES|Fundação de Amparo à Pesquisa e Inovação do Estado de Santa Catarina|FAPESC)[^;.]*?(?:No\\.|Nº)?\\s*([0-9\\/\\-]+)",
-            Pattern.CASE_INSENSITIVE
-        );
+        // Regex específica para buscar nombres de agencias reales seguidos de sus códigos/números
+        // Grupo 1: Nombre de la agencia
+        // Grupo 2: Código/ID del premio o contrato
+        String regex = "(Coordenação de Aperfeiçoamento de Pessoal de Nível Superior(?:\\s*\\(CAPES\\))?|CAPES|Fundação de Amparo à Pesquisa e Inovação do Estado de Santa Catarina(?:\\s*\\(FAPESC\\))?|FAPESC|CNPq|FINEP)"
+                    + "[^;.]*?(?:código de financiamiento|No\\.|Nº|norte\\.|nº)?\\s*:?\\s*([0-9]{3,}[0-9\\/\\-]*)";
 
+        Pattern pattern = Pattern.compile(regex, Pattern.CASE_INSENSITIVE);
         Matcher matcher = pattern.matcher(fundingStatementText);
+
         while (matcher.find()) {
             String sponsor = matcher.group(1).trim();
             String awardId = matcher.group(2).trim();
-            b.addAwardGroup("contract", sponsor, awardId);
+
+            // Normalizar nombres si vienen en siglas o abreviaciones
+            if (sponsor.equalsIgnoreCase("CAPES")) {
+                sponsor = "Coordenação de Aperfeiçoamento de Pessoal de Nível Superior";
+            } else if (sponsor.equalsIgnoreCase("FAPESC")) {
+                sponsor = "Fundação de Amparo à Pesquisa e Inovação do Estado de Santa Catarina";
+            }
+
+            builder.addAwardGroup("contract", sponsor, awardId);
         }
     }
 
@@ -924,18 +935,103 @@ public class DocxFrontParser {
         return new Run(text.toString(), bold, italic, superscript, hyperlinkTarget);
     }
 
-    private Document readEntryAsXml(File docxFile, String entryName) throws Exception {
-        try (ZipFile zip = new ZipFile(docxFile)) {
-            ZipEntry entry = zip.getEntry(entryName);
-            if (entry == null) return null;
-            try (InputStream is = zip.getInputStream(entry)) {
-                DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-                factory.setNamespaceAware(true);
-                factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
-                factory.setExpandEntityReferences(false);
-                DocumentBuilder builder = factory.newDocumentBuilder();
-                return builder.parse(is);
+        private Document readEntryAsXml(File docxFile, String entryName) throws Exception {
+            try (ZipFile zip = new ZipFile(docxFile)) {
+                ZipEntry entry = zip.getEntry(entryName);
+                if (entry == null) return null;
+                try (InputStream is = zip.getInputStream(entry)) {
+                    DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+                    factory.setNamespaceAware(true);
+                    factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+                    factory.setExpandEntityReferences(false);
+                    DocumentBuilder builder = factory.newDocumentBuilder();
+                    return builder.parse(is);
+                }
             }
         }
+    private void parseAffiliationParagraph(JatsFrontBuilder builder, String affId, String label, String rawParagraphText) {
+            if (rawParagraphText == null || rawParagraphText.isBlank()) return;
+
+            // 1. Limpiar únicamente el superíndice/número inicial del párrafo (ej: "1 ", "1.", "1- ")
+            // \A^?\d+[\s\.\)-]* coincide solo con dígitos al inicio estricto de la cadena
+            String originalText = rawParagraphText.replaceAll("^\\s*\\d+[\\s\\.\\)-]*", "").trim();
+
+            // 2. Extraer el email antes de procesar el texto original
+            String email = null;
+            Matcher emailMatcher = Pattern.compile("[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}").matcher(originalText);
+            if (emailMatcher.find()) {
+                email = emailMatcher.group();
+            }
+
+            // 3. Extraer las divisiones administrativas e institución principal
+            String orgname = extractOrgName(originalText); // Lógica para obtener "Universidade Federal de Santa Catarina"
+            String orgdiv1 = extractOrgDiv1(originalText); // "Programa de Pós-Graduação em Saúde Coletiva"
+            String orgdiv2 = extractOrgDiv2(originalText); // "Departamento de Saúde Pública"
+
+            // 4. Extraer datos geográficos (Estado / País)
+            String state = extractState(originalText);   // "Santa Catarina"
+            String country = extractCountry(originalText); // "Brasil"
+
+            // Pasar el 'originalText' COMPLETO (sin recortar "Doctora...", "Magíster...", etc.)
+            builder.appendAffiliation(
+            affId,
+            label,
+            originalText,
+            orgdiv1,
+            orgdiv2,
+            orgname,
+            null,       // city
+            state,
+            country,
+            email
+            );
+            }
+        private String extractOrgName(String text) {
+        if (text == null || text.isBlank()) {
+            return "";
+        }
+
+        // Replace with the actual extraction logic.
+        return text.trim();
+    }
+    private String extractOrgDiv1(String text) {
+        if (text == null || text.isBlank()) return null;
+
+        Matcher matcher = Pattern.compile(
+                "(?i)(Programa de[^,;]+|Faculdade de[^,;]+|Centro de[^,;]+)"
+        ).matcher(text);
+
+        return matcher.find() ? matcher.group(1).trim() : null;
+    }
+
+    private String extractOrgDiv2(String text) {
+        if (text == null || text.isBlank()) return null;
+
+        Matcher matcher = Pattern.compile(
+                "(?i)(Departamento de[^,;]+)"
+        ).matcher(text);
+
+        return matcher.find() ? matcher.group(1).trim() : null;
+    }
+
+    private String extractState(String text) {
+        if (text == null || text.isBlank()) return null;
+
+        Matcher matcher = Pattern.compile(
+                "(?i)\\b(Santa Catarina|São Paulo|Rio de Janeiro|Paraná|Minas Gerais)\\b"
+        ).matcher(text);
+
+        return matcher.find() ? matcher.group(1) : null;
+    }
+    
+
+    private String extractCountry(String text) {
+        if (text == null || text.isBlank()) return null;
+
+        Matcher matcher = Pattern.compile(
+                "(?i)\\b(Brasil|Brazil|Argentina|Chile|Colombia|México)\\b"
+        ).matcher(text);
+
+        return matcher.find() ? matcher.group(1) : null;
     }
 }

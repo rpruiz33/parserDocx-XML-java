@@ -540,39 +540,42 @@ public record AwardGroup(String awardType, String sponsor, String awardId) {}
             sb.append("</contrib-group>\n");
         }
 
-      for (Affiliation aff : affiliations) {
+      
+        for (Affiliation aff : affiliations) {
             sb.append("        <aff id=\"").append(escAttr(aff.id())).append("\">\n");
             if (notBlank(aff.label())) tag(sb, "label", aff.label());
             
-            // Mantiene el texto completo sin recortes
-            if (notBlank(aff.original())) {
-                tag(sb, "institution", aff.original(), "content-type", "original");
-            }
-            if (notBlank(aff.normalized())) tag(sb, "institution", aff.normalized(), "content-type", "normalized");
+            // Texto original de la afiliación
+            if (notBlank(aff.original())) tag(sb, "institution", aff.original(), "content-type", "original");
+            
+            // Divisiones e Institución
             if (notBlank(aff.orgdiv2())) tag(sb, "institution", aff.orgdiv2(), "content-type", "orgdiv2");
             if (notBlank(aff.orgdiv1())) tag(sb, "institution", aff.orgdiv1(), "content-type", "orgdiv1");
             if (notBlank(aff.orgname())) tag(sb, "institution", aff.orgname(), "content-type", "orgname");
             
-            // Mapeo geográfico de ciudad y estado
-            if (notBlank(aff.city()) || notBlank(aff.state())) {
+            // ESTRUCTURA GEOGRÁFICA OBLIGATORIA DE SCIELO PS 1.9
+            if (notBlank(aff.state()) || notBlank(aff.city())) {
                 sb.append("            <addr-line>\n");
                 if (notBlank(aff.city())) tag(sb, "city", aff.city());
                 if (notBlank(aff.state())) tag(sb, "state", aff.state());
                 sb.append("            </addr-line>\n");
             }
             
-            // Inclusión obligatoria del código ISO del país si es Brasil
             if (notBlank(aff.country())) {
-                String code = "BR"; // O resolver con resolveCountryCode(aff.country())
-                tag(sb, "country", aff.country(), "country-code", code);
+                String code = "Brasil".equalsIgnoreCase(aff.country()) || "Brazil".equalsIgnoreCase(aff.country()) ? "BR" : resolveCountryCode(aff.country());
+                if (code != null) {
+                    tag(sb, "country", aff.country(), "country-code", code);
+                } else {
+                    tag(sb, "country", aff.country());
+                }
             }
 
-            // Inclusión limpia del nodo email
             if (notBlank(aff.email())) {
                 tag(sb, "email", aff.email());
             }
             sb.append("        </aff>\n");
         }
+        
     }
     private void buildAuthorNotes(StringBuilder sb, List<Author> correspondingAuthors) {
         if (correspondingAuthors.isEmpty() && authorNoteFns.isEmpty()) return;
