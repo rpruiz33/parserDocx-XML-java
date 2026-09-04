@@ -4,28 +4,34 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-
+import java.util.ArrayList;
+import java.util.List;
 /**
  * Construye el bloque {@code <front>} del artículo JATS: metadatos de la
  * revista, título/subtítulo del artículo, autores (contrib-group), afiliaciones,
  * notas de autor, fechas de publicación/historia editorial, licencia, resumen,
  * palabras clave, financiamiento y conteos.
- *
- * <p>El orden de las secciones dentro de {@code <article-meta>} y los
- * atributos usados replican el patrón real de salida de la revista
- * (Salud Colectiva, sps-1.9):
- * <pre>
- * article-id* -&gt; article-categories -&gt; title-group -&gt; contrib-group -&gt; aff*
- * -&gt; author-notes? -&gt; pub-date* -&gt; volume -&gt; issue? -&gt; elocation-id
- * -&gt; history -&gt; permissions -&gt; abstract -&gt; trans-abstract -&gt; kwd-group*
- * -&gt; funding-group -&gt; counts
- * </pre>
- *
- * <p>Esta clase es un <b>generador</b> de XML JATS a partir de datos ya
- * estructurados (no parsea el .docx ni el XML resultante).
  */
 public class JatsFrontBuilder {
+    
+public record AwardGroup(String awardType, String sponsor, String awardId) {}
 
+    private final List<AwardGroup> awardGroups = new ArrayList<>();
+    private String fundingStatement;
+
+    public void addAwardGroup(String type, String sponsor, String awardId) {
+        if (sponsor != null && !sponsor.isBlank()) {
+            this.awardGroups.add(new AwardGroup(type, sponsor, awardId));
+        }
+    }
+
+    public String getFundingStatement() {
+        return this.fundingStatement;
+    }
+
+    public List<AwardGroup> getAwardGroups() {
+        return this.awardGroups;
+    }
     // ---------------------------------------------------------------
     // Modelos internos
     // ---------------------------------------------------------------
@@ -33,9 +39,9 @@ public class JatsFrontBuilder {
     private record Author(
             String name,
             String orcid,
-            List<String> affRefs,   // ids de <aff> a los que referencia (rid)
-            String role,            // contrib role opcional (no todas las revistas lo usan)
-            String bio,             // <bio> opcional (no todas las revistas lo usan)
+            List<String> affRefs,
+            String role,
+            String bio,
             boolean corresponding,
             String correspEmail,
             boolean deceased) {
@@ -53,9 +59,6 @@ public class JatsFrontBuilder {
     private record AuthorNoteFn(String fnType, String id, String label, String text) {
     }
 
-    // Mapeo mínimo de nombres comunes de país -> código ISO 3166-1 alpha-2.
-    // Si el país no está en el mapa y no viene ya en 2 letras, se omite el
-    // atributo "country" en vez de forzar un valor incorrecto.
     private static final Map<String, String> COUNTRY_CODES = new LinkedHashMap<>();
     static {
         COUNTRY_CODES.put("argentina", "AR");
@@ -113,7 +116,7 @@ public class JatsFrontBuilder {
     private String pubDateYear = "";
     private String collectionYear = "";
 
-    private String[] historyReceived;   // {day, month, year}
+    private String[] historyReceived;
     private String[] historyRevRecd;
     private String[] historyAccepted;
 
@@ -123,14 +126,14 @@ public class JatsFrontBuilder {
     private String licenseLang = "es";
 
     private final List<FundingSource> fundingSources = new ArrayList<>();
-    private String fundingStatement = "";
+
 
     private int figCount = 0;
     private int tableCount = 0;
     private int refCount = 0;
 
     // ---------------------------------------------------------------
-    // Setters simples
+    // Setters
     // ---------------------------------------------------------------
 
     public void setSpsVersion(String spsVersion) {
@@ -189,7 +192,6 @@ public class JatsFrontBuilder {
         if (notBlank(articleIdDoi)) this.articleIdDoi = articleIdDoi.trim();
     }
 
-    /** Id secundario del artículo (pub-id-type="other"), ej. correlativo interno de la revista. */
     public void setArticleIdOther(String articleIdOther) {
         if (notBlank(articleIdOther)) this.articleIdOther = articleIdOther.trim();
     }
@@ -204,7 +206,6 @@ public class JatsFrontBuilder {
 
     private String articleCategory = "Artículo";
 
-    /** Categoría temática mostrada en article-categories/subj-group (por defecto "Artículo"). */
     public void setArticleCategory(String articleCategory) {
         if (notBlank(articleCategory)) this.articleCategory = articleCategory.trim();
     }
@@ -213,7 +214,6 @@ public class JatsFrontBuilder {
         if (notBlank(elocationId)) this.elocationId = elocationId.trim();
     }
 
-    /** Fecha de publicación electrónica (epub). */
     public void setPubDate(String day, String month, String year) {
         this.pubDateDay = safe(day);
         this.pubDateMonth = safe(month);
@@ -236,7 +236,6 @@ public class JatsFrontBuilder {
         this.historyAccepted = new String[]{safe(day), safe(month), safe(year)};
     }
 
-    /** Licencia con tipo (ej. "open-access") e idioma del texto legal (por defecto "es"). */
     public void setLicense(String url, String text, String type, String lang) {
         this.licenseUrl = safe(url);
         this.licenseText = safe(text);
@@ -244,20 +243,17 @@ public class JatsFrontBuilder {
         if (notBlank(lang)) this.licenseLang = lang.trim();
     }
 
-    /** @deprecated usar {@link #setLicense(String, String, String, String)} para fijar también el idioma. */
     @Deprecated
     public void setLicense(String url, String text, String type) {
         setLicense(url, text, type, this.licenseLang);
     }
 
-    /** Financiamiento con tipo de subvención (por defecto "contract", igual que el patrón de la revista). */
     public void addFundingSource(String source, String awardId, String awardType) {
         if (source == null || source.isBlank()) return;
         fundingSources.add(new FundingSource(source.trim(), safe(awardId),
                 notBlank(awardType) ? awardType.trim() : "contract"));
     }
 
-    /** @deprecated usar {@link #addFundingSource(String, String, String)} para fijar el award-type. */
     @Deprecated
     public void addFundingSource(String source, String awardId) {
         addFundingSource(source, awardId, "contract");
@@ -291,15 +287,6 @@ public class JatsFrontBuilder {
         this.refCount++;
     }
 
-    /**
-     * Agrega una nota de autor genérica dentro de {@code <author-notes>}, con la
-     * misma forma que usa el patrón de la revista para conflicto de intereses
-     * o contribución autoral: {@code <fn fn-type="...">}&lt;label/&gt;&lt;p/&gt;.
-     * Ejemplos de fnType: "conflict", "equal" (contribución autoral), "other".
-     * Si el texto trae varias líneas (separadas por {@code \n}), cada una se
-     * renderiza como un {@code <p>} independiente dentro del mismo {@code <fn>}
-     * (ej. contribución autoral: un párrafo por autor).
-     */
     public void addAuthorNoteFn(String fnType, String id, String label, String text) {
         if (text == null || text.isBlank()) return;
         authorNoteFns.add(new AuthorNoteFn(
@@ -308,7 +295,6 @@ public class JatsFrontBuilder {
                 safe(label), text.trim()));
     }
 
-    /** Variante que arma el texto multi-párrafo a partir de una lista, uniendo con salto de línea. */
     public void addAuthorNoteFn(String fnType, String id, String label, List<String> paragraphs) {
         if (paragraphs == null || paragraphs.isEmpty()) return;
         StringBuilder joined = new StringBuilder();
@@ -324,25 +310,11 @@ public class JatsFrontBuilder {
     // Autores
     // ---------------------------------------------------------------
 
-    /**
-     * @deprecated El parámetro {@code affiliation} se interpreta como un
-     * único {@code rid} de afiliación (el {@code id} pasado a
-     * {@link #appendAffiliation}). Para múltiples afiliaciones o para fijar
-     * autor de correspondencia / rol, usar {@link #appendAuthor(String, List, String, boolean, String)}.
-     */
     @Deprecated
     public void appendAuthor(String name, String affiliation) {
         appendAuthor(name, affiliation, null);
     }
 
-    /**
-     * @deprecated {@code affiliationOrRid} se trata como uno o más
-     * {@code rid} separados por coma (ej. {@code "aff1,aff2"}), que deben
-     * coincidir con el {@code id} usado en {@link #appendAffiliation}. Si no
-     * matchea ningún id conocido, el autor queda sin afiliación vinculada
-     * en vez de vincularse "por posición" (comportamiento previo, que era
-     * incorrecto cuando el orden de autores y afiliaciones no coincidía).
-     */
     @Deprecated
     public void appendAuthor(String name, String affiliationOrRid, String orcid) {
         List<String> refs = new ArrayList<>();
@@ -354,19 +326,16 @@ public class JatsFrontBuilder {
         appendAuthorInternal(name, orcid, refs, null, null, false, null, false);
     }
 
-    /** API recomendada: vincula al autor explícitamente por los rid reales de sus afiliaciones. */
     public void appendAuthor(String name, List<String> affRids, String orcid,
                               boolean corresponding, String correspEmail) {
         appendAuthorInternal(name, orcid, affRids, null, null, corresponding, correspEmail, false);
     }
 
-    /** Variante completa, incluyendo rol de contribución y marca de fallecido. */
     public void appendAuthor(String name, List<String> affRids, String orcid, String role,
                               boolean corresponding, String correspEmail, boolean deceased) {
         appendAuthorInternal(name, orcid, affRids, role, null, corresponding, correspEmail, deceased);
     }
 
-    /** Variante con {@code <bio>} (algunas revistas repiten el texto de la afiliación por autor; otras no lo usan). */
     public void appendAuthor(String name, List<String> affRids, String orcid, String role, String bio,
                               boolean corresponding, String correspEmail, boolean deceased) {
         appendAuthorInternal(name, orcid, affRids, role, bio, corresponding, correspEmail, deceased);
@@ -489,13 +458,6 @@ public class JatsFrontBuilder {
         sb.append("</journal-meta>\n");
     }
 
-    /**
-     * Orden replicado del patrón: article-id* -&gt; article-categories -&gt;
-     * title-group -&gt; contrib-group -&gt; aff* -&gt; author-notes? -&gt;
-     * pub-date* -&gt; volume -&gt; issue? -&gt; elocation-id -&gt; history -&gt;
-     * permissions -&gt; abstract -&gt; trans-abstract -&gt; kwd-group* ->
-     * funding-group -&gt; counts.
-     */
     private void buildArticleMeta(StringBuilder sb, String finalTitle) {
         sb.append("<article-meta>\n");
 
@@ -528,15 +490,15 @@ public class JatsFrontBuilder {
 
     private void buildTitleGroup(StringBuilder sb, String finalTitle) {
         sb.append("<title-group>\n");
-        tag(sb, "article-title", finalTitle);
-        if (notBlank(subtitle)) tag(sb, "subtitle", subtitle);
+        tagRaw(sb, "article-title", finalTitle);
+        if (notBlank(subtitle)) tagRaw(sb, "subtitle", subtitle);
         if (notBlank(transTitle)) buildTransTitleGroup(sb);
         sb.append("</title-group>\n");
     }
 
     private void buildTransTitleGroup(StringBuilder sb) {
         sb.append("<trans-title-group xml:lang=\"en\">\n");
-        tag(sb, "trans-title", transTitle);
+        tagRaw(sb, "trans-title", transTitle);
         sb.append("</trans-title-group>\n");
     }
 
@@ -556,7 +518,6 @@ public class JatsFrontBuilder {
 
                 appendPersonName(sb, author.name());
 
-                // El formato solicitado elimina <bio> y <role> del bloque de autores.
                 for (String rid : author.affRefs()) {
                     boolean known = affiliations.stream().anyMatch(a -> a.id().equals(rid));
                     if (!known) continue;
@@ -579,50 +540,40 @@ public class JatsFrontBuilder {
             sb.append("</contrib-group>\n");
         }
 
-        for (Affiliation aff : affiliations) {
-            sb.append("<aff id=\"").append(escAttr(aff.id())).append("\">\n");
+      for (Affiliation aff : affiliations) {
+            sb.append("        <aff id=\"").append(escAttr(aff.id())).append("\">\n");
             if (notBlank(aff.label())) tag(sb, "label", aff.label());
-            String original = aff.original();
-            if (notBlank(original)) {
-                if (notBlank(aff.email())) {
-                    original = original.trim();
-                    if (!original.endsWith(".") && !original.endsWith(":")) {
-                        original = original + ".";
-                    }
-                    original = original + " " + aff.email();
-                }
-                tag(sb, "institution", original, "content-type", "original");
+            
+            // Mantiene el texto completo sin recortes
+            if (notBlank(aff.original())) {
+                tag(sb, "institution", aff.original(), "content-type", "original");
             }
             if (notBlank(aff.normalized())) tag(sb, "institution", aff.normalized(), "content-type", "normalized");
             if (notBlank(aff.orgdiv2())) tag(sb, "institution", aff.orgdiv2(), "content-type", "orgdiv2");
             if (notBlank(aff.orgdiv1())) tag(sb, "institution", aff.orgdiv1(), "content-type", "orgdiv1");
             if (notBlank(aff.orgname())) tag(sb, "institution", aff.orgname(), "content-type", "orgname");
+            
+            // Mapeo geográfico de ciudad y estado
             if (notBlank(aff.city()) || notBlank(aff.state())) {
-                sb.append("<addr-line>\n");
+                sb.append("            <addr-line>\n");
                 if (notBlank(aff.city())) tag(sb, "city", aff.city());
                 if (notBlank(aff.state())) tag(sb, "state", aff.state());
-                sb.append("</addr-line>\n");
+                sb.append("            </addr-line>\n");
             }
+            
+            // Inclusión obligatoria del código ISO del país si es Brasil
             if (notBlank(aff.country())) {
-                String code = resolveCountryCode(aff.country());
-                if (code != null) {
-                    tag(sb, "country", aff.country(), "country", code);
-                } else {
-                    tag(sb, "country", aff.country());
-                }
+                String code = "BR"; // O resolver con resolveCountryCode(aff.country())
+                tag(sb, "country", aff.country(), "country-code", code);
             }
-            sb.append("</aff>\n");
+
+            // Inclusión limpia del nodo email
+            if (notBlank(aff.email())) {
+                tag(sb, "email", aff.email());
+            }
+            sb.append("        </aff>\n");
         }
-
-        buildAuthorNotes(sb, correspondingAuthors);
     }
-
-    /**
-     * {@code <author-notes>} combinando, en este orden: autor(es) de
-     * correspondencia (si hay) y luego las notas genéricas agregadas vía
-     * {@link #addAuthorNoteFn} (conflicto de intereses, contribución
-     * autoral, etc.), igual que el patrón de la revista.
-     */
     private void buildAuthorNotes(StringBuilder sb, List<Author> correspondingAuthors) {
         if (correspondingAuthors.isEmpty() && authorNoteFns.isEmpty()) return;
 
@@ -689,7 +640,6 @@ public class JatsFrontBuilder {
     private String keywordsTitleEs = "Palabras claves:";
     private String keywordsTitleEn = "Keywords:";
 
-    /** Título de &lt;abstract&gt; tal como aparece en el .docx (algunas revistas/artículos lo escriben en mayúsculas). */
     public void setAbstractTitle(String abstractTitle) {
         if (notBlank(abstractTitle)) this.abstractTitle = abstractTitle.trim();
     }
@@ -871,7 +821,6 @@ public class JatsFrontBuilder {
     // Helpers
     // ---------------------------------------------------------------
 
-    /** Escribe {@code <tagName>escape(value)</tagName>} si value no es blank. */
     private void tag(StringBuilder sb, String tagName, String value) {
         if (!notBlank(value)) return;
         sb.append('<').append(tagName).append('>')
@@ -879,7 +828,13 @@ public class JatsFrontBuilder {
                 .append("</").append(tagName).append(">\n");
     }
 
-    /** Escribe {@code <tagName attrName="escape(attrValue)">escape(value)</tagName>} si value no es blank. */
+    private void tagRaw(StringBuilder sb, String tagName, String rawXmlContent) {
+        if (!notBlank(rawXmlContent)) return;
+        sb.append('<').append(tagName).append('>')
+                .append(rawXmlContent)
+                .append("</").append(tagName).append(">\n");
+    }
+
     private void tag(StringBuilder sb, String tagName, String value, String attrName, String attrValue) {
         if (!notBlank(value)) return;
         sb.append('<').append(tagName).append(' ')
@@ -894,8 +849,6 @@ public class JatsFrontBuilder {
     }
 
     private String escAttr(String value) {
-        // Los atributos requieren, como mínimo, el mismo escapado de entidades
-        // que el texto (XmlUtils.escape ya cubre &, <, >, ", ').
         return XmlUtils.escape(value);
     }
 

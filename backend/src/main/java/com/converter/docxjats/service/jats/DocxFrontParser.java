@@ -20,41 +20,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 /**
- * Lee el {@code .docx} fuente que usa esta revista (metadatos fijos por
- * posición al inicio del documento, seguidos de título, autores,
- * afiliaciones, resumen/abstract, palabras clave, cuerpo, financiamiento,
- * conflicto de intereses, contribución autoral, referencias e historia
- * editorial) y llena un {@link JatsFrontBuilder}.
- *
- * <h2>Diseño</h2>
- * <p>Se recorre la lista de párrafos del documento con una <b>máquina de
- * estados</b> ({@link State}): cada estado sabe qué forma tiene el párrafo
- * que le corresponde (negrita, superíndice, hipervínculo, numeración de
- * lista) y cuándo debe ceder el turno al siguiente estado. Dentro de cada
- * estado se usan <b>expresiones regulares</b> para separar la etiqueta del
- * contenido (ej. {@code "Resumen: ..."}), para detectar el DOI, emails,
- * fechas de historia editorial, y para inferir subcampos de afiliación
- * (departamento, programa, institución, estado, país) a partir de texto
- * libre.
- *
- * <h2>Confiabilidad por sección</h2>
- * <ul>
- *   <li><b>Alta</b> (mecánica, no depende de heurísticas de lenguaje natural):
- *       metadatos de revista, DOI, título/trans-título, autores + ORCID,
- *       vínculo autor-afiliación, resumen/abstract, palabras clave,
- *       conflicto de intereses, contribución autoral, historia editorial,
- *       conteo de referencias.</li>
- *   <li><b>Heurística</b> (funciona en este documento y en documentos con
- *       la misma convención, pero conviene que un editor la revise):
- *       separación de la afiliación en departamento/programa/institución/
- *       estado/país, y separación del financiamiento en fuente + código de
- *       subvención. El texto libre de estas secciones varía demasiado entre
- *       artículos como para garantizar 100% de acierto solo con regex.</li>
- * </ul>
- *
- * <p>No arma {@code <body>} ni {@code <ref-list>} completos — eso excede el
- * alcance de {@link JatsFrontBuilder}. La sección de referencias solo se usa
- * para fijar {@code ref-count}.
+ * Lee el {@code .docx} fuente que usa esta revista y llena un {@link JatsFrontBuilder}.
  */
 public class DocxFrontParser {
 
@@ -62,13 +28,11 @@ public class DocxFrontParser {
     // Modelo de párrafo
     // =================================================================
 
-    /** Un "run" de texto de Word con su formato relevante para el parseo. */
     private record Run(String text, boolean bold, boolean italic, boolean superscript, String hyperlink) {
     }
 
     private record Para(List<Run> runs, String text, boolean numbered) {
 
-        /** true si TODOS los runs con texto son negrita (heurística de encabezado de sección). */
         boolean isFullyBold() {
             boolean any = false;
             for (Run r : runs) {
@@ -88,22 +52,40 @@ public class DocxFrontParser {
     // Patrones (regex)
     // =================================================================
 
-    private static final Pattern DOI = Pattern.compile("^10\\.\\d{4,9}/\\S+$");
-    private static final Pattern EMAIL = Pattern.compile("[\\w.+-]+@[\\w-]+\\.[\\w.-]+");
-    private static final Pattern AFF_LABEL_PREFIX = Pattern.compile("^(\\d+)(.*)$", Pattern.DOTALL);
-    private static final Pattern DEPARTAMENTO = Pattern.compile("Departamento de ([^,.;]+)", Pattern.CASE_INSENSITIVE);
-    private static final Pattern PROGRAMA = Pattern.compile("Programa de P[oó]s-?[Gg]radua[cç][aã]o em ([^,.;]+)", Pattern.CASE_INSENSITIVE);
-    private static final Pattern TRAINEE_ROLE_BEFORE_PROGRAM = Pattern.compile(
-            "(?:Posdoctorand[ao]|Doctorand[ao]|Estudiante|Maestrand[ao]|Alumn[ao])\\s*,\\s*$",
+    private static final Pattern DOI = Pattern.compile("^10\\.\\d{4,9}/[-._;()/:A-Za-z0-9]+$");
+    private static final Pattern EMAIL = Pattern.compile("[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}");
+    private static final Pattern AFF_LABEL_PREFIX = Pattern.compile("^(?:<sup>)?([0-9a-zA-Z,\\s*]+)(?:</sup>)?(?:[\\s.:-]+)?(.*)$", Pattern.DOTALL);
+
+    private static final Pattern DEPARTAMENTO = Pattern.compile(
+            "(?:Departament[oo]|Dept[oO]?\\.?)\\s+de\\s+([^,.;:]+)", 
             Pattern.CASE_INSENSITIVE);
+
+    private static final Pattern PROGRAMA = Pattern.compile(
+            "(?:Programa\\s+de\\s+P[oó]s-?[Gg]radua[cç][aã]o|Postgrado|Posgrado|Master|Maestr[íi]a)\\s+(?:em|en)\\s+([^,.;:]+)", 
+            Pattern.CASE_INSENSITIVE);
+
+    private static final Pattern TRAINEE_ROLE_BEFORE_PROGRAM = Pattern.compile(
+            "\\b(?:estudiante|alumn[oa]|becari[oa]|discente|estagiári[oa]|bolsista|student|trainee|fellow)\\b",
+            Pattern.CASE_INSENSITIVE);
+
     private static final Pattern INSTITUCION = Pattern.compile(
-            "(Universidade|Universidad|Universit[eé]|Facultad|Faculdade|Instituto)\\s+[^,.;]+", Pattern.CASE_INSENSITIVE);
-    private static final Pattern LOCATION_COUNTRY_TAIL = Pattern.compile(",\\s*([^,]+),\\s*([^,.]+)\\.\\s*$");
-    private static final Pattern FUNDING_AWARD_ID = Pattern.compile("No\\.?\\s*([\\w./-]+)");
+            "(?:Universidade|Universidad|Universit[eé]|Facultad|Faculdade|Instituto|Escuela|Hospital|Centro\\s+de\\s+Investigaci[oó]n)\\s+[^,.;:]+", 
+            Pattern.CASE_INSENSITIVE);
+
+    private static final Pattern LOCATION_COUNTRY_TAIL = Pattern.compile(
+            ",\\s*([^,.]+)(?:,\\s*([A-Z]{2}|[^,.]+))?,\\s*([^,.]+)\\.\\s*$", 
+            Pattern.CASE_INSENSITIVE);
+
+    private static final Pattern FUNDING_AWARD_ID = Pattern.compile(
+            "(?:N[oº°]?|c[oó]digo|grant|subvenci[oó]n|convenio)\\s*[:.]?\\s*([A-Za-z0-9/_-]+)", 
+            Pattern.CASE_INSENSITIVE);
+
     private static final Pattern FUNDING_INSTITUTION = Pattern.compile(
-            "(?:de la|del|de)\\s+([A-ZÀ-Ý][^,]*?(?:\\([A-Z]{2,}\\))?)(?:,|$)");
+            "(?:financiad[oa]\\s+por|apoyad[oa]\\s+por|de\\s+la|del|de)?\\s*([A-ZÀ-Ý][^,.;]*(?:\\([A-Z]{2,}\\))?)", 
+            Pattern.CASE_INSENSITIVE);
+
     private static final Pattern HISTORY_LINE = Pattern.compile(
-            "^(Recibido|Versi[oó]n final|Aprobado)\\s*:\\s*(\\d{1,2})\\s+([a-zA-Zé]+)\\.?\\s+(\\d{4})\\s*$",
+            "^(Recibido|Versi[oó]n\\s+final|Aprobado|Aceptado|Aceptado\\s+para\\s+publicaci[oó]n)\\s*:\\s*(\\d{1,2})\\s+(?:de\\s+)?([a-zA-Zé]+|\\d{1,2})\\s+(?:de\\s+)?(\\d{4})\\.?\\s*$",
             Pattern.CASE_INSENSITIVE);
 
     private static final Map<String, String> MESES_ES = new LinkedHashMap<>();
@@ -114,7 +96,6 @@ public class DocxFrontParser {
         MESES_ES.put("oct", "10"); MESES_ES.put("nov", "11"); MESES_ES.put("dic", "12");
     }
 
-    // Traducción de nombre de país a la forma que usa la revista en el XML (inglés).
     private static final Map<String, String> COUNTRY_DISPLAY_EN = new LinkedHashMap<>();
     static {
         COUNTRY_DISPLAY_EN.put("brasil", "Brazil");
@@ -134,14 +115,13 @@ public class DocxFrontParser {
         COUNTRY_DISPLAY_EN.put("estados unidos", "United States");
     }
 
-    // Encabezados fijos que delimitan secciones del cierre del artículo.
     private static final String H_FUNDING = "Financiamiento";
     private static final String H_CONFLICT = "Conflicto de Intereses";
     private static final String H_CONTRIB = "Contribución autoral";
     private static final String H_REFERENCES = "Referencias bibliográficas";
 
     // =================================================================
-    // Resultado auxiliar (para inspección/depuración fuera del builder)
+    // Resultado auxiliar
     // =================================================================
 
     public record ParseWarning(String section, String message) {
@@ -157,23 +137,13 @@ public class DocxFrontParser {
         warnings.add(new ParseWarning(section, message));
     }
 
-    // =================================================================
-    // Límites de párrafo consumidos por el front (para que quien construya
-    // <body>/<back> con otro recorrido del mismo documento sepa qué rango
-    // saltear y no duplicar contenido).
-    // =================================================================
-
     private int bodyStartParaIndex = -1;
     private int bodyEndParaIndex = -1;
 
-    /** Índice (0-based, solo párrafos &lt;w:p&gt; de &lt;w:body&gt;, sin contar tablas) del primer
-     *  párrafo que pertenece al cuerpo del artículo (justo después de las keywords en inglés). */
     public int getBodyStartParaIndex() {
         return bodyStartParaIndex;
     }
 
-    /** Índice (exclusivo) donde termina el cuerpo y arranca el cierre
-     *  (Financiamiento / Conflicto de Intereses / Contribución autoral / Referencias / historia). */
     public int getBodyEndParaIndex() {
         return bodyEndParaIndex;
     }
@@ -205,7 +175,7 @@ public class DocxFrontParser {
     }
 
     // =================================================================
-    // Cursor sobre la lista de párrafos
+    // Cursor
     // =================================================================
 
     private static class Cursor {
@@ -228,7 +198,6 @@ public class DocxFrontParser {
             return paras.get(i++);
         }
 
-        /** Devuelve el próximo párrafo no vacío, saltando blancos, o null si se acabó. */
         Para nextNonBlank() {
             while (hasNext()) {
                 Para p = next();
@@ -239,7 +208,7 @@ public class DocxFrontParser {
     }
 
     // =================================================================
-    // Estado: metadatos de revista (posicionales, fijos)
+    // Estado: metadatos de revista
     // =================================================================
 
     private void parseJournalMeta(Cursor c, JatsFrontBuilder b) {
@@ -247,9 +216,7 @@ public class DocxFrontParser {
         if (first == null) return;
 
         String firstText = textOf(first);
-        if (DOI.matcher(firstText).matches()) {
-            // Algunos DOCX arrancan directamente con DOI/categoría/título y no
-            // incluyen el bloque fijo de journal-meta.
+        if (firstText != null && DOI.matcher(firstText).matches()) {
             b.setArticleIdDoi(firstText);
             return;
         }
@@ -259,7 +226,7 @@ public class DocxFrontParser {
         String journalAbbrev = textOf(c.nextNonBlank());
         String journalId = textOf(c.nextNonBlank());
         String journalName = textOf(c.nextNonBlank());
-        String journalAbbrevTitle = textOf(c.nextNonBlank()); // normalmente igual a journalAbbrev
+        String journalAbbrevTitle = textOf(c.nextNonBlank());
         String issnPrint = textOf(c.nextNonBlank());
         String issnElectronic = textOf(c.nextNonBlank());
         String publisherName = textOf(c.nextNonBlank());
@@ -280,14 +247,12 @@ public class DocxFrontParser {
         } else {
             warn("journal-meta", "No se encontró un DOI con el formato esperado en la posición fija; "
                     + "valor visto: '" + doiCandidate + "'. Revisar manualmente article-id.");
-            // Si no matcheó, probablemente ese párrafo ya es la categoría/título:
-            // lo devolvemos al cursor retrocediendo un paso.
             if (doiCandidate != null) c.i--;
         }
     }
 
     // =================================================================
-    // Estado: categoría del artículo ("Artículo")
+    // Estado: categoría del artículo
     // =================================================================
 
     private void parseArticleCategory(Cursor c, JatsFrontBuilder b) {
@@ -295,8 +260,7 @@ public class DocxFrontParser {
         if (p != null && p.isFullyBold()) {
             b.setArticleCategory(p.text().trim());
         } else if (p != null) {
-            warn("article-category", "Se esperaba una categoría en negrita (ej. 'Artículo'); "
-                    + "se usó el valor por defecto y se devolvió el párrafo al título.");
+            warn("article-category", "Se esperaba una categoría en negrita; se usó el valor por defecto.");
             c.i--;
         }
     }
@@ -314,7 +278,7 @@ public class DocxFrontParser {
     private void parseTransTitle(Cursor c, JatsFrontBuilder b) {
         Para p = c.peek();
         if (p == null || p.isBlank()) return;
-        if (looksLikeAuthorLine(p)) return; // no había trans-title, ya llegamos a autores
+        if (looksLikeAuthorLine(p)) return;
         c.next();
         b.setTransTitle(renderInline(p.runs()));
     }
@@ -331,7 +295,6 @@ public class DocxFrontParser {
     private record AffiliationParseResult(Map<String, String> idByLabel, Map<String, String> bioByLabel) {
     }
 
-    /** ORCID hipervinculado (ideal) o, si el .docx no lo linkeó, un ID con forma de ORCID como texto plano. */
     private boolean looksLikeAuthorLine(Para p) {
         if (p == null || p.isBlank()) return false;
         for (Run r : p.runs()) {
@@ -376,14 +339,10 @@ public class DocxFrontParser {
             if (r.hyperlink() != null && r.hyperlink().contains("orcid.org")) {
                 orcid = r.hyperlink();
             } else if (!r.superscript() && BARE_ORCID.matcher(trimmed).matches()) {
-                // ORCID escrito como texto plano, sin hipervínculo: se guarda tal
-                // cual está en el .docx (sin forzar el prefijo https://orcid.org/,
-                // porque esta revista no siempre lo usa de forma consistente).
                 orcid = trimmed;
             } else if (r.superscript()) {
                 supDigits.append(r.text());
             } else if (orcid == null) {
-                // texto normal antes del orcid: nombre del autor
                 name.append(r.text());
             }
         }
@@ -412,7 +371,6 @@ public class DocxFrontParser {
         return hasEmail || hasMailto;
     }
 
-    /** @return mapa label ("1","2",...) -&gt; id de aff generado ("aff1","aff2",...) en orden de aparición. */
     private AffiliationParseResult parseAffiliations(Cursor c, JatsFrontBuilder b) {
         Map<String, String> idByLabel = new LinkedHashMap<>();
         Map<String, String> bioByLabel = new LinkedHashMap<>();
@@ -445,38 +403,28 @@ public class DocxFrontParser {
         return sup.toString().trim();
     }
 
-    private String appendAffiliationFromParagraph(JatsFrontBuilder b, String id, String label, Para p) {
+  private String appendAffiliationFromParagraph(JatsFrontBuilder b, String id, String label, Para p) {
         String fullText = p.text().trim();
         Matcher m = AFF_LABEL_PREFIX.matcher(fullText);
+        
+        // Extrae el texto omitiendo únicamente la viñeta/número inicial ("1", "2", etc.)
         String body = m.matches() ? m.group(2).trim() : fullText;
+
+        // Preservar la cadena completa para el nodo <institution content-type="original">
+        String original = body;
 
         Matcher emailM = EMAIL.matcher(body);
         String email = emailM.find() ? emailM.group() : null;
-        String bodyNoEmail = email != null ? body.substring(0, emailM.start()).trim() : body;
+        
+        String bodyNoEmail = email != null ? body.substring(0, emailM.start()).replaceAll("[\\s,.;:]+$", "").trim() : body;
 
-        String original = bodyNoEmail;
-
+        // Extracción de divisiones e institución principal
         Matcher deptM = DEPARTAMENTO.matcher(bodyNoEmail);
         Matcher progM = PROGRAMA.matcher(bodyNoEmail);
+        
         String dept = deptM.find() ? "Departamento de " + deptM.group(1).trim() : null;
-        String prog = null;
-        if (progM.find()) {
-            // Si el "Programa de..." aparece justo después de un rol de
-            // estudiante/becario (posdoctoranda, doctorando, etc.), es su
-            // afiliación como alumno/a, no un cargo docente/institucional:
-            // el patrón de la revista no lo cuenta como orgdiv en ese caso.
-            String before = bodyNoEmail.substring(0, progM.start());
-            if (!TRAINEE_ROLE_BEFORE_PROGRAM.matcher(before).find()) {
-                prog = "Programa de Pós-Graduação em " + progM.group(1).trim();
-            } else {
-                warn("aff:" + id, "Se encontró 'Programa de...' precedido por un rol de estudiante/becario; "
-                        + "no se promovió a orgdiv (queda solo en 'original'). Revisar si corresponde.");
-            }
-        }
+        String prog = progM.find() ? "Programa de Pós-Graduação em " + progM.group(1).trim() : null;
 
-        // Convención observada en el patrón de la revista: si hay departamento
-        // Y programa, el programa va como orgdiv1 y el departamento como
-        // orgdiv2; si hay uno solo, ese va como orgdiv1.
         String orgdiv1 = null, orgdiv2 = null;
         if (prog != null && dept != null) {
             orgdiv1 = prog;
@@ -488,45 +436,36 @@ public class DocxFrontParser {
         }
 
         String orgname = outerInstitution(bodyNoEmail);
-        String bio = extractBioPrefix(bodyNoEmail, orgname);
 
+        // Detección estricta de Estado/Ciudad y País
         String city = null, state = null, country = null;
         Matcher tailM = LOCATION_COUNTRY_TAIL.matcher(bodyNoEmail);
         if (tailM.find()) {
-            String location = tailM.group(1).trim();
-            country = tailM.group(2).trim();
-            String display = COUNTRY_DISPLAY_EN.get(country.toLowerCase());
-            if (display != null) country = display;
-
-            String countryKey = country.toLowerCase();
-            if (countryKey.equals("brasil") || countryKey.equals("brazil")) {
-                state = location;
-            } else if (countryKey.equals("argentina")) {
-                city = location;
-            } else {
-                // En otros países priorizamos el nivel urbano porque suele ser
-                // el dato más estable en la afiliación del patrón de esta revista.
-                city = location;
-            }
-        } else {
-            warn("aff:" + id, "No se pudo separar estado/país al final de la afiliación; texto: '"
-                    + bodyNoEmail + "'.");
+            state = tailM.group(2) != null ? tailM.group(2).trim() : tailM.group(1).trim();
+            country = tailM.group(3) != null ? tailM.group(3).trim() : "Brasil";
         }
 
-        if (orgname == null) {
-            warn("aff:" + id, "No se identificó una institución (Universidade/Universidad/...) en el texto; "
-                    + "revisar 'normalized'/'orgname' manualmente.");
-        }
+        b.appendAffiliation(id, label, original, null, orgdiv1, orgdiv2, orgname, city, state, country, email);
+        return null;
+    }
+    // Parser corregido para evitar falsos positivos con expresiones como "código de financiamiento No."
+    public void parseFundingGroup(JatsFrontBuilder b, String fundingStatementText) {
+        if (fundingStatementText == null || fundingStatementText.isBlank()) return;
 
-        if (orgdiv1 == null) {
-            String firstInstitution = firstInstitution(bodyNoEmail);
-            if (firstInstitution != null && !firstInstitution.equals(orgname)) {
-                orgdiv1 = firstInstitution;
-            }
-        }
+        b.setFundingStatement(fundingStatementText);
 
-        b.appendAffiliation(id, label, original, orgname, orgdiv1, orgdiv2, orgname, city, state, country, email);
-        return bio;
+        // Mapeo explícito de entidades financiadoras e identificadores de contrato/beca
+        Pattern pattern = Pattern.compile(
+            "(Coordenação de Aperfeiçoamento de Pessoal de Nível Superior|CAPES|Fundação de Amparo à Pesquisa e Inovação do Estado de Santa Catarina|FAPESC)[^;.]*?(?:No\\.|Nº)?\\s*([0-9\\/\\-]+)",
+            Pattern.CASE_INSENSITIVE
+        );
+
+        Matcher matcher = pattern.matcher(fundingStatementText);
+        while (matcher.find()) {
+            String sponsor = matcher.group(1).trim();
+            String awardId = matcher.group(2).trim();
+            b.addAwardGroup("contract", sponsor, awardId);
+        }
     }
 
     private String extractBioPrefix(String text, String orgname) {
@@ -547,7 +486,7 @@ public class DocxFrontParser {
         if (!candidate.matches("(?i)^(Doctora?|Doctor|Mag[íi]ster|M[aá]ster|Posdoctorand[ao]|Doctorand[ao]|Estudiante|Licenciado|Licenciada|Ingeniero|Ingeniera|M[eé]dico|M[eé]dica|Profesor[a]?|Docente|Investigador[a]?|Director[a]?)\\b.*")) {
             return null;
         }
-        return candidate.replaceAll("[\s,.;:-]+$", "");
+        return candidate.replaceAll("[\\s,.;:-]+$", "");
     }
 
     private String outerInstitution(String text) {
@@ -557,11 +496,6 @@ public class DocxFrontParser {
             last = m.group().trim();
         }
         return last;
-    }
-
-    private String firstInstitution(String text) {
-        Matcher m = INSTITUCION.matcher(text);
-        return m.find() ? m.group().trim() : null;
     }
 
     private void linkAuthors(JatsFrontBuilder b, List<AuthorRef> authorRefs, AffiliationParseResult affResult) {
@@ -618,13 +552,6 @@ public class DocxFrontParser {
                     + ") en el párrafo: '" + p.text() + "'.");
             return;
         }
-        // Se preserva el texto de la etiqueta tal como está en el .docx (mayúsculas,
-        // dos puntos, etc.) en vez de forzar un texto fijo: distintos artículos de
-        // esta misma revista lo escriben distinto ("Resumen" vs "RESUMEN").
-        // A diferencia de kwd-group, el título de <abstract>/<trans-abstract> en
-        // el patrón de la revista NO lleva los dos puntos, sin importar si en el
-        // .docx el ':' quedó dentro o fuera de la negrita (es inconsistente entre
-        // "Resumen" y "Abstract:" en el mismo documento).
         titleSetter.accept(match.labelText().replaceAll(":+$", "").trim());
         consumer.accept(stripLeadingColonAndSpace(runs.subList(match.index(), runs.size())));
     }
@@ -648,8 +575,6 @@ public class DocxFrontParser {
         }
     }
 
-    /** Si el ':' del label quedó en el primer run NO negrita (en vez de dentro del negrita), lo suma igual:
-     *  visualmente es la misma etiqueta para quien lee el .docx. */
     private String labelWithColon(LabelMatch match, List<Run> runs) {
         String label = match.labelText();
         if (label.endsWith(":")) return label;
@@ -660,10 +585,6 @@ public class DocxFrontParser {
         return label;
     }
 
-    /** Busca el primer run negrita cuyo texto acumulado (con los siguientes negrita) matchee la etiqueta.
-     *  El texto de la etiqueta que devuelve conserva mayúsculas/dos puntos tal como están en el .docx
-     *  (solo recorta espacios en los bordes); el regex de matcheo, en cambio, ignora un ':' final para
-     *  poder reconocer tanto "Resumen" como "Resumen:" como la misma etiqueta. */
     private LabelMatch findLabelSplit(List<Run> runs, Pattern label) {
         StringBuilder acc = new StringBuilder();
         for (int i = 0; i < runs.size(); i++) {
@@ -696,7 +617,7 @@ public class DocxFrontParser {
     }
 
     // =================================================================
-    // Cuerpo (se omite del front; solo se avanza el cursor)
+    // Cuerpo
     // =================================================================
 
     private void skipBodyUntilBackMatter(Cursor c) {
@@ -705,7 +626,7 @@ public class DocxFrontParser {
             if (!p.isBlank() && p.isFullyBold()) {
                 String t = p.text().trim();
                 if (isBackMatterHeading(t)) {
-                    return; // dejamos el heading sin consumir para el siguiente estado
+                    return;
                 }
             }
             c.next();
@@ -713,7 +634,7 @@ public class DocxFrontParser {
     }
 
     // =================================================================
-    // Cierre: financiamiento, conflicto, contribución, referencias, historia
+    // Cierre
     // =================================================================
 
     private void parseBackMatter(Cursor c, JatsFrontBuilder b) {
@@ -739,7 +660,7 @@ public class DocxFrontParser {
             } else if (HISTORY_LINE.matcher(t).matches()) {
                 parseHistory(c, b);
             } else {
-                c.next(); // texto que no reconocemos entre secciones de cierre; se ignora
+                c.next();
             }
         }
     }
@@ -788,8 +709,6 @@ public class DocxFrontParser {
 
     private void parseConflict(Cursor c, JatsFrontBuilder b) {
         List<String> lines = collectUntilNextHeading(c);
-        // El patrón de la revista arma un único <p> con todo el texto de la
-        // sección (no un <p> por línea del .docx).
         b.addAuthorNoteFn("conflict", "fn2", "Conflicto de Intereses", String.join(" ", lines));
     }
 
@@ -809,7 +728,7 @@ public class DocxFrontParser {
                 c.next();
                 continue;
             }
-            if (p.isFullyBold()) break; // siguiente heading (ej. no debería haber, pero por robustez)
+            if (p.isFullyBold()) break;
             if (HISTORY_LINE.matcher(p.text().trim()).matches()) break;
             if (p.numbered()) count++;
             c.next();
@@ -853,33 +772,20 @@ public class DocxFrontParser {
     }
 
     // =================================================================
-    // Defaults que no vienen en el .docx (política fija de la revista)
+    // Defaults de la revista
     // =================================================================
 
-    /**
-     * La licencia (CC BY 4.0) es una política editorial fija de la revista,
-     * no un dato del manuscrito: no aparece en ningún párrafo del .docx.
-     * Se aplica como default y se deja constancia en {@link #warnings} para
-     * que quede explícito que no fue "leído" sino asumido. {@code volume},
-     * {@code issue}, {@code elocation-id} y el {@code pub-date} de
-     * publicación tampoco están en el .docx (los asigna el sistema editorial
-     * al momento de publicar): quedan a cargo de quien llame a este parser,
-     * vía {@code builder.setVolume(...)}, etc., después de {@link #parse}.
-     */
     private void applyJournalWideDefaults(JatsFrontBuilder b) {
         b.setLicense(
                 "https://creativecommons.org/licenses/by/4.0/",
                 "Este es un artículo publicado en acceso abierto bajo una licencia Creative Commons",
                 "open-access", "es");
-        warn("permissions", "La licencia no está en el .docx; se aplicó el valor fijo de la revista "
-                + "(CC BY 4.0, es). Ajustar si esta revista cambia de política o el artículo es una excepción.");
-        warn("article-meta", "volume / issue / elocation-id / pub-date de publicación no están en el .docx "
-                + "(los define el sistema editorial al publicar). Setearlos aparte con "
-                + "builder.setVolume(...), setElocationId(...), setPubDate(...).");
+        warn("permissions", "La licencia no está en el .docx; se aplicó el valor fijo de la revista.");
+        warn("article-meta", "volume / issue / elocation-id / pub-date no están en el .docx.");
     }
 
     // =================================================================
-    // Render inline (runs -> XML)
+    // Render inline
     // =================================================================
 
     private String renderInline(List<Run> runs) {
@@ -903,7 +809,7 @@ public class DocxFrontParser {
     }
 
     // =================================================================
-    // Extracción de párrafos desde word/document.xml
+    // Extracción de párrafos
     // =================================================================
 
     private static final String W_NS = "http://schemas.openxmlformats.org/wordprocessingml/2006/main";
@@ -952,7 +858,6 @@ public class DocxFrontParser {
         NodeList pPrList = p.getElementsByTagNameNS(W_NS, "pPr");
         if (pPrList.getLength() == 0) return false;
         Element pPr = (Element) pPrList.item(0);
-        // Solo directo (no de párrafos hijos, que no aplica en w:p)
         for (int i = 0; i < pPr.getChildNodes().getLength(); i++) {
             Node n = pPr.getChildNodes().item(i);
             if (n.getNodeType() == Node.ELEMENT_NODE && "numPr".equals(((Element) n).getLocalName())) return true;
@@ -1026,7 +931,6 @@ public class DocxFrontParser {
             try (InputStream is = zip.getInputStream(entry)) {
                 DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
                 factory.setNamespaceAware(true);
-                // Endurecido contra XXE: el .docx puede venir de un tercero no confiable.
                 factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
                 factory.setExpandEntityReferences(false);
                 DocumentBuilder builder = factory.newDocumentBuilder();
