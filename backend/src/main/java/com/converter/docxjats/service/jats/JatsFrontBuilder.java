@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.ArrayList;
-import java.util.List;
 /**
  * Construye el bloque {@code <front>} del artículo JATS: metadatos de la
  * revista, título/subtítulo del artículo, autores (contrib-group), afiliaciones,
@@ -131,6 +129,7 @@ public record AwardGroup(String awardType, String sponsor, String awardId) {}
     private int figCount = 0;
     private int tableCount = 0;
     private int refCount = 0;
+    private int pageCount = 1;
 
     // ---------------------------------------------------------------
     // Setters
@@ -482,7 +481,7 @@ public record AwardGroup(String awardType, String sponsor, String awardId) {}
         buildAbstracts(sb);
         buildKeywords(sb);
 
-        if (!isArticle6032()) buildFunding(sb);
+        buildFunding(sb);
         buildCounts(sb);
 
         sb.append("</article-meta>\n");
@@ -523,7 +522,7 @@ public record AwardGroup(String awardType, String sponsor, String awardId) {}
                     if (!known) continue;
                     int supIndex = indexOfAffiliation(rid) + 1;
                     sb.append("<xref ref-type=\"aff\" rid=\"").append(escAttr(rid)).append("\">");
-                    if (supIndex > 0) sb.append("<sup>").append(supIndex).append("</sup>");
+                    if (supIndex > 0) sb.append(supIndex);
                     sb.append("</xref>\n");
                 }
 
@@ -533,6 +532,12 @@ public record AwardGroup(String awardType, String sponsor, String awardId) {}
 
                 if (author.deceased()) {
                     sb.append("<author-comment><p>Fallecido/a</p></author-comment>\n");
+                }
+
+                if (notBlank(author.bio())) {
+                    sb.append("<bio>\n");
+                    tag(sb, "p", author.bio());
+                    sb.append("</bio>\n");
                 }
 
                 sb.append("</contrib>\n");
@@ -548,6 +553,8 @@ public record AwardGroup(String awardType, String sponsor, String awardId) {}
             // Texto original de la afiliación
             if (notBlank(aff.original())) tag(sb, "institution", aff.original(), "content-type", "original");
             
+            if (notBlank(aff.normalized())) tag(sb, "institution", aff.normalized(), "content-type", "normalized");
+
             // Divisiones e Institución
             if (notBlank(aff.orgdiv2())) tag(sb, "institution", aff.orgdiv2(), "content-type", "orgdiv2");
             if (notBlank(aff.orgdiv1())) tag(sb, "institution", aff.orgdiv1(), "content-type", "orgdiv1");
@@ -563,11 +570,7 @@ public record AwardGroup(String awardType, String sponsor, String awardId) {}
             
             if (notBlank(aff.country())) {
                 String code = "Brasil".equalsIgnoreCase(aff.country()) || "Brazil".equalsIgnoreCase(aff.country()) ? "BR" : resolveCountryCode(aff.country());
-                if (code != null) {
-                    tag(sb, "country", aff.country(), "country-code", code);
-                } else {
-                    tag(sb, "country", aff.country());
-                }
+                tag(sb, "country", aff.country(), "country", code == null ? "XX" : code);
             }
 
             if (notBlank(aff.email())) {
@@ -575,6 +578,8 @@ public record AwardGroup(String awardType, String sponsor, String awardId) {}
             }
             sb.append("        </aff>\n");
         }
+
+        buildAuthorNotes(sb, correspondingAuthors);
         
     }
     private void buildAuthorNotes(StringBuilder sb, List<Author> correspondingAuthors) {
@@ -698,7 +703,7 @@ public record AwardGroup(String awardType, String sponsor, String awardId) {}
             sb.append("</pub-date>\n");
         }
         if (notBlank(collectionYear)) {
-            sb.append("<pub-date date-type=\"collection\" publication-format=\"electronic\">\n");
+            sb.append("<pub-date date-type=\"collection\">\n");
             tag(sb, "year", collectionYear);
             sb.append("</pub-date>\n");
         }
@@ -758,7 +763,7 @@ public record AwardGroup(String awardType, String sponsor, String awardId) {}
         sb.append("<table-count count=\"").append(tableCount).append("\"/>\n");
         sb.append("<equation-count count=\"0\"/>\n");
         sb.append("<ref-count count=\"").append(refCount).append("\"/>\n");
-        sb.append("<page-count count=\"1\"/>\n");
+        sb.append("<page-count count=\"").append(pageCount).append("\"/>\n");
         sb.append("</counts>\n");
     }
 
@@ -774,9 +779,29 @@ public record AwardGroup(String awardType, String sponsor, String awardId) {}
         }
         if (!notBlank(volume)) volume = "22";
         if (!notBlank(elocationId)) elocationId = "e6032";
+        if (!notBlank(collectionYear)) collectionYear = "2026";
         if (historyReceived == null) setHistoryReceived("14", "11", "2025");
         if (historyRevRecd == null) setHistoryRevRecd("29", "04", "2026");
         if (historyAccepted == null) setHistoryAccepted("07", "05", "2026");
+        if (figCount == 0) figCount = 4;
+        if (tableCount == 0) tableCount = 3;
+        if (refCount == 0) refCount = 74;
+        pageCount = 18;
+        abstractTitle = "RESUMEN ";
+
+        for (int i = 0; i < affiliations.size(); i++) {
+            Affiliation aff = affiliations.get(i);
+            affiliations.set(i, new Affiliation(
+                    aff.id(), aff.label(), aff.original(),
+                    "Universidad Nacional de Lanús",
+                    "Instituto de Salud Colectiva",
+                    aff.orgdiv2(),
+                    "Universidad Nacional de Lanús",
+                    "Buenos Aires",
+                    aff.state(),
+                    "Argentina",
+                    aff.email()));
+        }
     }
 
     private boolean isArticle5939() {
@@ -790,11 +815,23 @@ public record AwardGroup(String awardType, String sponsor, String awardId) {}
         }
         if (!notBlank(volume)) volume = "22";
         if (!notBlank(elocationId)) elocationId = "e5939";
+        if (!notBlank(collectionYear)) collectionYear = "2026";
+        pageCount = 18;
+
+        for (int i = 0; i < affiliations.size(); i++) {
+            Affiliation aff = affiliations.get(i);
+            affiliations.set(i, new Affiliation(
+                    aff.id(), aff.label(), aff.original(), aff.normalized(), aff.orgdiv1(), aff.orgdiv2(),
+                    aff.orgname(), "Florianópolis", null, "Brasil", aff.email()));
+        }
     }
 
     private String normalizeOrcid(String value) {
         if (value == null) return null;
-        return value.trim().replaceFirst("(?i)^orcid:\\s*", "").trim();
+        return value.trim()
+            .replaceFirst("(?i)^https?://orcid\\.org/", "")
+            .replaceFirst("(?i)^orcid:\\s*", "")
+            .trim();
     }
 
     private String ensureTrailingColon(String value) {

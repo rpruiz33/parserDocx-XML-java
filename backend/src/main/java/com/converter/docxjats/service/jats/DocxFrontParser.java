@@ -62,6 +62,10 @@ public class DocxFrontParser {
             "(?:Programa\\s+de\\s+P[oó]s-?[Gg]radua[cç][aã]o|Postgrado|Posgrado|Master|Maestr[íi]a)\\s+(?:em|en)\\s+([^,.;:]+)", 
             Pattern.CASE_INSENSITIVE);
 
+        private static final Pattern ORG_DIVISION = Pattern.compile(
+            "(?:Instituto|Faculdade|Facultad|Centro)\\s+de\\s+[^,.;:]+",
+            Pattern.CASE_INSENSITIVE);
+
     private static final Pattern INSTITUCION = Pattern.compile(
             "(?:Universidade|Universidad|Universit[eé]|Facultad|Faculdade|Instituto|Escuela|Hospital|Centro\\s+de\\s+Investigaci[oó]n)\\s+[^,.;:]+", 
             Pattern.CASE_INSENSITIVE);
@@ -416,24 +420,43 @@ public class DocxFrontParser {
             orgdiv1 = prog;
         } else if (dept != null) {
             orgdiv1 = dept;
+        } else {
+            Matcher divisionM = ORG_DIVISION.matcher(bodyNoEmail);
+            if (divisionM.find()) orgdiv1 = divisionM.group().trim();
         }
 
         String orgname = outerInstitution(bodyNoEmail);
+        String normalized = orgname != null ? orgname : bodyNoEmail;
 
         // Detección estricta de Estado/Ciudad y País
         String city = null, state = null, country = null;
         Matcher tailM = LOCATION_COUNTRY_TAIL.matcher(bodyNoEmail);
         if (tailM.find()) {
-            state = tailM.group(2) != null ? tailM.group(2).trim() : tailM.group(1).trim();
-            country = tailM.group(3) != null ? tailM.group(3).trim() : "Brasil";
+            city = tailM.group(1).trim();
+            state = tailM.group(2) != null ? tailM.group(2).trim() : null;
+            country = tailM.group(3).trim();
         }
         if (bodyNoEmail.toLowerCase().contains("santa catarina")) state = "Santa Catarina";
         if (bodyNoEmail.toLowerCase().contains("brasil") || bodyNoEmail.toLowerCase().contains("brazil")) {
             country = "Brasil";
         }
 
-        b.appendAffiliation(id, label, original, null, orgdiv1, orgdiv2, orgname, city, state, country, email);
-        return null;
+        b.appendAffiliation(id, label, original, normalized, orgdiv1, orgdiv2, orgname, city, state, country, email);
+        return extractBioPrefix(bodyNoEmail, orgname);
+    }
+
+    private String extractBioPrefix(String text, String orgname) {
+        if (text == null || text.isBlank()) return null;
+        String candidate = text;
+        if (orgname != null && !orgname.isBlank()) {
+            int index = text.indexOf(orgname);
+            if (index > 0) candidate = text.substring(0, index).trim();
+        }
+        if (candidate.isBlank() || candidate.equals(text)) return null;
+        if (!candidate.matches("(?i)^(Doctora?|Doctor|Mag[íi]ster|M[aá]ster|Posdoctorand[ao]|Doctorand[ao]|Estudiante|Licenciado|Licenciada|Ingeniero|Ingeniera|M[eé]dico|M[eé]dica|Profesor[a]?|Docente|Investigador[a]?|Director[a]?)\\b.*")) {
+            return null;
+        }
+        return candidate.replaceAll("[\\s,.;:-]+$", "");
     }
     // Parser corregido para evitar falsos positivos con expresiones como "código de financiamiento No."
     public void parseFundingGroup(JatsFrontBuilder builder, String fundingStatementText) {
@@ -694,7 +717,7 @@ public class DocxFrontParser {
         List<String> lines = collectUntilNextHeading(c);
         String contribution = String.join(" ", lines).trim();
         if (!contribution.isBlank()) {
-            b.addAuthorNoteFn("con", "fn-con", "Contribución", contribution);
+            b.addAuthorNoteFn("equal", "fn3", "Contribución", contribution);
         }
     }
 
