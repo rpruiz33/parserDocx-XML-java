@@ -1,4 +1,4 @@
-package com.converter.docxjats.service.jats;
+package com.converter.docxjats.service;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -18,6 +18,8 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+
+import com.converter.docxjats.service.jats.JatsFrontBuilder;
 
 /**
  * Lee el {@code .docx} fuente que usa esta revista y llena un {@link JatsFrontBuilder}.
@@ -793,12 +795,22 @@ public class DocxFrontParser {
         StringBuilder sb = new StringBuilder();
         for (Run r : runs) {
             if (r.text().isEmpty()) continue;
-            String escaped = XmlUtils.escape(r.text());
+            String escaped = escapeXml(r.text());
             if (r.italic()) escaped = "<italic>" + escaped + "</italic>";
             if (r.superscript()) escaped = "<sup>" + escaped + "</sup>";
             sb.append(escaped);
         }
         return sb.toString().trim();
+    }
+
+    private String escapeXml(String s) {
+        if (s == null || s.isEmpty()) return "";
+        return s
+                .replace("&", "&amp;")
+                .replace("<", "&lt;")
+                .replace(">", "&gt;")
+                .replace("\"", "&quot;")
+                .replace("'", "&apos;");
     }
 
     private String textOf(Para p) {

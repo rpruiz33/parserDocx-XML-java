@@ -12,7 +12,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import com.converter.docxjats.dto.ConversionResult;
-import com.converter.docxjats.service.jats.DocxFrontParser;
 import com.converter.docxjats.service.jats.ImageRegistry;
 import com.converter.docxjats.service.jats.JatsBackBuilder;
 import com.converter.docxjats.service.jats.JatsBodyBuilder;
