@@ -10,11 +10,13 @@ import org.springframework.web.bind.annotation.*;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
+@CrossOrigin(origins = "*") // Permite peticiones desde el frontend
 @RestController
 public class JatsEndpointController {
 
     private final JatsPatternService jatsPatternService;
 
+   
     public JatsEndpointController(JatsPatternService jatsPatternService) {
         this.jatsPatternService = jatsPatternService;
     }

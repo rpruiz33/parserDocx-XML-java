@@ -106,7 +106,7 @@ public class DocxToJatsConverter {
                 RunRenderer runRenderer = new RunRenderer(imageRegistry);
 
                 JatsBodyBuilder body = new JatsBodyBuilder();
-                JatsBackBuilder back = new JatsBackBuilder();
+                JatsBackBuilder back = new JatsBackBuilder(runRenderer);
 
                 Mode mode = Mode.BODY;
                 List<IBodyElement> elements = document.getBodyElements();

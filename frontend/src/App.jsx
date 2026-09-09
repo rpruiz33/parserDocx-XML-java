@@ -1,6 +1,8 @@
 import { useCallback, useRef, useState } from 'react'
+import axios from 'axios'
 import './index.css'
 import logoUnla from './assets/unla-logo.png'
+
 const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:8081'
 
 function highlightXml(xml) {
@@ -19,6 +21,11 @@ export default function App() {
   const [status, setStatus] = useState(null)
   const [loading, setLoading] = useState(false)
   const [downloading, setDownloading] = useState(false)
+  
+  // Estado y loader para la descarga por ID vía Axios (/jats)
+  const [articleId, setArticleId] = useState('')
+  const [downloadingByArticleId, setDownloadingByArticleId] = useState(false)
+
   const inputRef = useRef(null)
 
   const pickFile = useCallback((f) => {
@@ -58,34 +65,76 @@ export default function App() {
     }
   }
 
-  const handleDownload = async () => {
-    if (!file) return
-    setDownloading(true)
-    setStatus(null)
-    try {
-      const form = new FormData()
-      form.append('file', file)
-      const res = await fetch(`${API_BASE}/api/convert/xml`, { method: 'POST', body: form })
-      if (!res.ok) {
-        const data = await res.json().catch(() => ({}))
-        throw new Error(data.error || 'Error al generar el XML')
-      }
-      const blob = await res.blob()
-      const url = URL.createObjectURL(blob)
-      const a = document.createElement('a')
-      a.href = url
-      a.download = file.name.replace(/\.docx$/i, '') + '-jats.xml'
-      document.body.appendChild(a)
-      a.click()
-      a.remove()
-      URL.revokeObjectURL(url)
-      setStatus({ type: 'ok', message: 'XML JATS descargado' })
-    } catch (err) {
-      setStatus({ type: 'error', message: err.message })
-    } finally {
-      setDownloading(false)
-    }
+const handleDownload = async () => {
+  if (!file) return;
+
+  // Extrae los números del nombre del archivo (ej. de "ID-5939_..." extrae "5939")
+  const match = file.name.match(/\d+/);
+  const extractedId = match ? match[0] : null;
+
+  if (!extractedId) {
+    setStatus({ 
+      type: 'error', 
+      message: 'No se pudo detectar el ID del artículo en el nombre del archivo.' 
+    });
+    return;
   }
+
+  // Llama a la función Axios para descargar desde /jats
+  await getJatsXmlAxios(extractedId);
+};
+
+  // Función Axios para consumir el endpoint /jats pasándole articleId
+ async function getJatsXmlAxios(idToFetch) {
+  const id = idToFetch || articleId
+  if (!id || !id.trim()) {
+    setStatus({ type: 'error', message: 'Ingresá un ID de artículo válido (ej. 6032)' })
+    return
+  }
+
+  setDownloadingByArticleId(true)
+  setStatus(null)
+
+  // 🔹 Actualiza la URL del navegador sin recargar la página
+  window.history.pushState({}, '', `/jats/${id}`)
+
+  try {
+    const response = await axios.post(
+      `${API_BASE}/jats`,
+      { articleId: id },
+      { responseType: 'blob' }
+    )
+
+    const blob = new Blob([response.data], { type: 'application/xml' })
+    const url = window.URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.setAttribute('download', `article-${id}-jats.xml`)
+    document.body.appendChild(link)
+    link.click()
+    link.remove()
+    window.URL.revokeObjectURL(url)
+
+    setStatus({ type: 'ok', message: `JATS XML del artículo ${id} descargado con éxito` })
+  } catch (error) {
+    if (error.response && error.response.data) {
+      const reader = new FileReader()
+      reader.onload = () => {
+        try {
+          const errorJson = JSON.parse(reader.result)
+          setStatus({ type: 'error', message: errorJson.error || 'Error procesando la solicitud' })
+        } catch (e) {
+          setStatus({ type: 'error', message: 'Error al procesar la respuesta del servidor' })
+        }
+      }
+      reader.readAsText(error.response.data)
+    } else {
+      setStatus({ type: 'error', message: error.message || 'Error de conexión con el servidor' })
+    }
+  } finally {
+    setDownloadingByArticleId(false)
+  }
+}
 
   return (
     <div className="container">
@@ -101,7 +150,6 @@ export default function App() {
             sistemas editoriales.
           </p>
         </div>
-        {/* Asegúrate de ubicar tu logo en public/logo-unla.png o actualizar esta ruta */}
         <div className="unla-logo-container">
           <img src={logoUnla} alt="Universidad Nacional de Lanús" className="unla-logo" />
         </div>
@@ -152,16 +200,41 @@ export default function App() {
               {downloading ? 'Generando .xml…' : 'DESCARGAR XML JATS (.XML)'}
             </button>
           </div>
-
-          {status && (
-            <div className={`status ${status.type}`}>
-              {status.type === 'error' ? '✕ ' : '✓ '}{status.message}
-            </div>
-          )}
         </div>
 
+        <div className="sheet" data-label="02 · DESCARGA POR ID DE ARTÍCULO (/jats)">
+          <div className="file-picker-row">
+            <input
+              type="text"
+              placeholder="Ej: 6032 o 5939"
+              value={articleId}
+              onChange={(e) => setArticleId(e.target.value)}
+              disabled={downloadingByArticleId}
+              style={{
+                padding: '0.6rem 0.8rem',
+                borderRadius: '4px',
+                border: '1px solid #ccc',
+                flexGrow: 1
+              }}
+            />
+            <button
+              className="primary"
+              onClick={() => getJatsXmlAxios()}
+              disabled={downloadingByArticleId || !articleId.trim()}
+            >
+              {downloadingByArticleId ? 'DESCARGANDO...' : 'OBTENER JATS XML'}
+            </button>
+          </div>
+        </div>
+
+        {status && (
+          <div className={`status ${status.type}`}>
+            {status.type === 'error' ? '✕ ' : '✓ '}{status.message}
+          </div>
+        )}
+
         {xml && (
-          <div className="sheet" data-label={`02 · ARTICLE.XML${imageCount ? ` · ${imageCount} IMAGEN(ES)` : ''}`}>
+          <div className="sheet" data-label={`03 · ARTICLE.XML${imageCount ? ` · ${imageCount} IMAGEN(ES)` : ''}`}>
             <pre className="xml-view" dangerouslySetInnerHTML={{ __html: highlightXml(xml) }} />
           </div>
         )}
