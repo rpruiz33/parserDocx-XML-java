@@ -1,6 +1,8 @@
 package com.converter.docxjats.service.jats;
 
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -24,19 +26,28 @@ public class JatsValidator {
                 errors.add("Root element must be <article>, found: " + rootName);
             }
 
-            if (doc.getElementsByTagName("front").getLength() == 0) {
+            // Validar <front> y sus hijos
+            NodeList frontList = doc.getElementsByTagName("front");
+            if (frontList.getLength() == 0) {
                 errors.add("Missing mandatory <front> element.");
             } else {
-                if (doc.getElementsByTagName("journal-meta").getLength() == 0) {
+                Element front = (Element) frontList.item(0);
+                if (front.getElementsByTagName("journal-meta").getLength() == 0) {
                     errors.add("Missing mandatory <journal-meta> in <front>.");
                 }
-                if (doc.getElementsByTagName("article-meta").getLength() == 0) {
+                if (front.getElementsByTagName("article-meta").getLength() == 0) {
                     errors.add("Missing mandatory <article-meta> in <front>.");
                 }
             }
 
+            // Validar <body>
             if (doc.getElementsByTagName("body").getLength() == 0) {
                 errors.add("Missing mandatory <body> element.");
+            }
+
+            // --- VALIDACIÓN DEL BACK ---
+            if (doc.getElementsByTagName("back").getLength() == 0) {
+                errors.add("Missing mandatory <back> element.");
             }
 
         } catch (Exception e) {
