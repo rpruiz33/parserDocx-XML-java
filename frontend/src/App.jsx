@@ -21,9 +21,8 @@ export default function App() {
   const [status, setStatus] = useState(null)
   const [loading, setLoading] = useState(false)
   const [downloading, setDownloading] = useState(false)
-  
-  // Estado y loader para la descarga por ID vía Axios (/jats)
-  const [articleId, setArticleId] = useState('')
+
+  // Loader para la descarga vía Axios (/jats), con ID extraído del archivo
   const [downloadingByArticleId, setDownloadingByArticleId] = useState(false)
 
   const inputRef = useRef(null)
@@ -86,9 +85,9 @@ const handleDownload = async () => {
 
   // Función Axios para consumir el endpoint /jats pasándole articleId
  async function getJatsXmlAxios(idToFetch) {
-  const id = idToFetch || articleId
+  const id = idToFetch
   if (!id || !id.trim()) {
-    setStatus({ type: 'error', message: 'Ingresá un ID de artículo válido (ej. 6032)' })
+    setStatus({ type: 'error', message: 'No se pudo detectar el ID del artículo' })
     return
   }
 
@@ -198,31 +197,6 @@ const handleDownload = async () => {
             </button>
             <button className="secondary" onClick={handleDownload} disabled={!file || downloading}>
               {downloading ? 'Generando .xml…' : 'DESCARGAR XML JATS (.XML)'}
-            </button>
-          </div>
-        </div>
-
-        <div className="sheet" data-label="02 · DESCARGA POR ID DE ARTÍCULO (/jats)">
-          <div className="file-picker-row">
-            <input
-              type="text"
-              placeholder="Ej: 6032 o 5939"
-              value={articleId}
-              onChange={(e) => setArticleId(e.target.value)}
-              disabled={downloadingByArticleId}
-              style={{
-                padding: '0.6rem 0.8rem',
-                borderRadius: '4px',
-                border: '1px solid #ccc',
-                flexGrow: 1
-              }}
-            />
-            <button
-              className="primary"
-              onClick={() => getJatsXmlAxios()}
-              disabled={downloadingByArticleId || !articleId.trim()}
-            >
-              {downloadingByArticleId ? 'DESCARGANDO...' : 'OBTENER JATS XML'}
             </button>
           </div>
         </div>
