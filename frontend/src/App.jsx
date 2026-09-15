@@ -20,43 +20,88 @@ function stripExtension(name) {
   return idx > 0 ? name.slice(0, idx) : name
 }
 
-// Función auxiliar para extraer el texto entre etiquetas XML
 function getXmlTagValue(xml, tagName) {
   if (!xml) return ''
-  const regex = new RegExp(`<${tagName}[^>]*>([\\s\\S]*?)<\\/${tagName}>`, 'i')
-  const match = xml.match(regex)
-  return match ? match[1].replace(/<[^>]+>/g, '').trim() : ''
+  const document = new DOMParser().parseFromString(xml, 'application/xml')
+  const node = Array.from(document.getElementsByTagName('*')).find((element) => element.localName === tagName)
+  return node?.textContent?.trim() || ''
 }
 
-// Extrae la lista de autores directamente del XML en caso de fallback
+function firstDescendant(element, tagName) {
+  return Array.from(element?.getElementsByTagName('*') || [])
+    .find((node) => node.localName === tagName) || null
+}
+
+function descendants(element, tagName) {
+  return Array.from(element?.getElementsByTagName('*') || [])
+    .filter((node) => node.localName === tagName)
+}
+
+function directChildren(element, tagName) {
+  return Array.from(element?.children || []).filter((node) => node.localName === tagName)
+}
+
+function elementText(element) {
+  return element?.textContent?.replace(/\s+/g, ' ').trim() || ''
+}
+
+function formatAffiliation(affiliation) {
+  if (!affiliation) return ''
+
+  const institutions = descendants(affiliation, 'institution').map(elementText).filter(Boolean)
+  const locations = ['city', 'state', 'country']
+    .flatMap((tag) => descendants(affiliation, tag).map(elementText))
+    .filter(Boolean)
+  const values = [...new Set([...institutions, ...locations])]
+  return values.length ? values.join(', ') : elementText(affiliation)
+}
+
 function parseAuthorsFromXml(xmlText) {
-  if (!xmlText) return []
-  const authors = []
-  const contribRegex = /<contrib\s+contrib-type="author"[^>]*>([\s\S]*?)<\/contrib>/gi
-  let match
+  if (!xmlText || typeof DOMParser === 'undefined') return []
 
-  while ((match = contribRegex.exec(xmlText)) !== null) {
-    const contribContent = match[1]
-    const givenNames = getXmlTagValue(contribContent, 'given-names')
-    const surname = getXmlTagValue(contribContent, 'surname')
-    const email = getXmlTagValue(contribContent, 'email')
-    const orcid = getXmlTagValue(contribContent, 'contrib-id')
-    const affiliation = getXmlTagValue(contribContent, 'aff') || getXmlTagValue(contribContent, 'institution')
+  const document = new DOMParser().parseFromString(xmlText, 'application/xml')
+  if (document.querySelector('parsererror')) return []
 
-    if (givenNames || surname || email) {
-      authors.push({
-        givenNames,
-        surname,
-        orcid,
-        email: email || '',
-        affiliation,
-        correspEmail: email || '',
-        corresponding: contribContent.includes('corresp="yes"') || contribContent.includes('xref ref-type="corresp"'),
-      })
+  const allElements = Array.from(document.getElementsByTagName('*'))
+  const affiliationsById = new Map(
+    allElements
+      .filter((element) => element.localName === 'aff' && element.getAttribute('id'))
+      .map((element) => [element.getAttribute('id'), element]),
+  )
+  const globalEmails = allElements
+    .filter((element) => element.localName === 'email')
+    .map(elementText)
+    .filter(Boolean)
+  const contribs = allElements.filter(
+    (element) => element.localName === 'contrib' && element.getAttribute('contrib-type') === 'author',
+  )
+
+  return contribs.map((contrib, index) => {
+    const givenNames = elementText(firstDescendant(contrib, 'given-names'))
+    const surname = elementText(firstDescendant(contrib, 'surname'))
+    const orcid = elementText(firstDescendant(contrib, 'contrib-id'))
+    const directEmail = elementText(firstDescendant(contrib, 'email'))
+    const inlineAffiliations = descendants(contrib, 'aff')
+    const referencedAffiliations = descendants(contrib, 'xref')
+      .filter((xref) => xref.getAttribute('ref-type') === 'aff')
+      .map((xref) => affiliationsById.get(xref.getAttribute('rid')))
+      .filter(Boolean)
+    const affiliations = [...inlineAffiliations, ...referencedAffiliations]
+    const affiliation = [...new Set(affiliations.map(formatAffiliation).filter(Boolean))].join('; ')
+
+    const affiliationEmail = affiliations
+      .map((aff) => elementText(firstDescendant(aff, 'email')))
+      .find(Boolean) || ''
+    const email = directEmail || affiliationEmail || globalEmails[index] || ''
+
+    return {
+      givenNames,
+      surname,
+      orcid,
+      email,
+      affiliation,
     }
-  }
-
-  return authors
+  }).filter((author) => author.givenNames || author.surname || author.email || author.affiliation)
 }
 
 // Valores por defecto cuando el XML no contiene la etiqueta especificada
@@ -171,18 +216,21 @@ export default function App() {
       }
 
       // Normalizar autores asegurando que el email real no se pierda
-      const rawAuthors = (data.authors && data.authors.length) 
+      const parsedAuthors = parsedFromXml.authors || []
+      const rawAuthors = (data.authors && data.authors.length)
         ? data.authors 
-        : ((directMetadata?.authors && directMetadata.authors.length) 
+        : ((directMetadata?.authors && directMetadata.authors.length)
             ? directMetadata.authors 
-            : parsedFromXml.authors)
+            : parsedAuthors)
 
-      const normalizedAuthors = (rawAuthors || []).map((author) => {
-        const realEmail = author.email || author.correspEmail || ''
+      const normalizedAuthors = (rawAuthors || []).map((author, index) => {
+        const parsedAuthor = parsedAuthors[index] || {}
+        const realEmail = author.email || parsedAuthor.email || ''
         return {
+          ...parsedAuthor,
           ...author,
+          affiliation: author.affiliation || parsedAuthor.affiliation || '',
           email: realEmail,
-          correspEmail: author.correspEmail || realEmail,
         }
       })
 
@@ -225,12 +273,7 @@ export default function App() {
     setFront((prev) => {
       const authors = prev.authors.map((a, i) => {
         if (i === index) {
-          const updated = { ...a, [key]: value }
-          // Mantiene sincronizado el email si se modifica el campo principal de email
-          if (key === 'email' && (updated.corresponding || !updated.correspEmail)) {
-            updated.correspEmail = value
-          }
-          return updated
+          return { ...a, [key]: value }
         }
         return a
       })
@@ -243,7 +286,7 @@ export default function App() {
       ...prev,
       authors: [
         ...prev.authors,
-        { givenNames: '', surname: '', orcid: '', email: '', affiliation: '', correspEmail: '', corresponding: false },
+        { givenNames: '', surname: '', orcid: '', email: '', affiliation: '' },
       ],
     }))
   }
@@ -702,15 +745,20 @@ export default function App() {
                           onChange={(e) => updateAuthorField(i, 'orcid', e.target.value)}
                         />
                       </label>
-                      <label style={{ display: 'flex', flexDirection: 'column', gap: '4px', fontSize: '0.85rem' }}>
-                        Correo electrónico (&lt;email&gt;)
-                        <input
-                          type="email"
-                          placeholder="Ingrese el correo electrónico real"
-                          value={author.email || ''}
-                          onChange={(e) => updateAuthorField(i, 'email', e.target.value)}
-                        />
-                      </label>
+                      <label style={{ display: 'flex', flexDirection: 'column', gap: '4px', fontSize: '0.85rem', width: 'fit-content' }}>
+  Correo electrónico 
+  <input 
+    type="email"
+    placeholder="correo@ejemplo.com"
+    value={author.email || ''}
+    style={{ 
+      width: `${(author.email || 'correo@ejemplo.com').length + 2}ch`,
+      maxWidth: '90%',
+      boxSizing: 'border-box'
+    }}
+    onChange={(e) => updateAuthorField(i, 'email', e.target.value)}
+  />
+</label>
                     </div>
 
                     {/* Campo de Afiliación */}
@@ -719,6 +767,7 @@ export default function App() {
                         Afiliación Institucional (&lt;aff&gt; / &lt;institution&gt;)
                         <input
                           type="text"
+                          name="affiliation"
                           placeholder="Ej: Universidad Nacional de Lanús, Lanús, Argentina"
                           value={author.affiliation || ''}
                           onChange={(e) => updateAuthorField(i, 'affiliation', e.target.value)}
@@ -727,28 +776,8 @@ export default function App() {
                       </label>
                     </div>
 
-                    {/* Pie del bloque de autor: Checkbox y eliminación */}
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap', paddingTop: '8px', borderTop: '1px solid #f0f0f0' }}>
-                      <label style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', fontSize: '0.85rem', cursor: 'pointer', userSelect: 'none' }}>
-                        <input
-                          type="checkbox"
-                          checked={!!author.corresponding}
-                          onChange={(e) => updateAuthorField(i, 'corresponding', e.target.checked)}
-                          style={{ cursor: 'pointer', width: 'auto', margin: 0 }}
-                        />
-                        <span>Autor de correspondencia</span>
-                      </label>
-
-                      {author.corresponding && (
-                        <input
-                          type="email"
-                          placeholder="Correo específico de correspondencia (opcional)"
-                          style={{ flex: 1, minWidth: '220px' }}
-                          value={author.correspEmail || author.email || ''}
-                          onChange={(e) => updateAuthorField(i, 'correspEmail', e.target.value)}
-                        />
-                      )}
-
+                    {/* Pie del bloque de autor */}
+                    <div style={{ display: 'flex', justifyContent: 'flex-end', paddingTop: '8px', borderTop: '1px solid #f0f0f0' }}>
                       <button
                         type="button"
                         onClick={() => removeAuthor(i)}
