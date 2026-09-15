@@ -75,8 +75,8 @@ public class RunRenderer {
             String token = matcher.group();
             if (token.matches("\\d+")) {
                 result.append("<xref ref-type=\"bibr\" rid=\"B")
-                        .append(token)
-                        .append(">")
+                    .append(XmlUtils.escapeAttribute(token))
+                    .append("\">")
                         .append(token)
                         .append("</xref>");
             } else {

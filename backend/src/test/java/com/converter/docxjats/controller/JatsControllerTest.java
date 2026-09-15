@@ -7,6 +7,10 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.w3c.dom.Document;
+
+import javax.xml.parsers.DocumentBuilderFactory;
+import java.io.ByteArrayInputStream;
 
 import java.util.List;
 
@@ -109,6 +113,24 @@ public class JatsControllerTest {
         assertThat(xml, containsString("<xref ref-type=\"aff\" rid=\"aff1\">"));
         assertThat(xml, not(containsString("<bio>")));
         assertThat(xml, not(containsString("<role vocab=\"CRediT\"")));
+    }
+
+    @Test
+    public void testFrontEscapesProblematicXrefRidAttributes() throws Exception {
+        JatsFrontBuilder builder = new JatsFrontBuilder();
+        String rid = "aff“1<2";
+        builder.setTitle("Artículo de ejemplo");
+        builder.appendAffiliation(rid, "1", "Universidad X", "Universidad X", null,
+            null, "Universidad X", "Ciudad", "Provincia", "País", null);
+        builder.appendAuthor("Ana Pérez", List.of(rid), null, false, null);
+
+        String xml = builder.build("Fallback title");
+        Document document = DocumentBuilderFactory.newInstance()
+            .newDocumentBuilder()
+            .parse(new ByteArrayInputStream(xml.getBytes(java.nio.charset.StandardCharsets.UTF_8)));
+
+        assertThat(document.getElementsByTagName("xref").item(0).getAttributes()
+                .getNamedItem("rid").getNodeValue(), containsString(rid));
     }
 
     @Test

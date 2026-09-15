@@ -889,7 +889,7 @@ public record AwardGroup(String awardType, String sponsor, String awardId) {}
     }
 
     private String escAttr(String value) {
-        return XmlUtils.escape(value);
+        return XmlUtils.escapeAttribute(value);
     }
 
     private String resolveCountryCode(String country) {

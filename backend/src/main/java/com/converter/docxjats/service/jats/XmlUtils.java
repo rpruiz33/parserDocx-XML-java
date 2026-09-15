@@ -15,4 +15,13 @@ public final class XmlUtils {
                 .replace("\"", "&quot;")
                 .replace("'", "&apos;");
     }
+
+    public static String escapeAttribute(String text) {
+        if (text == null) return "";
+        return escape(text)
+                .replace("“", "&quot;")
+                .replace("”", "&quot;")
+                .replace("‘", "&apos;")
+                .replace("’", "&apos;");
+    }
 }

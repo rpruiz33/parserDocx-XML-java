@@ -245,6 +245,76 @@ button.secondary:disabled {
 .status.error { color: var(--mark); }
 .status.ok { color: var(--accent); }
 
+/* Edición rápida del front */
+.front-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 16px;
+}
+
+.front-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 12px;
+  font-family: 'JetBrains Mono', monospace;
+  letter-spacing: 0.03em;
+  color: var(--ink-soft);
+}
+
+.front-form input[type="text"],
+.front-form textarea {
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  color: var(--ink);
+  background: #fafaf8;
+  border: 1px solid var(--rule);
+  padding: 8px 10px;
+  resize: vertical;
+}
+
+.front-form input[type="text"]:focus,
+.front-form textarea:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.authors-edit {
+  border-top: 1px solid var(--rule);
+  padding-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.authors-edit-title {
+  font-size: 12px;
+  font-family: 'JetBrains Mono', monospace;
+  letter-spacing: 0.05em;
+  color: var(--ink-soft);
+}
+
+.author-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 8px;
+}
+
+.author-row input[type="text"] {
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  color: var(--ink);
+  background: #fafaf8;
+  border: 1px solid var(--rule);
+  padding: 7px 9px;
+}
+
+.author-row input[type="text"]:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
 /* Visor XML */
 .xml-view {
   margin: 0;
@@ -272,5 +342,114 @@ footer.credit {
   font-family: 'JetBrains Mono', monospace;
   font-size: 11px;
   color: var(--ink-soft);
+}
+
+/* Editor estructural JATS */
+.jats-editor {
+  border: 1px solid var(--ink);
+  background: #18212b;
+  color: #f7f3eb;
+  padding: 24px;
+  box-shadow: 10px 10px 0 rgba(128, 0, 0, 0.12);
+}
+
+.jats-editor-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 24px;
+  margin-bottom: 22px;
+}
+
+.jats-editor-heading h2 {
+  font-family: 'Source Serif 4', serif;
+  font-size: 32px;
+  font-weight: 600;
+  line-height: 1;
+  margin: 6px 0 8px;
+}
+
+.jats-editor-heading p {
+  color: #b8c1c7;
+  font-size: 13px;
+  max-width: 480px;
+  line-height: 1.5;
+}
+
+.editor-kicker {
+  color: #df9c76;
+  font: 11px 'JetBrains Mono', monospace;
+  letter-spacing: .1em;
+}
+
+.jats-file-actions {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.jats-editor .primary,
+.jats-editor .secondary {
+  padding: 10px 14px;
+  font-size: 11px;
+}
+
+.jats-editor .secondary {
+  color: #f7f3eb;
+  border-color: #78838b;
+}
+
+.jats-empty {
+  min-height: 150px;
+  border: 1px dashed #66737c;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  color: #b8c1c7;
+}
+
+.jats-empty strong { color: #f7f3eb; font: 600 18px 'Source Serif 4', serif; }
+.jats-empty span { font-size: 12px; }
+.jats-error { color: #ffb39a; font: 12px 'JetBrains Mono', monospace; border-left: 3px solid #d97051; padding: 10px 12px; margin-bottom: 18px; background: rgba(217, 112, 81, .12); }
+
+.jats-editor-grid { display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(260px, .85fr); gap: 14px; }
+.jats-main-column, .jats-side-column { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+.jats-panel { background: #f8f7f3; color: var(--ink); padding: 16px; border-left: 4px solid #b35a3c; }
+.jats-panel.compact { padding: 14px; }
+.jats-panel-header { display: flex; align-items: center; gap: 10px; border-bottom: 1px solid var(--rule); padding-bottom: 10px; margin-bottom: 14px; }
+.jats-panel-header span { color: var(--accent); font: 10px 'JetBrains Mono', monospace; letter-spacing: .08em; }
+.jats-panel-header strong { font: 600 16px 'Source Serif 4', serif; margin-right: auto; }
+.jats-form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.jats-field { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
+.jats-field span { color: var(--ink-soft); font: 10px 'JetBrains Mono', monospace; letter-spacing: .04em; }
+.jats-field input, .jats-field textarea, .inline-record input, .reference-row textarea { width: 100%; border: 1px solid var(--rule); background: #fff; color: var(--ink); padding: 8px; font: 13px 'Inter', sans-serif; resize: vertical; }
+.jats-field input:focus, .jats-field textarea:focus, .inline-record input:focus, .reference-row textarea:focus { outline: 2px solid rgba(128, 0, 0, .2); border-color: var(--accent); }
+.jats-list { display: flex; flex-direction: column; gap: 10px; }
+.jats-list-row { display: grid; grid-template-columns: 1fr 1fr 28px; gap: 8px; align-items: end; }
+.tiny-button, .text-action { border: 0; background: transparent; color: var(--accent); font: 11px 'JetBrains Mono', monospace; cursor: pointer; padding: 2px 0; }
+.tiny-button:hover, .text-action:hover { text-decoration: underline; }
+.icon-button { border: 1px solid #d7b9ae; background: transparent; color: var(--accent); width: 28px; height: 32px; cursor: pointer; font-size: 18px; }
+.text-action { margin-top: 14px; }
+.inline-record { display: grid; grid-template-columns: 44px 1fr; gap: 8px; align-items: center; margin-top: 8px; }
+.inline-record code, .reference-row code { color: var(--accent); font: 10px 'JetBrains Mono', monospace; }
+.jats-section-node { border-left: 2px solid #d9cfc1; padding: 0 0 10px 12px; margin: 10px 0; display: flex; flex-direction: column; gap: 10px; }
+.jats-section-node .jats-section-node { margin-left: 10px; }
+.reference-row { display: grid; grid-template-columns: 30px 1fr; gap: 8px; align-items: start; border-bottom: 1px solid var(--rule); padding: 8px 0; }
+.reference-row:last-child { border-bottom: 0; }
+.muted { color: var(--ink-soft); font-size: 12px; }
+.jats-xml-status { display: flex; flex-direction: column; gap: 8px; }
+.jats-xml-status strong { font: 15px 'Source Serif 4', serif; overflow-wrap: anywhere; }
+.valid-mark { color: #3f765d; font: 11px 'JetBrains Mono', monospace; }
+
+@media (max-width: 700px) {
+  .jats-editor { padding: 16px; }
+  .jats-editor-heading { align-items: flex-start; flex-direction: column; }
+  .jats-file-actions { width: 100%; }
+  .jats-file-actions button { flex: 1; }
+  .jats-editor-grid, .jats-form-grid { grid-template-columns: 1fr; }
+  .jats-list-row { grid-template-columns: 1fr 1fr 28px; }
 }
 
