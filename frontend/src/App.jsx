@@ -5,6 +5,30 @@ import logoUnla from './assets/unla-logo.png'
 
 const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:8081'
 
+/**
+ * Componente reutilizable para inputs que adaptan su ancho
+ * automáticamente a la longitud de su texto.
+ */
+function AutoInput({ value = '', placeholder = '', minChars = 10, type = 'text', onChange, ...props }) {
+  const currentText = String(value || placeholder || '')
+  const widthChars = Math.max(currentText.length + 2, minChars)
+
+  return (
+    <input
+      type={type}
+      value={value}
+      placeholder={placeholder}
+      onChange={onChange}
+      style={{
+        width: `${widthChars}ch`,
+        maxWidth: '100%',
+        boxSizing: 'border-box'
+      }}
+      {...props}
+    />
+  )
+}
+
 function highlightXml(xml) {
   if (!xml) return ''
   const escaped = xml
@@ -35,10 +59,6 @@ function firstDescendant(element, tagName) {
 function descendants(element, tagName) {
   return Array.from(element?.getElementsByTagName('*') || [])
     .filter((node) => node.localName === tagName)
-}
-
-function directChildren(element, tagName) {
-  return Array.from(element?.children || []).filter((node) => node.localName === tagName)
 }
 
 function elementText(element) {
@@ -184,7 +204,6 @@ export default function App() {
     }
   }
 
-  // Carga los campos combinando la respuesta del backend, el fallback desde el XML y valores por defecto
   const loadFrontFields = async (xmlText, directMetadata = {}) => {
     setLoadingFront(true)
     try {
@@ -202,7 +221,6 @@ export default function App() {
         console.warn('Falló el endpoint front-fields, extrayendo datos directo del XML.', e)
       }
 
-      // Extracción de respaldo directamente desde la cadena XML
       const parsedFromXml = {
         journalTitle: getXmlTagValue(xmlText, 'journal-title'),
         publisherName: getXmlTagValue(xmlText, 'publisher-name'),
@@ -215,7 +233,6 @@ export default function App() {
         authors: parseAuthorsFromXml(xmlText),
       }
 
-      // Normalizar autores asegurando que el email real no se pierda
       const parsedAuthors = parsedFromXml.authors || []
       const rawAuthors = (data.authors && data.authors.length)
         ? data.authors 
@@ -234,7 +251,6 @@ export default function App() {
         }
       })
 
-      // Prioridades: 1° Datos backend, 2° Metadata directa, 3° Parsed XML, 4° Default values
       const mergedFront = {
         journalTitle: data.journalTitle || directMetadata?.journalTitle || parsedFromXml.journalTitle || defaultFrontValues.journalTitle,
         publisherName: data.publisherName || directMetadata?.publisherName || parsedFromXml.publisherName || defaultFrontValues.publisherName,
@@ -436,6 +452,24 @@ export default function App() {
     }
   }
 
+  // Estilo común para envolver inputs dinámicos en flexbox
+  const flexLabelStyle = {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '4px',
+    fontSize: '0.85rem',
+    width: 'fit-content',
+    maxWidth: '100%',
+  }
+
+  const rowWrapStyle = {
+    display: 'flex',
+    flexWrap: 'wrap',
+    gap: '16px',
+    alignItems: 'flex-start',
+    marginBottom: '12px',
+  }
+
   return (
     <div className="container">
       <header className="masthead">
@@ -521,36 +555,40 @@ export default function App() {
               
               {/* DATOS DE LA REVISTA */}
               <div className="form-section-title">Datos de la Revista (&lt;journal-meta&gt;)</div>
-              <div className="form-grid-2">
-                <label>
+              <div style={rowWrapStyle}>
+                <label style={flexLabelStyle}>
                   Título de la Revista (&lt;journal-title&gt;)
-                  <input
-                    type="text"
+                  <AutoInput
                     value={front.journalTitle || ''}
+                    placeholder="Título de la revista"
+                    minChars={20}
                     onChange={(e) => updateFrontField('journalTitle', e.target.value)}
                   />
                 </label>
-                <label>
+                <label style={flexLabelStyle}>
                   Editorial / Institución (&lt;publisher-name&gt;)
-                  <input
-                    type="text"
+                  <AutoInput
                     value={front.publisherName || ''}
+                    placeholder="Nombre de la editorial"
+                    minChars={25}
                     onChange={(e) => updateFrontField('publisherName', e.target.value)}
                   />
                 </label>
-                <label>
+                <label style={flexLabelStyle}>
                   ISSN Impreso (&lt;issn pub-type="ppub"&gt;)
-                  <input
-                    type="text"
+                  <AutoInput
                     value={front.issnPpub || ''}
+                    placeholder="0000-0000"
+                    minChars={12}
                     onChange={(e) => updateFrontField('issnPpub', e.target.value)}
                   />
                 </label>
-                <label>
+                <label style={flexLabelStyle}>
                   ISSN Digital (&lt;issn pub-type="epub"&gt;)
-                  <input
-                    type="text"
+                  <AutoInput
                     value={front.issnEpub || ''}
+                    placeholder="0000-0000"
+                    minChars={12}
                     onChange={(e) => updateFrontField('issnEpub', e.target.value)}
                   />
                 </label>
@@ -560,50 +598,52 @@ export default function App() {
               <div className="form-section-title" style={{ marginTop: '20px' }}>
                 Identificadores y Fechas (&lt;article-id&gt; / &lt;pub-date&gt;)
               </div>
-              <div className="form-grid-2">
-                <label>
+              <div style={rowWrapStyle}>
+                <label style={flexLabelStyle}>
                   DOI del Artículo (&lt;article-id pub-id-type="doi"&gt;)
-                  <input
-                    type="text"
+                  <AutoInput
                     value={front.doi || ''}
+                    placeholder="10.xxxx/xxxx"
+                    minChars={22}
                     onChange={(e) => updateFrontField('doi', e.target.value)}
                   />
                 </label>
-                <label>
-                  ID Interno del Artículo (&lt;article-id pub-id-type="publisher-id"&gt;)
-                  <input
-                    type="text"
+                <label style={flexLabelStyle}>
+                  ID Interno (&lt;article-id pub-id-type="publisher-id"&gt;)
+                  <AutoInput
                     value={front.publisherId || ''}
+                    placeholder="ID"
+                    minChars={8}
                     onChange={(e) => updateFrontField('publisherId', e.target.value)}
                   />
                 </label>
-              </div>
-
-              <div className="form-grid-3">
-                <label>
-                  Día de Publicación
-                  <input
+                <label style={flexLabelStyle}>
+                  Día
+                  <AutoInput
                     type="number"
                     placeholder="DD"
                     value={front.pubDay || ''}
+                    minChars={4}
                     onChange={(e) => updateFrontField('pubDay', e.target.value)}
                   />
                 </label>
-                <label>
-                  Mes de Publicación
-                  <input
+                <label style={flexLabelStyle}>
+                  Mes
+                  <AutoInput
                     type="number"
                     placeholder="MM"
                     value={front.pubMonth || ''}
+                    minChars={4}
                     onChange={(e) => updateFrontField('pubMonth', e.target.value)}
                   />
                 </label>
-                <label>
-                  Año de Publicación
-                  <input
+                <label style={flexLabelStyle}>
+                  Año
+                  <AutoInput
                     type="number"
                     placeholder="YYYY"
                     value={front.pubYear || ''}
+                    minChars={6}
                     onChange={(e) => updateFrontField('pubYear', e.target.value)}
                   />
                 </label>
@@ -613,98 +653,109 @@ export default function App() {
               <div className="form-section-title" style={{ marginTop: '20px' }}>
                 Títulos y Resúmenes (&lt;title-group&gt; / &lt;abstract&gt;)
               </div>
-              <label>
-                Título Principal (&lt;article-title&gt;)
-                <input
-                  type="text"
-                  value={front.articleTitle || ''}
-                  onChange={(e) => updateFrontField('articleTitle', e.target.value)}
-                />
-              </label>
+              <div style={rowWrapStyle}>
+                <label style={flexLabelStyle}>
+                  Título Principal (&lt;article-title&gt;)
+                  <AutoInput
+                    value={front.articleTitle || ''}
+                    placeholder="Título principal del artículo"
+                    minChars={30}
+                    onChange={(e) => updateFrontField('articleTitle', e.target.value)}
+                  />
+                </label>
+                <label style={flexLabelStyle}>
+                  Subtítulo (&lt;subtitle&gt;)
+                  <AutoInput
+                    value={front.subtitle || ''}
+                    placeholder="Subtítulo opcional"
+                    minChars={20}
+                    onChange={(e) => updateFrontField('subtitle', e.target.value)}
+                  />
+                </label>
+                <label style={flexLabelStyle}>
+                  Título Traducido al Inglés (&lt;trans-title xml:lang="en"&gt;)
+                  <AutoInput
+                    value={front.transTitleEn || ''}
+                    placeholder="Translated title"
+                    minChars={30}
+                    onChange={(e) => updateFrontField('transTitleEn', e.target.value)}
+                  />
+                </label>
+              </div>
 
-              <label>
-                Subtítulo (&lt;subtitle&gt;)
-                <input
-                  type="text"
-                  value={front.subtitle || ''}
-                  onChange={(e) => updateFrontField('subtitle', e.target.value)}
-                />
-              </label>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '12px' }}>
+                <label style={{ display: 'flex', flexDirection: 'column', gap: '4px', fontSize: '0.85rem' }}>
+                  Resumen Español (&lt;abstract xml:lang="es"&gt;)
+                  <textarea
+                    rows={4}
+                    value={front.abstractEs || ''}
+                    onChange={(e) => updateFrontField('abstractEs', e.target.value)}
+                    style={{ width: '100%' }}
+                  />
+                </label>
 
-              <label>
-                Título Traducido al Inglés (&lt;trans-title xml:lang="en"&gt;)
-                <input
-                  type="text"
-                  value={front.transTitleEn || ''}
-                  onChange={(e) => updateFrontField('transTitleEn', e.target.value)}
-                />
-              </label>
-
-              <label>
-                Resumen Español (&lt;abstract xml:lang="es"&gt;)
-                <textarea
-                  rows={4}
-                  value={front.abstractEs || ''}
-                  onChange={(e) => updateFrontField('abstractEs', e.target.value)}
-                />
-              </label>
-
-              <label>
-                Abstract Inglés (&lt;trans-abstract xml:lang="en"&gt;)
-                <textarea
-                  rows={4}
-                  value={front.abstractEn || ''}
-                  onChange={(e) => updateFrontField('abstractEn', e.target.value)}
-                />
-              </label>
+                <label style={{ display: 'flex', flexDirection: 'column', gap: '4px', fontSize: '0.85rem' }}>
+                  Abstract Inglés (&lt;trans-abstract xml:lang="en"&gt;)
+                  <textarea
+                    rows={4}
+                    value={front.abstractEn || ''}
+                    onChange={(e) => updateFrontField('abstractEn', e.target.value)}
+                    style={{ width: '100%' }}
+                  />
+                </label>
+              </div>
 
               {/* PALABRAS CLAVE */}
               <div className="form-section-title" style={{ marginTop: '20px' }}>
                 Palabras Clave (&lt;kwd-group&gt;)
               </div>
-              <label>
-                Palabras clave (es) · separadas por coma
-                <input
-                  type="text"
-                  value={Array.isArray(front.keywordsEs) ? front.keywordsEs.join(', ') : (front.keywordsEs || '')}
-                  onChange={(e) => updateFrontField('keywordsEs', e.target.value)}
-                />
-              </label>
-
-              <label>
-                Palabras clave (en) · separadas por coma
-                <input
-                  type="text"
-                  value={Array.isArray(front.keywordsEn) ? front.keywordsEn.join(', ') : (front.keywordsEn || '')}
-                  onChange={(e) => updateFrontField('keywordsEn', e.target.value)}
-                />
-              </label>
+              <div style={rowWrapStyle}>
+                <label style={flexLabelStyle}>
+                  Palabras clave (es) · separadas por coma
+                  <AutoInput
+                    value={Array.isArray(front.keywordsEs) ? front.keywordsEs.join(', ') : (front.keywordsEs || '')}
+                    placeholder="palabra 1, palabra 2"
+                    minChars={25}
+                    onChange={(e) => updateFrontField('keywordsEs', e.target.value)}
+                  />
+                </label>
+                <label style={flexLabelStyle}>
+                  Palabras clave (en) · separadas por coma
+                  <AutoInput
+                    value={Array.isArray(front.keywordsEn) ? front.keywordsEn.join(', ') : (front.keywordsEn || '')}
+                    placeholder="keyword 1, keyword 2"
+                    minChars={25}
+                    onChange={(e) => updateFrontField('keywordsEn', e.target.value)}
+                  />
+                </label>
+              </div>
 
               {/* LICENCIA Y DERECHOS */}
               <div className="form-section-title" style={{ marginTop: '20px' }}>
                 Permisos y Licencia (&lt;permissions&gt;)
               </div>
-              <label>
-                URL de la Licencia Creative Commons (&lt;ali:license_ref&gt;)
-                <input
-                  type="text"
-                  placeholder="https://creativecommons.org/licenses/by/4.0/"
-                  value={front.licenseUrl || ''}
-                  onChange={(e) => updateFrontField('licenseUrl', e.target.value)}
-                />
-              </label>
+              <div style={rowWrapStyle}>
+                <label style={flexLabelStyle}>
+                  URL de la Licencia Creative Commons (&lt;ali:license_ref&gt;)
+                  <AutoInput
+                    placeholder="https://creativecommons.org/licenses/by/4.0/"
+                    value={front.licenseUrl || ''}
+                    minChars={35}
+                    onChange={(e) => updateFrontField('licenseUrl', e.target.value)}
+                  />
+                </label>
+                <label style={flexLabelStyle}>
+                  Declaración de Copyright (&lt;copyright-statement&gt;)
+                  <AutoInput
+                    placeholder="© 2026 Universidad Nacional de Lanús"
+                    value={front.copyrightStatement || ''}
+                    minChars={30}
+                    onChange={(e) => updateFrontField('copyrightStatement', e.target.value)}
+                  />
+                </label>
+              </div>
 
-              <label>
-                Declaración de Copyright (&lt;copyright-statement&gt;)
-                <input
-                  type="text"
-                  placeholder="© 2026 Universidad Nacional de Lanús"
-                  value={front.copyrightStatement || ''}
-                  onChange={(e) => updateFrontField('copyrightStatement', e.target.value)}
-                />
-              </label>
-
-              {/* BLOQUE DE AUTORES CORREGIDO CON EMAIL REAL */}
+              {/* BLOQUE DE AUTORES */}
               <div className="authors-edit" style={{ marginTop: '20px' }}>
                 <div className="authors-edit-title" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
                   <span>Autores (&lt;contrib-group&gt;)</span>
@@ -716,62 +767,56 @@ export default function App() {
                 {front.authors && front.authors.map((author, i) => (
                   <div key={i} style={{ border: '1px solid var(--border-color, #d0d0d0)', padding: '16px', borderRadius: '6px', marginBottom: '14px', backgroundColor: '#fff' }}>
                     
-                    {/* Rejilla de 4 campos de autor */}
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '12px', marginBottom: '12px' }}>
-                      <label style={{ display: 'flex', flexDirection: 'column', gap: '4px', fontSize: '0.85rem' }}>
+                    {/* Rejilla de campos de autor adaptables */}
+                    <div style={rowWrapStyle}>
+                      <label style={flexLabelStyle}>
                         Nombre/s
-                        <input
-                          type="text"
+                        <AutoInput
                           placeholder="Nombre/s"
                           value={author.givenNames || ''}
+                          minChars={14}
                           onChange={(e) => updateAuthorField(i, 'givenNames', e.target.value)}
                         />
                       </label>
-                      <label style={{ display: 'flex', flexDirection: 'column', gap: '4px', fontSize: '0.85rem' }}>
+                      <label style={flexLabelStyle}>
                         Apellido
-                        <input
-                          type="text"
+                        <AutoInput
                           placeholder="Apellido"
                           value={author.surname || ''}
+                          minChars={14}
                           onChange={(e) => updateAuthorField(i, 'surname', e.target.value)}
                         />
                       </label>
-                      <label style={{ display: 'flex', flexDirection: 'column', gap: '4px', fontSize: '0.85rem' }}>
+                      <label style={flexLabelStyle}>
                         ORCID
-                        <input
-                          type="text"
+                        <AutoInput
                           placeholder="0000-0000-0000-0000"
                           value={author.orcid || ''}
+                          minChars={20}
                           onChange={(e) => updateAuthorField(i, 'orcid', e.target.value)}
                         />
                       </label>
-                      <label style={{ display: 'flex', flexDirection: 'column', gap: '4px', fontSize: '0.85rem', width: 'fit-content' }}>
-  Correo electrónico 
-  <input 
-    type="email"
-    placeholder="correo@ejemplo.com"
-    value={author.email || ''}
-    style={{ 
-      width: `${(author.email || 'correo@ejemplo.com').length + 2}ch`,
-      maxWidth: '90%',
-      boxSizing: 'border-box'
-    }}
-    onChange={(e) => updateAuthorField(i, 'email', e.target.value)}
-  />
-</label>
+                      <label style={flexLabelStyle}>
+                        Correo electrónico 
+                        <AutoInput
+                          type="email"
+                          placeholder="correo@ejemplo.com"
+                          value={author.email || ''}
+                          minChars={20}
+                          onChange={(e) => updateAuthorField(i, 'email', e.target.value)}
+                        />
+                      </label>
                     </div>
 
                     {/* Campo de Afiliación */}
                     <div style={{ marginBottom: '12px' }}>
-                      <label style={{ display: 'flex', flexDirection: 'column', gap: '4px', fontSize: '0.85rem' }}>
+                      <label style={flexLabelStyle}>
                         Afiliación Institucional (&lt;aff&gt; / &lt;institution&gt;)
-                        <input
-                          type="text"
-                          name="affiliation"
+                        <AutoInput
                           placeholder="Ej: Universidad Nacional de Lanús, Lanús, Argentina"
                           value={author.affiliation || ''}
+                          minChars={40}
                           onChange={(e) => updateAuthorField(i, 'affiliation', e.target.value)}
-                          style={{ width: '100%' }}
                         />
                       </label>
                     </div>
