@@ -18,10 +18,6 @@ public final class XmlUtils {
 
     public static String escapeAttribute(String text) {
         if (text == null) return "";
-        return escape(text)
-                .replace("“", "&quot;")
-                .replace("”", "&quot;")
-                .replace("‘", "&apos;")
-                .replace("’", "&apos;");
+        return escape(text);
     }
 }

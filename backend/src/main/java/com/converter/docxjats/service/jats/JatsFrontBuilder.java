@@ -534,7 +534,7 @@ public record AwardGroup(String awardType, String sponsor, String awardId) {}
                     sb.append("<author-comment><p>Fallecido/a</p></author-comment>\n");
                 }
 
-                if (notBlank(author.bio())) {
+                if (!"sps-1.9".equalsIgnoreCase(spsVersion) && notBlank(author.bio())) {
                     sb.append("<bio>\n");
                     tag(sb, "p", author.bio());
                     sb.append("</bio>\n");

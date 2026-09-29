@@ -16,6 +16,7 @@ import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -134,9 +135,57 @@ public class JatsControllerTest {
     }
 
     @Test
+    public void testFrontEditorModifiesFourBlocks() throws Exception {
+        String baseXml = """
+            <?xml version="1.0" encoding="UTF-8"?>
+            <article article-type="research-article" dtd-version="1.1" specific-use="sps-1.9" xml:lang="es" xmlns:xlink="http://www.w3.org/1999/xlink">
+              <front>
+                <journal-meta>
+                  <journal-id journal-id-type="nlm-ta">Salud Colect</journal-id>
+                  <journal-id journal-id-type="publisher-id">scol</journal-id>
+                  <journal-title-group>
+                    <journal-title>Salud Colectiva</journal-title>
+                  </journal-title-group>
+                </journal-meta>
+                <article-meta>
+                  <title-group>
+                    <article-title>Título Inicial</article-title>
+                  </title-group>
+                </article-meta>
+              </front>
+              <body><p>Texto</p></body>
+            </article>
+            """;
+
+        com.converter.docxjats.dto.FrontFields fields = com.converter.docxjats.service.jats.JatsFrontEditor.extract(baseXml);
+        assertThat(fields.getArticleType(), is("research-article"));
+        assertThat(fields.getJournalTitle(), is("Salud Colectiva"));
+
+        fields.setArticleType("review-article");
+        fields.setDtdVersion("1.2");
+        fields.setSpsVersion("sps-1.10");
+        fields.setDoi("10.18294/sc.2026.9999");
+        fields.setVolume("23");
+        fields.setElocationId("e9999");
+        fields.setSubject("Revisión Temática");
+        fields.setLicenseUrl("https://creativecommons.org/licenses/by/4.0/");
+
+        String updatedXml = com.converter.docxjats.service.jats.JatsFrontEditor.applyFront(baseXml, fields);
+        assertThat(updatedXml, containsString("article-type=\"review-article\""));
+        assertThat(updatedXml, containsString("dtd-version=\"1.2\""));
+        assertThat(updatedXml, containsString("specific-use=\"sps-1.10\""));
+        assertThat(updatedXml, containsString("<article-id pub-id-type=\"doi\">10.18294/sc.2026.9999</article-id>"));
+        assertThat(updatedXml, containsString("<volume>23</volume>"));
+        assertThat(updatedXml, containsString("<elocation-id>e9999</elocation-id>"));
+        assertThat(updatedXml, containsString("<subject>Revisión Temática</subject>"));
+        assertThat(updatedXml, containsString("xlink:href=\"https://creativecommons.org/licenses/by/4.0/\""));
+    }
+
+    @Test
     public void testInvalidArticleId() throws Exception {
         mockMvc.perform(get("/jats/9999"))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.error").exists());
     }
 }
+
