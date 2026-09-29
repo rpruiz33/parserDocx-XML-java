@@ -392,10 +392,206 @@ npm run dev           # Inicia el entorno de desarrollo en http://localhost:5173
 
 ---
 
-## 12. Conclusión y Estado de Cumplimiento
+## 12. Trabajo Realizado el 29 de Septiembre de 2026
+
+Commit de referencia: `5427438` — *"subiendo nuevas funcionalidades de validacion del xml en la ui y cambios"*
+
+Este día concentró el mayor salto funcional de la herramienta: **la extensión completa del modelo de datos y del formulario de edición al esquema de 4 Bloques del estándar multirevista**, junto con la integración del Centro de Calidad Editorial y múltiples mejoras de robustez.
+
+---
+
+### 12.1 Extensión del DTO [FrontFields.java](backend/src/main/java/com/converter/docxjats/dto/FrontFields.java): Modelo de 4 Bloques
+
+El DTO `FrontFields` fue completamente rediseñado para mapear la **totalidad** de los metadatos que componen el elemento raíz `<article>` y la sección `<front>` del estándar JATS/SciELO SPS, organizados en cuatro bloques editoriales:
+
+| Bloque | Atributos / Elementos XML | Campos Java agregados |
+|:---|:---|:---|
+| **Bloque 1 · Tipo de Artículo** | `<article article-type="...">` | `articleType` |
+| **Bloque 2 · Estándares Raíz** | `dtd-version`, `specific-use` (SPS), `xml:lang` | `dtdVersion`, `spsVersion`, `xmlLang` |
+| **Bloque 3 · Revista, Editorial, DOI y Sección** | `<journal-title>`, `<abbrev-journal-title>`, `<journal-id nlm-ta>`, `<journal-id publisher-id>`, `<issn ppub/epub>`, `<publisher-name>`, `<article-id doi>`, `<subject>` | `journalTitle`, `journalAbbrev`, `journalIdNlmTa`, `journalIdPublisher`, `issnPpub`, `issnEpub`, `publisherName`, `doi`, `subject` |
+| **Bloque 4 · Fechas, Numeración, Historial y Licencias** | `<pub-date>` (electrónica y colección), `<volume>`, `<issue>`, `<elocation-id>`, `<history>` (received, accepted, pub), `<license>`, `<copyright-statement>` | `pubDay/Month/Year`, `collectionYear`, `volume`, `issue`, `elocationId`, `publisherId`, `historyReceivedDay/Month/Year`, `historyAcceptedDay/Month/Year`, `historyPubDay/Month/Year`, `licenseType`, `licenseUrl`, `licenseText`, `copyrightStatement` |
+
+Cada campo tiene getter/setter con valor por defecto seguro (sin `null`) para garantizar serialización JSON correcta.
+
+---
+
+### 12.2 Extensión del Servicio [JatsFrontEditor.java](backend/src/main/java/com/converter/docxjats/service/jats/JatsFrontEditor.java): Lectura y Escritura de los 4 Bloques
+
+El servicio de edición in-place fue profundamente ampliado para:
+
+**Método `extract()` — Lectura desde el DOM XML:**
+- **Bloque 1 y 2:** Lectura de los atributos del elemento raíz `<article>` (`article-type`, `dtd-version`, `specific-use`, `xml:lang`).
+- **Bloque 3:** Iteración de los nodos `<journal-id>` con distinción por atributo `journal-id-type` (`nlm-ta` y `publisher-id`). Lectura de ISSN distinguiendo `pub-type="ppub"` y `pub-type="epub"`.
+- **Bloque 4:** Iteración de `<pub-date>` distinguiendo por `date-type="pub"` y `date-type="collection"`. Iteración completa de `<history><date>` (received, accepted, pub). Lectura de `<license>` extrayendo `license-type`, `xlink:href` y el texto del nodo `<license-p>`.
+
+**Método `applyFront()` — Escritura/Actualización en el DOM:**
+- **Bloque 1 y 2:** Actualización directa de los atributos del elemento raíz `<article>` vía `article.setAttribute(...)`.
+- Nuevo método privado `updateJournalMeta()`: actualiza o crea el árbol `<journal-title-group>` con `<journal-title>` y `<abbrev-journal-title abbrev-type="publisher">`, gestiona los nodos `<journal-id>`, actualiza los `<issn>` y el `<publisher-name>`.
+- Nuevo método privado `updateArticleMeta()`: actualiza `<volume>`, `<elocation-id>`, `<subject>`, las fechas `<pub-date date-type="pub">` y `<pub-date date-type="collection">`, el `<history>` completo con sus tres fechas, y el bloque `<permissions>` (licencia CC y copyright).
+- Nuevo método privado `updateHistoryDate()`: crea o actualiza un nodo `<date date-type="...">` con los campos `<day>`, `<month>` y `<year>` verificando si el elemento ya existe antes de crear uno nuevo.
+
+---
+
+### 12.3 Corrección en [XmlUtils.java](backend/src/main/java/com/converter/docxjats/service/jats/XmlUtils.java)
+
+Se simplificó el método `escapeAttribute()` eliminando el reemplazo redundante de comillas tipográficas curvas (`"`, `"`, `'`, `'`), ya que el método `escape()` base cubre correctamente todos los caracteres especiales XML requeridos. Esto evitaba un doble-escape innecesario que podía corromper atributos con comillas decorativas en títulos.
+
+---
+
+### 12.4 Nuevas Pruebas Automatizadas en [JatsControllerTest.java](backend/src/test/java/com/converter/docxjats/controller/JatsControllerTest.java)
+
+Se agregó el test `testFrontEditorModifiesFourBlocks()` que verifica el ciclo completo de lectura y escritura de los 4 Bloques:
+
+```java
+// Extracción → Verificación inicial
+FrontFields fields = JatsFrontEditor.extract(baseXml);
+assertThat(fields.getArticleType(), is("research-article"));
+assertThat(fields.getJournalTitle(), is("Salud Colectiva"));
+
+// Mutación de los 4 Bloques
+fields.setArticleType("review-article");   // Bloque 1
+fields.setDtdVersion("1.2");               // Bloque 2
+fields.setSpsVersion("sps-1.10");          // Bloque 2
+fields.setDoi("10.18294/sc.2026.9999");    // Bloque 3
+fields.setSubject("Revisión Temática");    // Bloque 3
+fields.setVolume("23");                    // Bloque 4
+fields.setElocationId("e9999");            // Bloque 4
+fields.setLicenseUrl("https://creativecommons.org/licenses/by/4.0/"); // Bloque 4
+
+// Verificación en el XML resultante
+String updatedXml = JatsFrontEditor.applyFront(baseXml, fields);
+assertThat(updatedXml, containsString("article-type=\"review-article\""));
+assertThat(updatedXml, containsString("specific-use=\"sps-1.10\""));
+assertThat(updatedXml, containsString("<article-id pub-id-type=\"doi\">10.18294/sc.2026.9999</article-id>"));
+assertThat(updatedXml, containsString("<volume>23</volume>"));
+assertThat(updatedXml, containsString("xlink:href=\"https://creativecommons.org/licenses/by/4.0/\""));
+```
+
+---
+
+### 12.5 Expansión de la UI en [App.jsx](frontend/src/App.jsx): Formulario Multirevista de 4 Bloques
+
+La interfaz de usuario fue profundamente renovada para reflejar la arquitectura de 4 Bloques:
+
+#### a) Barra de Plantillas Rápidas (`preset-bar`)
+Se incorporaron dos perfiles predefinidos accesibles con un clic:
+- **Plantilla "Salud Colectiva (UNLa)"** (`PRESET_SALUD_COLECTIVA`): precarga todos los campos institucionales de la revista (ISSN `1669-2381` / `1851-8265`, journal-id `scol`, publisher UNLa, volumen `22`, `article-type` research-article, SPS 1.9, licencia CC BY 4.0, etc.).
+- **Plantilla "Revista Genérica / Multirevista"** (`PRESET_GENERICO`): precarga valores neutros para cualquier publicación arbitraria.
+
+El botón activo se destaca visualmente con la clase `.preset-btn.active` (fondo borravino institucional).
+
+#### b) Reestructuración en 5 Block-Cards (`.block-card`)
+El formulario dejó de ser una lista plana de campos y se organizó en tarjetas visuales separadas, con encabezados etiquetados (`<span class="block-tag">`) y enlaces directos a la Tag Library de NLM cuando aplica:
+
+| Bloque / Card | Contenido | Ref. NLM |
+|:---|:---|:---:|
+| **Bloque 1 · Tipo de Artículo** | `<select>` con los 8 tipos JATS (`research-article`, `review-article`, `editorial`, `letter`, `case-report`, `brief-report`, `book-review`, `other`) | ✓ |
+| **Bloque 2 · Estándares Raíz** | DTD version (`1.1`, `1.2`, `1.3`), SPS version (`sps-1.9`, `sps-1.10`), Idioma del XML (`es`, `pt`, `en`) | — |
+| **Bloque 3 · Revista, Publicador, DOI & Sección** | journal-title, abbrev-journal-title, journal-id (nlm-ta y publisher-id), ISSN ppub/epub, publisher-name, DOI, publisher-id, subject | — |
+| **Bloque 4 · Fechas, Numeración, Historial & Licencias** | pub-date (día, mes, año electrónico + año de colección), volumen, fascículo, elocation-id, history (received, accepted, pub), selector de licencia CC, copyright | ✓ |
+| **Bloque 5 · Contenido del Manuscrito & Autores** | articleTitle, subtitle, transTitle, abstractEs, abstractEn, keywordsEs, keywordsEn, gestión dinámica de autores | — |
+
+#### c) Selector de Licencias Creative Commons (`CC_LICENSES`)
+Se implementó un `<select>` desplegable para elegir la licencia sin necesidad de ingresar la URL manualmente:
+
+```javascript
+const CC_LICENSES = {
+  'by-4.0':     { url: 'https://creativecommons.org/licenses/by/4.0/', ... },
+  'by-nc-4.0':  { url: 'https://creativecommons.org/licenses/by-nc/4.0/', ... },
+  'by-nc-nd-4.0': { ... },
+  'by-sa-4.0':  { ... },
+}
+```
+Al seleccionar una opción, la URL y el texto legal en español se precargan automáticamente en los campos de `licenseUrl` y `licenseText`.
+
+#### d) Centro de Calidad Editorial (`quality-sheet`)
+Se agregó un panel dedicado al control de calidad del XML generado, accesible en todo momento:
+- **Botón "Validar en SciELO Stylechecker ↗":** abre directamente [https://manager.scielo.org/tools/validators/stylechecker/](https://manager.scielo.org/tools/validators/stylechecker/) para auditoría formal de conformidad SPS.
+- **Botón "Validar en PubMed Central Stylechecker ↗":** abre directamente [https://pmc.ncbi.nlm.nih.gov/tools/stylechecker/](https://pmc.ncbi.nlm.nih.gov/tools/stylechecker/) para validación contra el DTD oficial NISO/NLM.
+- **Botón "📋 Copiar XML al Portapapeles":** copia el XML completo generado al portapapeles del sistema operativo vía `navigator.clipboard.writeText()`, facilitando el pegado directo en los validadores o en herramientas externas. Muestra feedback visual ("✓ ¡XML Copiado!") durante 2,5 segundos.
+
+#### e) Robustez de Parseo XML en el Cliente
+Las funciones `getXmlTagValue()` y `parseAuthorsFromXml()` fueron envueltas en bloques `try/catch`, evitando que un XML malformado o con DTD referenciada en línea cause una excepción sin manejar y congele la interfaz.
+
+#### f) Sincronización de Campos con el Backend
+En la llamada a `handleApplyFront()`, se mapean correctamente los nombres de los campos del estado de React a los del DTO Java:
+```javascript
+const payload = {
+  ...front,
+  transTitle: front.transTitleEn || front.transTitle,       // trans-title
+  abstractText: front.abstractEs || front.abstractText,      // abstract
+  transAbstractText: front.abstractEn || front.transAbstractText, // trans-abstract
+}
+```
+
+---
+
+### 12.6 Nuevos Estilos CSS en [index.css](frontend/src/index.css)
+
+Se incorporaron los estilos para todos los elementos nuevos de UI:
+
+| Clase CSS | Propósito |
+|:---|:---|
+| `.block-card` | Tarjeta de cada bloque de metadatos con borde redondeado y sombra sutil. |
+| `.block-header` | Cabecera de la card con separador inferior y distribución space-between. |
+| `.block-tag` | Etiqueta monoespaciada con fondo borravino semitransparente, tipo chip editorial. |
+| `.block-link` | Enlace discreto a la Tag Library NLM, con hover en color acento. |
+| `.preset-bar` | Barra punteada con fondo crema y botones de plantilla rápida. |
+| `.preset-btn` | Botón de plantilla con variante `.active` (fondo borravino + texto blanco). |
+| `.form-select` | `<select>` con tipografía Inter consistente con el resto del formulario. |
+| `.quality-sheet` | Panel de calidad con acento azul (`#2b6cb0`) para diferenciarlo del flujo principal. |
+| `.quality-header`, `.quality-info` | Cabecera y texto descriptivo del Centro de Calidad. |
+| `.stylechecker-actions` | Contenedor flex de los botones de validación. |
+| `.btn-validator` | Botón base de validación con flex, gap y transición. |
+| `.scielo-btn` | Variante roja para SciELO. |
+| `.pmc-btn` | Variante verde para PubMed Central. |
+| `.copy-btn` | Variante gris para el botón de copia al portapapeles. |
+
+---
+
+### 12.7 Resumen de Cambios del Día en Cifras
+
+| Archivo | Líneas añadidas | Líneas eliminadas | Neto |
+|:---|---:|---:|---:|
+| `frontend/src/App.jsx` | +1.166 | -444 | +722 |
+| `frontend/src/index.css` | +189 | 0 | +189 |
+| `backend/.../dto/FrontFields.java` | +351 | -8 | +343 |
+| `backend/.../jats/JatsFrontEditor.java` | +508 | -80 | +428 |
+| `backend/.../controller/JatsControllerTest.java` | +49 | 0 | +49 |
+| `backend/.../jats/XmlUtils.java` | +1 | -6 | −5 |
+| **Total** | **+2.264** | **−538** | **+1.726** |
+
+---
+
+## 13. Guía de Ejecución y Pruebas
+
+### 13.1 Requisitos del Sistema
+- Java 17 o superior.
+- Maven 3.8+ instalado en el entorno.
+- Node.js 18+ y npm.
+
+### 13.2 Ejecución del Backend
+```bash
+cd backend
+mvn clean test        # Ejecuta las pruebas unitarias y de integración
+mvn spring-boot:run   # Inicia el servidor en http://localhost:8080 (o 8081 según configuración)
+```
+
+### 13.3 Ejecución del Frontend
+```bash
+cd frontend
+npm install
+npm run dev           # Inicia el entorno de desarrollo en http://localhost:5173
+```
+
+---
+
+## 14. Conclusión y Estado de Cumplimiento
 
 El trabajo realizado en la Práctica Profesionalizante cumple de manera exhaustiva con los objetivos de:
-1. **Conformidad Estándar:** Generación de marcado XML alineado con el esquema oficial **SciELO Publishing Schema (SPS 1.9)** y **JATS 1.1 - 1.3**.
+1. **Conformidad Estándar:** Generación de marcado XML alineado con el esquema oficial **SciELO Publishing Schema (SPS 1.9 / 1.10)** y **JATS 1.1 - 1.3**.
 2. **Modularidad y Mantenibilidad:** Código estructurado en capas con separación neta entre lectura de modelos Word, representación de datos y generación XML.
 3. **Calidad Editorial:** Soporte para artículos reales y complejos de la revista *Salud Colectiva*, cubriendo elementos gráficos, tablas, jerarquías de secciones, notas críticas y referencias bibliográficas analizadas granularmente.
-4. **Herramienta Integrada:** Entrega de una aplicación web completa con previsualización, edición in-place, soporte para la visión multirevista de 4 bloques y exportación lista para su validación en Stylecheckers formales e incorporación a plataformas como OJS.
+4. **Herramienta Multirevista:** Sistema de plantillas rápidas y formulario organizado en 4 Bloques que permite parametrizar cualquier publicación científica académica con valores predefinidos o personalizados.
+5. **Integración con Validadores Externos:** El Centro de Calidad Editorial integra acceso directo a los Stylecheckers oficiales de **SciELO** y **PubMed Central (PMC)**, más copiado de XML al portapapeles para un flujo de auditoría sin fricción.
+6. **Herramienta Integrada:** Entrega de una aplicación web completa con previsualización, edición in-place y exportación lista para su incorporación al flujo de producción editorial en plataformas como Open Journal Systems (OJS).
