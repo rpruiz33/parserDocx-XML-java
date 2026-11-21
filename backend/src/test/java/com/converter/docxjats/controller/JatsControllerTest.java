@@ -159,6 +159,7 @@ public class JatsControllerTest {
                 </article-meta>
               </front>
               <body><p>Texto</p></body>
+              <back></back>
             </article>
             """;
 
@@ -191,6 +192,63 @@ public class JatsControllerTest {
         mockMvc.perform(get("/jats/9999"))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.error").exists());
+    }
+
+    @Test
+    public void testConvertControllerRejectsEmptyOrNonDocxFile() throws Exception {
+        org.springframework.mock.web.MockMultipartFile textFile =
+                new org.springframework.mock.web.MockMultipartFile("file", "documento.txt", "text/plain", "texto plano".getBytes());
+
+        mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart("/api/convert/preview")
+                        .file(textFile))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error").value("El archivo debe tener extensión .docx"));
+    }
+
+    @Test
+    public void testFrontEditControllerEndpoints() throws Exception {
+        String baseXml = """
+            <?xml version="1.0" encoding="UTF-8"?>
+            <article article-type="research-article" dtd-version="1.1" specific-use="sps-1.9" xml:lang="es">
+              <front>
+                <journal-meta>
+                  <journal-title-group><journal-title>Salud Colectiva</journal-title></journal-title-group>
+                </journal-meta>
+                <article-meta>
+                  <title-group><article-title>Título de Prueba</article-title></title-group>
+                </article-meta>
+              </front>
+              <body><p>Texto</p></body>
+              <back></back>
+            </article>
+            """;
+
+        // Test /api/convert/front-fields
+        mockMvc.perform(post("/api/convert/front-fields")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"xml\": " + new com.fasterxml.jackson.databind.ObjectMapper().writeValueAsString(baseXml) + "}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.articleTitle").value("Título de Prueba"))
+                .andExpect(jsonPath("$.journalTitle").value("Salud Colectiva"));
+
+        // Test /api/convert/apply-front
+        String payload = """
+            {
+              "xml": %s,
+              "front": {
+                "articleTitle": "Título Modificado",
+                "doi": "10.18294/sc.2026.8888"
+              }
+            }
+            """.formatted(new com.fasterxml.jackson.databind.ObjectMapper().writeValueAsString(baseXml));
+
+        mockMvc.perform(post("/api/convert/apply-front")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(payload))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.xml").value(containsString("Título Modificado")))
+                .andExpect(jsonPath("$.xml").value(containsString("10.18294/sc.2026.8888")))
+                .andExpect(jsonPath("$.valid").value(true));
     }
 }
 

@@ -10,41 +10,42 @@ import org.springframework.web.bind.annotation.*;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
-@CrossOrigin(origins = "*") // Permite peticiones desde el frontend
+/**
+ * Controlador REST para consulta y descarga de artículos patrón JATS XML de la revista Salud Colectiva.
+ * Responsable únicamente del transporte HTTP. La resolución de identificadores y normalización
+ * reside en {@link JatsPatternService}.
+ */
+@CrossOrigin(origins = "*")
 @RestController
 public class JatsEndpointController {
 
     private final JatsPatternService jatsPatternService;
 
-   
     public JatsEndpointController(JatsPatternService jatsPatternService) {
         this.jatsPatternService = jatsPatternService;
     }
 
     @PostMapping(value = {"/jats", "/service/jats"}, produces = MediaType.APPLICATION_XML_VALUE)
     public ResponseEntity<?> getJatsXmlPost(@RequestBody(required = false) Map<String, String> payload,
-                                          @RequestParam(required = false) String articleId) {
-        String id = articleId;
-        if ((id == null || id.isBlank()) && payload != null) {
-            id = payload.get("articleId");
-            if (id == null) {
-                id = payload.get("id");
-            }
-        }
-        if (id == null || id.isBlank()) {
+                                            @RequestParam(required = false) String articleId) {
+        String id;
+        try {
+            id = jatsPatternService.resolveArticleId(articleId, payload);
+        } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest()
                     .contentType(MediaType.APPLICATION_JSON)
-                    .body(Map.of("error", "Debe proporcionar el identificador del artículo en el parámetro 'articleId' o en el payload JSON."));
+                    .body(Map.of("error", e.getMessage()));
         }
 
         try {
             JatsPatternService.JatsResponse response = jatsPatternService.getJatsForArticle(id);
             byte[] xmlBytes = response.xml().getBytes(StandardCharsets.UTF_8);
+            String filename = jatsPatternService.getAttachmentFilename(id);
 
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(new MediaType("application", "xml", StandardCharsets.UTF_8));
             headers.setContentDisposition(
-                    org.springframework.http.ContentDisposition.attachment().filename("article-" + id + "-jats.xml").build());
+                    org.springframework.http.ContentDisposition.attachment().filename(filename).build());
 
             return new ResponseEntity<>(xmlBytes, headers, HttpStatus.OK);
         } catch (IllegalArgumentException e) {

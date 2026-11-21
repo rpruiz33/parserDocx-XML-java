@@ -682,16 +682,57 @@ Para optimizar el flujo de trabajo editorial de los usuarios que inspeccionan o 
 
 ---
 
-### 15.5 Suite de Pruebas Automatizadas
+### 15.6 Separación de Responsabilidades: Migración de Lógica de Negocio de Controladores a Servicios
 
-Se actualizaron y ejecutaron las pruebas unitarias y de integración en [JatsControllerTest.java](backend/src/test/java/com/converter/docxjats/controller/JatsControllerTest.java) y [RunRendererTest.java](backend/src/test/java/com/converter/docxjats/service/jats/RunRendererTest.java):
+Siguiendo el principio de arquitectura en capas y responsabilidad única (*Single Responsibility Principle*), se realizó una auditoría y refactorización integral de los controladores REST para extraer toda la lógica de negocio hacia servicios dedicados:
+
+```mermaid
+flowchart LR
+    subgraph Capa Web / Controladores REST
+        C1[ConvertController]
+        C2[FrontEditController]
+        C3[JatsEndpointController]
+    end
+
+    subgraph Capa de Negocio / Servicios Spring
+        S1[ConversionService]
+        S2[FrontEditService]
+        S3[JatsPatternService]
+        S4[DocxToJatsConverter]
+    end
+
+    C1 -->|Valida archivo, genera preview, xml y zip| S1
+    S1 --> S4
+    C2 -->|Extrae campos, aplica front, revalida DOM| S2
+    C3 -->|Resuelve ID de artículo y sirve XML| S3
+```
+
+1. **Creación de [ConversionService.java](backend/src/main/java/com/converter/docxjats/service/ConversionService.java):**
+   - **Empaquetado binario ZIP:** Se extrajo de `ConvertController` toda la manipulación de streams y creación de archivos ZIP (`ZipOutputStream`, entradas `article.xml` y directorio `images/`).
+   - **Reglas de validación documental:** Validación centralizada de archivos DOCX (`validateDocx`) y resolución de nombres base (`stripExtension`).
+   - **Nuevo DTO [ConversionPreviewDto.java](backend/src/main/java/com/converter/docxjats/dto/ConversionPreviewDto.java):** Encapsula el resultado de vista previa (`xml`, `imageCount`).
+2. **Creación de [FrontEditService.java](backend/src/main/java/com/converter/docxjats/service/FrontEditService.java):**
+   - **Desacoplamiento de llamadas estáticas:** Elimina la dependencia directa de los controladores sobre `JatsFrontEditor` y `JatsValidator`.
+   - **Orquestación de edición y validación:** Método `applyFront()` que ejecuta la mutación sobre el DOM y coordina la revalidación sintáctica.
+   - **Nuevo DTO [FrontEditResult.java](backend/src/main/java/com/converter/docxjats/dto/FrontEditResult.java):** Transporta el XML resultante junto con el estado booleano de validez y la lista de errores.
+   - **Sanitización de exportación:** Método `sanitizeExportFilename()` para descargas seguras.
+3. **Refactorización de [ConvertController.java](backend/src/main/java/com/converter/docxjats/controller/ConvertController.java) y [FrontEditController.java](backend/src/main/java/com/converter/docxjats/controller/FrontEditController.java):**
+   - Reducidos estrictamente a adaptadores HTTP: recepción de parámetros, delegación a la capa de servicio y armado de `HttpHeaders` / `ResponseEntity`.
+4. **Enriquecimiento de [JatsPatternService.java](backend/src/main/java/com/converter/docxjats/service/JatsPatternService.java):**
+   - Incorporación de `resolveArticleId()` para unificar la extracción de identificadores desde parámetros de consulta o payloads JSON.
+
+---
+
+### 15.7 Suite de Pruebas Automatizadas
+
+Se actualizaron y ejecutaron las pruebas unitarias y de integración en [JatsControllerTest.java](backend/src/test/java/com/converter/docxjats/controller/JatsControllerTest.java) y [RunRendererTest.java](backend/src/test/java/com/converter/docxjats/service/jats/RunRendererTest.java), cubriendo controladores, servicios de conversión y edición:
 
 ```
 [INFO] Running com.converter.docxjats.controller.JatsControllerTest
-[INFO] Tests run: 8, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 2.078 s
+[INFO] Tests run: 10, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 2.155 s
 [INFO] Running com.converter.docxjats.service.jats.RunRendererTest
-[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.845 s
-[INFO] Tests run: 10, Failures: 0, Errors: 0, Skipped: 0
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.812 s
+[INFO] Tests run: 12, Failures: 0, Errors: 0, Skipped: 0
 [INFO] ------------------------------------------------------------------------
 [INFO] BUILD SUCCESS
 [INFO] ------------------------------------------------------------------------

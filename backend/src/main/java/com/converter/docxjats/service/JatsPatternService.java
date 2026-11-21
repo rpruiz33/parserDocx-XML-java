@@ -40,6 +40,35 @@ public class JatsPatternService {
     );
 
     /**
+     * Resuelve el identificador del artículo a partir del parámetro de query/path o del cuerpo JSON.
+     *
+     * @param articleId identificador recibido por query/path
+     * @param payload   mapa JSON recibido en la solicitud
+     * @return identificador limpio
+     * @throws IllegalArgumentException si no se proporciona ningún identificador válido
+     */
+    public String resolveArticleId(String articleId, java.util.Map<String, String> payload) {
+        String id = articleId;
+        if ((id == null || id.isBlank()) && payload != null) {
+            id = payload.get("articleId");
+            if (id == null) {
+                id = payload.get("id");
+            }
+        }
+        if (id == null || id.isBlank()) {
+            throw new IllegalArgumentException("Debe proporcionar el identificador del artículo en el parámetro 'articleId' o en el payload JSON.");
+        }
+        return id.trim();
+    }
+
+    /**
+     * Construye el nombre canónico de archivo adjunto para el artículo.
+     */
+    public String getAttachmentFilename(String articleId) {
+        return "article-" + (articleId != null ? articleId.trim() : "documento") + "-jats.xml";
+    }
+
+    /**
      * Localiza el XML patrón para el {@code articleId} dado, lo lee, normaliza y valida.
      *
      * @param articleId identificador del artículo (ej. "6032", "5939")
