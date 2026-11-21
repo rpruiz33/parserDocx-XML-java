@@ -12,6 +12,7 @@ import java.util.List;
 
 public class JatsValidator {
 
+    /** Valida la estructura básica del XML JATS dado. */
     public static ValidationResult validate(String xmlContent) {
         List<String> errors = new ArrayList<>();
         try {

@@ -682,44 +682,87 @@ Para optimizar el flujo de trabajo editorial de los usuarios que inspeccionan o 
 
 ---
 
-### 15.6 Separación de Responsabilidades: Migración de Lógica de Negocio de Controladores a Servicios
+### 15.6 Aplicación de Principios SOLID: Responsabilidad Única (SRP) y Segregación de Interfaces (ISP)
 
-Siguiendo el principio de arquitectura en capas y responsabilidad única (*Single Responsibility Principle*), se realizó una auditoría y refactorización integral de los controladores REST para extraer toda la lógica de negocio hacia servicios dedicados:
+Siguiendo las mejores prácticas de arquitectura limpia (*Clean Architecture*) y los principios SOLID, se estructuró la capa de servicios desacoplando interfaces especializadas de sus implementaciones:
+
+> **Principio de Segregación de Interfaces (ISP):** *"Ningún cliente debe ser forzado a depender de métodos o interfaces que no utiliza."*
 
 ```mermaid
-flowchart LR
-    subgraph Capa Web / Controladores REST
+flowchart TD
+    subgraph Controladores REST / Clientes
         C1[ConvertController]
         C2[FrontEditController]
         C3[JatsEndpointController]
     end
 
-    subgraph Capa de Negocio / Servicios Spring
-        S1[ConversionService]
-        S2[FrontEditService]
-        S3[JatsPatternService]
-        S4[DocxToJatsConverter]
+    subgraph Interfaces Segregadas / service.interfaces
+        I1[IDocxValidationService]
+        I2[IDocxConversionService]
+        I3[IPackageExportService]
+        I4[IJatsDocumentConverter]
+        I5[IFrontFieldsExtractor]
+        I6[IFrontEditorService]
+        I7[IXmlExportService]
+        I8[IArticleIdResolver]
+        I9[IJatsPatternProvider]
     end
 
-    C1 -->|Valida archivo, genera preview, xml y zip| S1
-    S1 --> S4
-    C2 -->|Extrae campos, aplica front, revalida DOM| S2
-    C3 -->|Resuelve ID de artículo y sirve XML| S3
+    subgraph Implementaciones / service.impl
+        M1[ConversionServiceImpl]
+        M2[FrontEditServiceImpl]
+        M3[JatsPatternServiceImpl]
+        M4[DocxToJatsConverter]
+    end
+
+    C1 -->|Valida archivo| I1
+    C1 -->|Preview / XML plano| I2
+    C1 -->|Paquete ZIP| I3
+
+    C2 -->|Lee metadatos| I5
+    C2 -->|Edita y revalida| I6
+    C2 -->|Descarga XML| I7
+
+    C3 -->|Resuelve ID| I8
+    C3 -->|Provee patrón| I9
+
+    M1 -.->|implements| I1
+    M1 -.->|implements| I2
+    M1 -.->|implements| I3
+    M1 -->|usa motor| I4
+
+    M4 -.->|implements| I4
+
+    M2 -.->|implements| I5
+    M2 -.->|implements| I6
+    M2 -.->|implements| I7
+
+    M3 -.->|implements| I8
+    M3 -.->|implements| I9
 ```
 
-1. **Creación de [ConversionService.java](backend/src/main/java/com/converter/docxjats/service/ConversionService.java):**
-   - **Empaquetado binario ZIP:** Se extrajo de `ConvertController` toda la manipulación de streams y creación de archivos ZIP (`ZipOutputStream`, entradas `article.xml` y directorio `images/`).
-   - **Reglas de validación documental:** Validación centralizada de archivos DOCX (`validateDocx`) y resolución de nombres base (`stripExtension`).
-   - **Nuevo DTO [ConversionPreviewDto.java](backend/src/main/java/com/converter/docxjats/dto/ConversionPreviewDto.java):** Encapsula el resultado de vista previa (`xml`, `imageCount`).
-2. **Creación de [FrontEditService.java](backend/src/main/java/com/converter/docxjats/service/FrontEditService.java):**
-   - **Desacoplamiento de llamadas estáticas:** Elimina la dependencia directa de los controladores sobre `JatsFrontEditor` y `JatsValidator`.
-   - **Orquestación de edición y validación:** Método `applyFront()` que ejecuta la mutación sobre el DOM y coordina la revalidación sintáctica.
-   - **Nuevo DTO [FrontEditResult.java](backend/src/main/java/com/converter/docxjats/dto/FrontEditResult.java):** Transporta el XML resultante junto con el estado booleano de validez y la lista de errores.
-   - **Sanitización de exportación:** Método `sanitizeExportFilename()` para descargas seguras.
-3. **Refactorización de [ConvertController.java](backend/src/main/java/com/converter/docxjats/controller/ConvertController.java) y [FrontEditController.java](backend/src/main/java/com/converter/docxjats/controller/FrontEditController.java):**
-   - Reducidos estrictamente a adaptadores HTTP: recepción de parámetros, delegación a la capa de servicio y armado de `HttpHeaders` / `ResponseEntity`.
-4. **Enriquecimiento de [JatsPatternService.java](backend/src/main/java/com/converter/docxjats/service/JatsPatternService.java):**
-   - Incorporación de `resolveArticleId()` para unificar la extracción de identificadores desde parámetros de consulta o payloads JSON.
+#### Catálogo de Interfaces Segregadas (`service/interfaces/`):
+| Interfaz | Métodos Clave | Propósito Exclusivo |
+|:---|:---|:---|
+| **`IDocxValidationService`** | `validateDocx(filename, isEmpty)` | Validación sintáctica previa de documentos DOCX. |
+| **`IDocxConversionService`** | `preview(...)`, `convertToXmlBytes(...)`, `getXmlFilename(...)` | Transformación de DOCX a JATS XML plano y previsualización. |
+| **`IPackageExportService`** | `convertToZipPackage(...)`, `createZipPackage(...)`, `getZipFilename(...)` | Empaquetado binario ZIP con `article.xml` y directorio `images/`. |
+| **`IJatsDocumentConverter`** | `convert(docxStream, originalFilename)` | Contrato del motor de parseo heurístico DOCX → JATS. |
+| **`IFrontFieldsExtractor`** | `extractFields(xml)` | Extracción de metadatos del `<front>` para formularios. |
+| **`IFrontEditorService`** | `applyFront(xml, fields)` | Mutación in-place del DOM XML y revalidación sintáctica. |
+| **`IXmlExportService`** | `prepareXmlExport(xml)`, `sanitizeExportFilename(filename)` | Preparación y sanitización de archivos XML descargables. |
+| **`IArticleIdResolver`** | `resolveArticleId(articleId, payload)` | Resolución de identificadores desde parámetros o cuerpos JSON. |
+| **`IJatsPatternProvider`** | `getJatsForArticle(articleId)`, `getAttachmentFilename(articleId)` | Consulta de artículos patrón normalizados bajo SciELO SPS 1.9 y PMC. |
+| **`IJatsPatternService`** | Hereda de `IArticleIdResolver` y `IJatsPatternProvider` | Interfaz compuesta para el servicio de patrones certificados. |
+
+#### Implementaciones Concretas (`service/impl/`):
+1. **`ConversionServiceImpl`**: Implementa `IDocxValidationService`, `IDocxConversionService` e `IPackageExportService`, inyectando la abstracción `IJatsDocumentConverter`.
+2. **`FrontEditServiceImpl`**: Implementa `IFrontFieldsExtractor`, `IFrontEditorService` e `IXmlExportService`.
+3. **`JatsPatternServiceImpl`**: Implementa `IJatsPatternService` (`IArticleIdResolver` e `IJatsPatternProvider`).
+4. **`DocxToJatsConverter`**: Implementa `IJatsDocumentConverter`.
+
+#### Desacoplamiento en los Controladores:
+- Cada endpoint de los controladores inyecta y utiliza **únicamente la interfaz segregada correspondiente** a su acción. Por ejemplo, los métodos de previsualización no conocen ni dependen de `PackageExportService` (generación de ZIP), y la exportación de XML editado no depende de la mutación del DOM.
 
 ---
 

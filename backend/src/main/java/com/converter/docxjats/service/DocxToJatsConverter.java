@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import com.converter.docxjats.dto.ConversionResult;
+import com.converter.docxjats.service.interfaces.IJatsDocumentConverter;
 import com.converter.docxjats.service.jats.ImageRegistry;
 import com.converter.docxjats.service.jats.JatsBackBuilder;
 import com.converter.docxjats.service.jats.JatsBodyBuilder;
@@ -19,10 +20,11 @@ import com.converter.docxjats.service.jats.JatsFrontBuilder;
 import com.converter.docxjats.service.jats.RunRenderer;
 
 @Service
-public class DocxToJatsConverter {
+public class DocxToJatsConverter implements IJatsDocumentConverter {
 
     private static final Logger log = LoggerFactory.getLogger(DocxToJatsConverter.class);
 
+    @Override
     public ConversionResult convert(InputStream docxStream, String originalFilename) throws IOException {
         Path tempFile = Files.createTempFile("docxjats-", ".docx");
         try {

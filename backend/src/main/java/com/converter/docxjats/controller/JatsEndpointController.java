@@ -1,6 +1,8 @@
 package com.converter.docxjats.controller;
 
-import com.converter.docxjats.service.JatsPatternService;
+import com.converter.docxjats.dto.JatsPatternResponse;
+import com.converter.docxjats.service.interfaces.IArticleIdResolver;
+import com.converter.docxjats.service.interfaces.IJatsPatternProvider;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -12,17 +14,20 @@ import java.util.Map;
 
 /**
  * Controlador REST para consulta y descarga de artículos patrón JATS XML de la revista Salud Colectiva.
- * Responsable únicamente del transporte HTTP. La resolución de identificadores y normalización
- * reside en {@link JatsPatternService}.
+ * Cumple con el Principio de Segregación de Interfaces (ISP):
+ * - {@link IArticleIdResolver}: resuelve y valida el ID solicitado.
+ * - {@link IJatsPatternProvider}: recupera el archivo patrón normalizado y genera el nombre adjunto.
  */
 @CrossOrigin(origins = "*")
 @RestController
 public class JatsEndpointController {
 
-    private final JatsPatternService jatsPatternService;
+    private final IArticleIdResolver idResolver;
+    private final IJatsPatternProvider patternProvider;
 
-    public JatsEndpointController(JatsPatternService jatsPatternService) {
-        this.jatsPatternService = jatsPatternService;
+    public JatsEndpointController(IArticleIdResolver idResolver, IJatsPatternProvider patternProvider) {
+        this.idResolver = idResolver;
+        this.patternProvider = patternProvider;
     }
 
     @PostMapping(value = {"/jats", "/service/jats"}, produces = MediaType.APPLICATION_XML_VALUE)
@@ -30,7 +35,7 @@ public class JatsEndpointController {
                                             @RequestParam(required = false) String articleId) {
         String id;
         try {
-            id = jatsPatternService.resolveArticleId(articleId, payload);
+            id = idResolver.resolveArticleId(articleId, payload);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest()
                     .contentType(MediaType.APPLICATION_JSON)
@@ -38,9 +43,9 @@ public class JatsEndpointController {
         }
 
         try {
-            JatsPatternService.JatsResponse response = jatsPatternService.getJatsForArticle(id);
+            JatsPatternResponse response = patternProvider.getJatsForArticle(id);
             byte[] xmlBytes = response.xml().getBytes(StandardCharsets.UTF_8);
-            String filename = jatsPatternService.getAttachmentFilename(id);
+            String filename = patternProvider.getAttachmentFilename(id);
 
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(new MediaType("application", "xml", StandardCharsets.UTF_8));

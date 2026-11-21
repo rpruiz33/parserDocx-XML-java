@@ -2,7 +2,7 @@ package com.converter.docxjats.controller;
 
 import com.converter.docxjats.dto.FrontEditResult;
 import com.converter.docxjats.dto.FrontFields;
-import com.converter.docxjats.service.FrontEditService;
+import com.converter.docxjats.service.interfaces.IFrontEditService;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 
@@ -10,17 +10,17 @@ import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
 /**
- * Controlador REST para la edición rápida de campos del &lt;front&gt; sobre un XML JATS ya generado.
- * Responsable únicamente del transporte HTTP. Toda la manipulación del DOM XML y revalidación
- * reside en {@link FrontEditService}.
+ * Controlador REST para edición rápida de campos del front sobre un XML JATS generado.
+ * Depende únicamente de {@link IFrontEditService} que unifica extracción,
+ * edición y exportación del front JATS.
  */
 @RestController
 @RequestMapping("/api/convert")
 public class FrontEditController {
 
-    private final FrontEditService frontEditService;
+    private final IFrontEditService frontEditService;
 
-    public FrontEditController(FrontEditService frontEditService) {
+    public FrontEditController(IFrontEditService frontEditService) {
         this.frontEditService = frontEditService;
     }
 
@@ -42,7 +42,7 @@ public class FrontEditController {
     }
 
     /**
-     * Aplica los campos editados sobre el XML y devuelve el XML actualizado con el resultado de validación.
+     * Aplica los campos editados sobre el XML y devuelve el XML actualizado con validación.
      */
     @PostMapping(value = "/apply-front", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> applyFront(@RequestBody ApplyFrontRequest request) {

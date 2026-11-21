@@ -163,7 +163,7 @@ public class JatsControllerTest {
             </article>
             """;
 
-        com.converter.docxjats.dto.FrontFields fields = com.converter.docxjats.service.jats.JatsFrontEditor.extract(baseXml);
+        com.converter.docxjats.dto.FrontFields fields = com.converter.docxjats.service.jats.JatsFrontEditor.extractStatic(baseXml);
         assertThat(fields.getArticleType(), is("research-article"));
         assertThat(fields.getJournalTitle(), is("Salud Colectiva"));
 
@@ -176,7 +176,7 @@ public class JatsControllerTest {
         fields.setSubject("Revisión Temática");
         fields.setLicenseUrl("https://creativecommons.org/licenses/by/4.0/");
 
-        String updatedXml = com.converter.docxjats.service.jats.JatsFrontEditor.applyFront(baseXml, fields);
+        String updatedXml = com.converter.docxjats.service.jats.JatsFrontEditor.applyFrontStatic(baseXml, fields);
         assertThat(updatedXml, containsString("article-type=\"review-article\""));
         assertThat(updatedXml, containsString("dtd-version=\"1.2\""));
         assertThat(updatedXml, containsString("specific-use=\"sps-1.10\""));

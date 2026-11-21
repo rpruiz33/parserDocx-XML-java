@@ -43,7 +43,7 @@ public final class JatsFrontEditor {
     // Extracción
     // ---------------------------------------------------------------
 
-    public static FrontFields extract(String xml) throws Exception {
+    public static FrontFields extractStatic(String xml) throws Exception {
         Document doc = parse(xml);
         FrontFields fields = new FrontFields();
 
@@ -221,7 +221,7 @@ public final class JatsFrontEditor {
     // Aplicación de ediciones
     // ---------------------------------------------------------------
 
-    public static String applyFront(String xml, FrontFields fields) throws Exception {
+    public static String applyFrontStatic(String xml, FrontFields fields) throws Exception {
         Document doc = parse(xml);
 
         // Bloque 1 y 2: Atributos raíz <article>

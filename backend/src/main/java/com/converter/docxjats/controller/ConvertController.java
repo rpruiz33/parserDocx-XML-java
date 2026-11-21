@@ -1,7 +1,8 @@
 package com.converter.docxjats.controller;
 
 import com.converter.docxjats.dto.ConversionPreviewDto;
-import com.converter.docxjats.service.ConversionService;
+import com.converter.docxjats.service.interfaces.IDocxService;
+import com.converter.docxjats.service.interfaces.IPackageExportService;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -10,18 +11,21 @@ import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
 /**
- * Controlador REST para conversión de documentos DOCX a JATS XML.
- * Responsable únicamente del transporte HTTP (recepción de requests y empaquetado de responses).
- * Toda la lógica de negocio, validaciones y generación de paquetes reside en {@link ConversionService}.
+ * Controlador REST para conversión y empaquetado de documentos DOCX a JATS XML.
+ * Depende de {@link IDocxService} (validación + conversión unificada)
+ * e {@link IPackageExportService} (generación de paquetes ZIP con imágenes).
  */
 @RestController
 @RequestMapping("/api/convert")
 public class ConvertController {
 
-    private final ConversionService conversionService;
+    private final IDocxService docxService;
+    private final IPackageExportService packageExportService;
 
-    public ConvertController(ConversionService conversionService) {
-        this.conversionService = conversionService;
+    public ConvertController(IDocxService docxService,
+                             IPackageExportService packageExportService) {
+        this.docxService = docxService;
+        this.packageExportService = packageExportService;
     }
 
     /**
@@ -30,8 +34,8 @@ public class ConvertController {
     @PostMapping(value = "/preview", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> preview(@RequestParam("file") MultipartFile file) {
         try {
-            conversionService.validateDocx(file != null ? file.getOriginalFilename() : null, file == null || file.isEmpty());
-            ConversionPreviewDto preview = conversionService.preview(file.getInputStream(), file.getOriginalFilename());
+            docxService.validateDocx(file != null ? file.getOriginalFilename() : null, file == null || file.isEmpty());
+            ConversionPreviewDto preview = docxService.preview(file.getInputStream(), file.getOriginalFilename());
             return ResponseEntity.ok(preview);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
@@ -47,9 +51,9 @@ public class ConvertController {
     @PostMapping(value = "/xml", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> convertToXml(@RequestParam("file") MultipartFile file) {
         try {
-            conversionService.validateDocx(file != null ? file.getOriginalFilename() : null, file == null || file.isEmpty());
-            byte[] xmlBytes = conversionService.convertToXmlBytes(file.getInputStream(), file.getOriginalFilename());
-            String filename = conversionService.getXmlFilename(file.getOriginalFilename());
+            docxService.validateDocx(file != null ? file.getOriginalFilename() : null, file == null || file.isEmpty());
+            byte[] xmlBytes = docxService.convertToXmlBytes(file.getInputStream(), file.getOriginalFilename());
+            String filename = docxService.getXmlFilename(file.getOriginalFilename());
 
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(new MediaType("application", "xml", StandardCharsets.UTF_8));
@@ -70,9 +74,9 @@ public class ConvertController {
     @PostMapping(value = "/package", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> convertToPackage(@RequestParam("file") MultipartFile file) {
         try {
-            conversionService.validateDocx(file != null ? file.getOriginalFilename() : null, file == null || file.isEmpty());
-            byte[] zipBytes = conversionService.convertToZipPackage(file.getInputStream(), file.getOriginalFilename());
-            String filename = conversionService.getZipFilename(file.getOriginalFilename());
+            docxService.validateDocx(file != null ? file.getOriginalFilename() : null, file == null || file.isEmpty());
+            byte[] zipBytes = packageExportService.convertToZipPackage(file.getInputStream(), file.getOriginalFilename());
+            String filename = packageExportService.getZipFilename(file.getOriginalFilename());
 
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
