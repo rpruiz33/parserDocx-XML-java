@@ -692,22 +692,7 @@ public class DocxFrontParser {
         List<String> lines = collectUntilNextHeading(c);
         String fullStatement = String.join(" ", lines);
         if (fullStatement.isBlank()) return;
-        b.setFundingStatement(fullStatement);
-
-        for (String clause : fullStatement.split(";\\s*")) {
-            Matcher capes = Pattern.compile(
-                    "Coordena[cç][aã]o de Aperfei[cç]oamento de Pessoal de N[ií]vel Superior[^0-9]*(\\d{1,4}/\\d{4})",
-                    Pattern.CASE_INSENSITIVE).matcher(clause);
-            Matcher fapesc = Pattern.compile(
-                    "Funda[cç][aã]o de Amparo [àa] Pesquisa e Inova[cç][aã]o do Estado de Santa Catarina[^0-9]*(\\d{1,4}/\\d{4})",
-                    Pattern.CASE_INSENSITIVE).matcher(clause);
-            if (capes.find()) {
-                b.addFundingSource("Coordenação de Aperfeiçoamento de Pessoal de Nível Superior", capes.group(1), "contract");
-            }
-            if (fapesc.find()) {
-                b.addFundingSource("Fundação de Amparo à Pesquisa e Inovação do Estado de Santa Catarina", fapesc.group(1), "contract");
-            }
-        }
+        parseFundingGroup(b, fullStatement);
     }
 
     private void parseConflict(Cursor c, JatsFrontBuilder b) {

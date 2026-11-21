@@ -18,17 +18,15 @@ public record AwardGroup(String awardType, String sponsor, String awardId) {}
     private String fundingStatement;
 
     public void addAwardGroup(String type, String sponsor, String awardId) {
-        if (sponsor != null && !sponsor.isBlank()) {
-            this.awardGroups.add(new AwardGroup(type, sponsor, awardId));
-        }
+        addFundingSource(sponsor, awardId, type);
+    }
+
+    public boolean hasFundingSources() {
+        return !fundingSources.isEmpty();
     }
 
     public String getFundingStatement() {
         return this.fundingStatement;
-    }
-
-    public List<AwardGroup> getAwardGroups() {
-        return this.awardGroups;
     }
     // ---------------------------------------------------------------
     // Modelos internos
@@ -420,8 +418,7 @@ public record AwardGroup(String awardType, String sponsor, String awardId) {}
     // ---------------------------------------------------------------
 
     public String build(String fallbackTitle) {
-        applyArticle6032Defaults();
-        applyArticle5939Defaults();
+        applySmartDefaults();
         String finalTitle = hasTitle() ? title : fallbackTitle;
 
         StringBuilder sb = new StringBuilder();
@@ -743,7 +740,9 @@ public record AwardGroup(String awardType, String sponsor, String awardId) {}
     }
 
     private void buildFunding(StringBuilder sb) {
-        if (fundingSources.isEmpty() && !notBlank(fundingStatement)) return;
+        // En SciELO SPS 1.9, <funding-group> REQUIERE al menos un <award-group>.
+        // Si no hay premios o contratos (award-groups), NO se debe generar <funding-group>.
+        if (fundingSources.isEmpty()) return;
         sb.append("<funding-group>\n");
         for (FundingSource fs : fundingSources) {
             sb.append("<award-group award-type=\"").append(escAttr(fs.awardType())).append("\">\n");
@@ -767,71 +766,50 @@ public record AwardGroup(String awardType, String sponsor, String awardId) {}
         sb.append("</counts>\n");
     }
 
-    private boolean isArticle6032() {
-        return articleIdDoi != null && articleIdDoi.matches("(?i)10\\.18294/sc\\.2026\\.6032");
-    }
-
-    private void applyArticle6032Defaults() {
-        if (!isArticle6032()) return;
-        if (!notBlank(articleIdOther)) articleIdOther = "00600";
-        if (!notBlank(pubDateDay) && !notBlank(pubDateMonth) && !notBlank(pubDateYear)) {
-            setPubDate("15", "05", "2026");
+    /**
+     * Aplica valores por defecto de forma dinámica (sin hardcodear IDs de artículos).
+     * Infiere elocation-id y año de colección desde el DOI cuando no están seteados.
+     */
+    private void applySmartDefaults() {
+        // Inferir elocation-id desde el DOI: "10.18294/sc.2026.6032" → "e6032"
+        if (!notBlank(elocationId) && notBlank(articleIdDoi)) {
+            java.util.regex.Matcher m = java.util.regex.Pattern
+                    .compile("\\.(\\w+)$")
+                    .matcher(articleIdDoi.trim());
+            if (m.find()) {
+                String suffix = m.group(1);
+                // Solo si parece un ID numérico de artículo
+                if (suffix.matches("\\d+")) {
+                    elocationId = "e" + suffix;
+                }
+            }
         }
-        if (!notBlank(volume)) volume = "22";
-        if (!notBlank(elocationId)) elocationId = "e6032";
-        if (!notBlank(collectionYear)) collectionYear = "2026";
-        if (historyReceived == null) setHistoryReceived("14", "11", "2025");
-        if (historyRevRecd == null) setHistoryRevRecd("29", "04", "2026");
-        if (historyAccepted == null) setHistoryAccepted("07", "05", "2026");
-        if (figCount == 0) figCount = 4;
-        if (tableCount == 0) tableCount = 3;
-        if (refCount == 0) refCount = 74;
-        pageCount = 18;
-        abstractTitle = "RESUMEN ";
 
-        for (int i = 0; i < affiliations.size(); i++) {
-            Affiliation aff = affiliations.get(i);
-            affiliations.set(i, new Affiliation(
-                    aff.id(), aff.label(), aff.original(),
-                    "Universidad Nacional de Lanús",
-                    "Instituto de Salud Colectiva",
-                    aff.orgdiv2(),
-                    "Universidad Nacional de Lanús",
-                    "Buenos Aires",
-                    aff.state(),
-                    "Argentina",
-                    aff.email()));
+        // Inferir año de colección desde el DOI: "10.18294/sc.2026.6032" → "2026"
+        if (!notBlank(collectionYear) && notBlank(articleIdDoi)) {
+            java.util.regex.Matcher m = java.util.regex.Pattern
+                    .compile("/(\\d{4})\\.\\d+$")
+                    .matcher(articleIdDoi.trim());
+            if (m.find()) {
+                collectionYear = m.group(1);
+            }
         }
-    }
 
-    private boolean isArticle5939() {
-        return articleIdDoi != null && articleIdDoi.matches("(?i)10\\.18294/sc\\.2026\\.5939");
-    }
-
-    private void applyArticle5939Defaults() {
-        if (!isArticle5939()) return;
-        if (!notBlank(pubDateDay) && !notBlank(pubDateMonth) && !notBlank(pubDateYear)) {
-            setPubDate("11", "03", "2026");
-        }
-        if (!notBlank(volume)) volume = "22";
-        if (!notBlank(elocationId)) elocationId = "e5939";
-        if (!notBlank(collectionYear)) collectionYear = "2026";
-        pageCount = 18;
-
-        for (int i = 0; i < affiliations.size(); i++) {
-            Affiliation aff = affiliations.get(i);
-            affiliations.set(i, new Affiliation(
-                    aff.id(), aff.label(), aff.original(), aff.normalized(), aff.orgdiv1(), aff.orgdiv2(),
-                    aff.orgname(), "Florianópolis", null, "Brasil", aff.email()));
+        // Inferir año de publicación desde el año de colección si no está seteado
+        if (!notBlank(pubDateYear) && notBlank(collectionYear)) {
+            pubDateYear = collectionYear;
         }
     }
 
     private String normalizeOrcid(String value) {
         if (value == null) return null;
-        return value.trim()
+        // Strip any existing prefix/formatting to get the bare ID
+        String bare = value.trim()
             .replaceFirst("(?i)^https?://orcid\\.org/", "")
             .replaceFirst("(?i)^orcid:\\s*", "")
             .trim();
+        // PMC requires full URL: https://orcid.org/<id>
+        return "https://orcid.org/" + bare;
     }
 
     private String ensureTrailingColon(String value) {

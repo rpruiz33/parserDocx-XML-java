@@ -34,7 +34,7 @@ public class JatsEndpointController {
         if (id == null || id.isBlank()) {
             return ResponseEntity.badRequest()
                     .contentType(MediaType.APPLICATION_JSON)
-                    .body(Map.of("error", "Debe proporcionar el identificador del artículo (ej. '6032' o '5939') en el parámetro 'articleId' o en el payload JSON."));
+                    .body(Map.of("error", "Debe proporcionar el identificador del artículo en el parámetro 'articleId' o en el payload JSON."));
         }
 
         try {

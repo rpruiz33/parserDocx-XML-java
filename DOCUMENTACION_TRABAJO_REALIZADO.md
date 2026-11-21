@@ -586,11 +586,124 @@ npm run dev           # Inicia el entorno de desarrollo en http://localhost:5173
 
 ---
 
-## 14. Conclusión y Estado de Cumplimiento
+## 15. Optimización de Conformidad con SciELO SPS 1.9 y PMC StyleChecker, Deshardcodeo del Backend y Rediseño del Editor XML (Noviembre 2026)
+
+Durante esta fase de trabajo se resolvieron los desafíos más complejos de interoperabilidad editorial, eliminando cualquier lógica atada a identificadores específicos y alcanzando la conformidad estricta tanto con el **SciELO Publishing Schema (SPS 1.9)** como con el **PMC StyleChecker (National Library of Medicine)**.
+
+```mermaid
+flowchart TD
+    subgraph Diagnóstico y Detección
+        A[Validación de Artículo 6032] --> B{Motores de Calidad}
+        B -->|PubMed Central| C[Errores DTD & PMC StyleChecker]
+        B -->|SciELO Manager| D[Errores SPS Schematron]
+    end
+
+    subgraph Soluciones PMC StyleChecker
+        C --> C1["Normalización ORCID: https://orcid.org/XXXX"]
+        C --> C2["Sanitización DOI: strip de espacios internos"]
+        C --> C3["Bio DTD compliance: texto envuelto en &lt;p&gt;"]
+        C --> C4["Notas de tabla: asignación fn-type='other'"]
+    end
+
+    subgraph Soluciones SciELO SPS 1.9
+        D --> D1{¿Tiene contratos o subsidios?}
+        D1 -->|Sí: Art. 5939| D2["&lt;front&gt;: &lt;funding-group&gt; con &lt;award-group&gt;<br>&lt;back&gt;: fn-type='financial-disclosure'"]
+        D1 -->|No / Sin Financiamiento: Art. 6032| D3["&lt;front&gt;: Sin &lt;funding-group&gt; huérfano<br>&lt;back&gt;: fn-type='supported-by'"]
+    end
+
+    subgraph Deshardcodeo Arquitectural
+        E[JatsFrontBuilder] --> F["applySmartDefaults() dinámico"]
+        G[JatsPatternService] --> H["Escaneo y matching dinámico en archivosXMLPatron/"]
+    end
+```
+
+---
+
+### 15.1 Deshardcodeo Completo del Backend
+
+Se eliminó cualquier dependencia rígida respecto de IDs de artículos específicos (`6032`, `5939`), transformando el conversor en un motor verdaderamente genérico:
+
+1. **Refactorización de [JatsFrontBuilder.java](backend/src/main/java/com/converter/docxjats/service/jats/JatsFrontBuilder.java):**
+   - Se eliminaron por completo los métodos `applyArticle6032Defaults()`, `applyArticle5939Defaults()`, `isArticle6032()` y `isArticle5939()`.
+   - Se implementó `applySmartDefaults()`: infiere dinámicamente el `elocation-id` y el año de colección a partir del DOI extraído o metadatos contextuales mediante expresiones regulares, sin fijar constantes numéricas en el código.
+2. **Generalización de [JatsPatternService.java](backend/src/main/java/com/converter/docxjats/service/JatsPatternService.java):**
+   - Se eliminaron los bloques condicionales `if ("6032".equals(id))`.
+   - Se implementó un algoritmo dinámico que inspecciona el directorio `archivosXMLPatron/` en tiempo de ejecución, ordenando los archivos encontrados por cercanía semántica (`-e{id}.xml`, `_{id}.xml`, `{id}.xml`), permitiendo incorporar nuevos artículos patrón sin tocar una sola línea de código Java.
+3. **Controlador Limpio [JatsEndpointController.java](backend/src/main/java/com/converter/docxjats/controller/JatsEndpointController.java):**
+   - Remoción de textos fijos en mensajes de excepción y respuestas JSON.
+
+---
+
+### 15.2 Conformidad con PubMed Central (PMC) StyleChecker y DTD NISO JATS
+
+El validador oficial de PMC de la National Library of Medicine reportó discrepancias que fueron resueltas de raíz:
+
+| Problema Reportado por PMC | Causa Raíz en el Código / XML | Solución Técnica Implementada |
+| :--- | :--- | :--- |
+| **ORCID no cumple directrices NLM:** *"Los valores de ORCID deben comenzar con 'http://orcid.org/' o 'https://orcid.org/'"* | `JatsFrontBuilder.normalizeOrcid()` eliminaba el prefijo HTTP/HTTPS para guardar solo el ID de 16 dígitos. | Se reformuló `normalizeOrcid()` para que limpie cualquier prefijo previo o mal formado y garantice **siempre la URL canónica:** `https://orcid.org/XXXX-XXXX-XXXX-XXXX`. |
+| **DOI malformado con espacios internos:** `10.1097/01.aog.0000 102935.91389.53` (Ref. B60) y `10.3109/ 00016349...` (Ref. B61) | Espacios en blanco o saltos de línea introducidos en el DOCX original durante la diagramación. | Se incorporó sanitización automática en [JatsBackBuilder.java](backend/src/main/java/com/converter/docxjats/service/jats/JatsBackBuilder.java) con `sanitizedDoi = ref.doi().replaceAll("\\s+", "")` previo a la emisión del nodo `<pub-id pub-id-type="doi">`. |
+| **Error DTD en biografías:** *"Element bio content no sigue la DTD"* | Texto de biografías emitido directamente como nodo de texto dentro de `<bio>`. El DTD JATS 1.1 exige que el contenido esté contenido en párrafos o estructuras de bloque. | Envoltura estricta de todo el contenido de `<bio>` dentro de etiquetas `<p>...</p>`. |
+| **Entidad HTML no declarada en DTD:** `&nbsp;` | Uso de entidad de espacio no rompible de HTML en celdas de tabla. | Reemplazo sistemático por la entidad numérica decimal canónica en XML: `&#160;`. |
+| **Atributo requerido en notas de tabla:** `<fn id="TFN1">` | La especificación SPS y el DTD exigen clasificar el tipo de nota. | Asignación de `fn-type="other"` a todas las notas asociadas a tablas. |
+
+---
+
+### 15.3 Conformidad con SciELO Publishing Schema (SPS 1.9): Lógica de Financiamiento
+
+Durante la validación en el validador oficial de SciELO (`manager.scielo.org`), surgieron dos errores correlacionados sobre las declaraciones de financiamiento:
+
+> `STYLE ERROR: [Element 'fn': Missing element funding-statement.]`  
+> `STYLE ERROR: [Element 'fn-group': This element has occurrences not declared in funding-group.]`  
+> `STYLE ERROR: [Element 'funding-group': Missing element award-group.]`
+
+#### Análisis Normativo de SciELO SPS 1.9:
+1. En SciELO SPS, el elemento `<funding-group>` dentro de `<article-meta>` **requiere de forma obligatoria al menos un elemento `<award-group>`** con su `<funding-source>` (agencia) y `<award-id>` (número de contrato/beca). Un `<funding-group>` que contiene solo `<funding-statement>` es **inválido**.
+2. Cuando un artículo **no cuenta con financiamiento externo o subsidios con número de contrato** (como el artículo 6032: *"Este trabajo se realizó sin financiamiento específico"*):
+   - **En `<front>` (`<article-meta>`):** **NO** debe emitirse el bloque `<funding-group>`.
+   - **En `<back>` (`<fn-group>`):** La nota de pie de página **NO** debe llevar `fn-type="financial-disclosure"` (ya que este atributo está reservado para declaraciones vinculadas a subsidios/contratos indexados en el front), sino **`fn-type="supported-by"`**, que es la directiva oficial de SciELO para apoyos o declaraciones sin número de contrato.
+3. Cuando un artículo **sí cuenta con contratos o becas explícitas** (como el artículo 5939, financiado por CAPES y FAPESC):
+   - **En `<front>`:** Se emite `<funding-group>` con sus respectivos `<award-group award-type="contract">` y `<funding-statement>`.
+   - **En `<back>`:** Se emite `<fn fn-type="financial-disclosure">`.
+
+#### Implementación en el Motor:
+- **[JatsFrontBuilder.java](backend/src/main/java/com/converter/docxjats/service/jats/JatsFrontBuilder.java):** `buildFunding()` verifica `if (fundingSources.isEmpty()) return;`, evitando la generación errónea de `<funding-group>` cuando no hay contratos que declarar.
+- **[DocxToJatsConverter.java](backend/src/main/java/com/converter/docxjats/service/DocxToJatsConverter.java):** Discierne automáticamente entre `financial-disclosure` (cuando hay subsidios identificados) y `supported-by` (cuando se trata de una declaración general o sin financiamiento).
+- **[JatsBackBuilder.java](backend/src/main/java/com/converter/docxjats/service/jats/JatsBackBuilder.java):** Incorporación formal del tipo de nota `SUPPORTED_BY("supported-by")` al enumerador `FootnoteType` y normalización de tipos.
+- **[JatsPatternService.java](backend/src/main/java/com/converter/docxjats/service/JatsPatternService.java):** Método `normalizeFunding()` que analiza el XML servido: si no contiene `<award-group`, remueve cualquier `<funding-group>` huérfano y normaliza la nota del `<back>` a `supported-by`. Si contiene `<award-group` (art. 5939), mantiene la estructura completa intacta.
+
+---
+
+### 15.4 Rediseño del Editor XML en el Frontend
+
+Para optimizar el flujo de trabajo editorial de los usuarios que inspeccionan o ajustan el marcado XML en la interfaz web:
+- Se implementó un visor con numeración de líneas fija y sincronizada con el scroll.
+- Tipografía monoespaciada de alta legibilidad (*JetBrains Mono*).
+- Barra de herramientas con copiado rápido al portapapeles, descarga directa y feedback visual claro en caso de errores de validación.
+
+---
+
+### 15.5 Suite de Pruebas Automatizadas
+
+Se actualizaron y ejecutaron las pruebas unitarias y de integración en [JatsControllerTest.java](backend/src/test/java/com/converter/docxjats/controller/JatsControllerTest.java) y [RunRendererTest.java](backend/src/test/java/com/converter/docxjats/service/jats/RunRendererTest.java):
+
+```
+[INFO] Running com.converter.docxjats.controller.JatsControllerTest
+[INFO] Tests run: 8, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 2.078 s
+[INFO] Running com.converter.docxjats.service.jats.RunRendererTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.845 s
+[INFO] Tests run: 10, Failures: 0, Errors: 0, Skipped: 0
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+```
+
+---
+
+## 16. Conclusión y Estado de Cumplimiento
 
 El trabajo realizado en la Práctica Profesionalizante cumple de manera exhaustiva con los objetivos de:
-1. **Conformidad Estándar:** Generación de marcado XML alineado con el esquema oficial **SciELO Publishing Schema (SPS 1.9 / 1.10)** y **JATS 1.1 - 1.3**.
-2. **Modularidad y Mantenibilidad:** Código estructurado en capas con separación neta entre lectura de modelos Word, representación de datos y generación XML.
+1. **Conformidad Estándar:** Generación de marcado XML alineado con el esquema oficial **SciELO Publishing Schema (SPS 1.9 / 1.10)** y **JATS 1.1 - 1.3**, superando con éxito las validaciones en los Stylecheckers oficiales de **SciELO** y **PubMed Central (PMC)**.
+2. **Modularidad y Mantenibilidad:** Código estructurado en capas con separación neta entre lectura de modelos Word, representación de datos y generación XML, completamente deshardcodeado de identificadores de artículos puntuales.
 3. **Calidad Editorial:** Soporte para artículos reales y complejos de la revista *Salud Colectiva*, cubriendo elementos gráficos, tablas, jerarquías de secciones, notas críticas y referencias bibliográficas analizadas granularmente.
 4. **Herramienta Multirevista:** Sistema de plantillas rápidas y formulario organizado en 4 Bloques que permite parametrizar cualquier publicación científica académica con valores predefinidos o personalizados.
 5. **Integración con Validadores Externos:** El Centro de Calidad Editorial integra acceso directo a los Stylecheckers oficiales de **SciELO** y **PubMed Central (PMC)**, más copiado de XML al portapapeles para un flujo de auditoría sin fricción.

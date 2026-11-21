@@ -38,6 +38,8 @@ public class JatsControllerTest {
                 .andExpect(content().string(containsString("<journal-meta>")))
                 .andExpect(content().string(containsString("<article-id pub-id-type=\"doi\">10.18294/sc.2026.6032</article-id>")))
                 .andExpect(content().string(containsString("<article-title>Cesáreas como expresión biopolítica del nacimiento")))
+                .andExpect(content().string(not(containsString("<funding-group>"))))
+                .andExpect(content().string(containsString("fn-type=\"supported-by\"")))
                 .andExpect(content().string(containsString("<body>")));
     }
 
@@ -50,6 +52,9 @@ public class JatsControllerTest {
                 .andExpect(content().string(containsString("<journal-meta>")))
                 .andExpect(content().string(containsString("<article-id pub-id-type=\"doi\">10.18294/sc.2026.5939</article-id>")))
                 .andExpect(content().string(containsString("<article-title>Prácticas de fin de vida y directivas anticipadas de voluntad")))
+                .andExpect(content().string(containsString("<funding-group>")))
+                .andExpect(content().string(containsString("<award-group")))
+                .andExpect(content().string(containsString("fn-type=\"financial-disclosure\"")))
                 .andExpect(content().string(containsString("<body>")));
     }
 

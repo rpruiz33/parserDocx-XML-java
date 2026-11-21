@@ -67,6 +67,12 @@ public class DocxToJatsConverter {
                 DocxBackParser backParser = new DocxBackParser(document, back, bodyEnd);
                 backParser.parse();
 
+                // Agregar nota de financiamiento al back si se encontró declaración
+                if (front.getFundingStatement() != null && !front.getFundingStatement().isBlank()) {
+                    String fnType = front.hasFundingSources() ? "financial-disclosure" : "supported-by";
+                    back.addFootnote(fnType, "Financiamiento", front.getFundingStatement());
+                }
+
                 String fallbackTitle = stripExtension(originalFilename);
                 String xml = assembleArticle(front.build(fallbackTitle), body.build(), back.build());
 

@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from 'react'
+import { useCallback, useMemo, useRef, useState } from 'react'
 import axios from 'axios'
 import './index.css'
 import logoUnla from './assets/unla-logo.png'
@@ -7,9 +7,9 @@ const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:8081'
 
 /**
  * Componente reutilizable para inputs que adaptan su ancho
- * automáticamente a la longitud de su texto.
+ * automáticamente a la longitud de su texto y reciben clases CSS consistentes.
  */
-function AutoInput({ value = '', placeholder = '', minChars = 10, type = 'text', onChange, ...props }) {
+function AutoInput({ value = '', placeholder = '', minChars = 10, type = 'text', onChange, className = '', ...props }) {
   const currentText = String(value || placeholder || '')
   const widthChars = Math.max(currentText.length + 2, minChars)
 
@@ -19,6 +19,7 @@ function AutoInput({ value = '', placeholder = '', minChars = 10, type = 'text',
       value={value}
       placeholder={placeholder}
       onChange={onChange}
+      className={`auto-input ${className}`.trim()}
       style={{
         width: `${widthChars}ch`,
         maxWidth: '100%',
@@ -29,13 +30,61 @@ function AutoInput({ value = '', placeholder = '', minChars = 10, type = 'text',
   )
 }
 
-function highlightXml(xml) {
+/**
+ * Etiqueta de campo editorial con chip visual de tag XML y descripción.
+ */
+function FieldLabel({ title, tag, hint, required }) {
+  return (
+    <div className="field-label-header">
+      <span className="field-label-title">
+        {title}
+        {required && <span className="field-required">*</span>}
+      </span>
+      {tag && <code className="field-tag-badge">{tag}</code>}
+      {hint && <span className="field-hint">{hint}</span>}
+    </div>
+  )
+}
+
+/**
+ * Resaltador de sintaxis XML con soporte para declaraciones, comentarios,
+ * etiquetas JATS, atributos, valores entrecomillados y búsqueda interactiva.
+ */
+function highlightXml(xml, searchQuery = '') {
   if (!xml) return ''
-  const escaped = xml
+  let text = xml
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;')
-  return escaped.replace(/(&lt;\/?[a-zA-Z0-9\-:]+)/g, '<span class="tag">$1</span>')
+
+  // Comentarios XML: <!-- ... -->
+  text = text.replace(/(&lt;!--[\s\S]*?--&gt;)/g, '<span class="xml-cmt">$1</span>')
+
+  // Declaraciones XML (<?xml ... ?>) y DOCTYPE
+  text = text.replace(/(&lt;\?[\s\S]*?\?&gt;)/g, '<span class="xml-decl">$1</span>')
+  text = text.replace(/(&lt;!DOCTYPE[\s\S]*?&gt;)/g, '<span class="xml-doc">$1</span>')
+
+  // Etiquetas y atributos XML
+  text = text.replace(/(&lt;\/?[a-zA-Z0-9_\-:]+)([\s\S]*?)(\/?&gt;)/g, (m, openTag, attrs, closeTag) => {
+    const styledAttrs = attrs.replace(
+      /([a-zA-Z0-9_\-:]+)=(".*?"|'.*?')/g,
+      '<span class="xml-attr">$1</span>=<span class="xml-val">$2</span>'
+    )
+    return `<span class="xml-tag">${openTag}</span>${styledAttrs}<span class="xml-tag">${closeTag}</span>`
+  })
+
+  // Resaltado de texto coincidente con la búsqueda
+  if (searchQuery && searchQuery.trim().length > 1) {
+    try {
+      const escapedQuery = searchQuery.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+      const regex = new RegExp(`(?![^<]*>)(${escapedQuery})`, 'gi')
+      text = text.replace(regex, '<mark class="xml-search-match">$1</mark>')
+    } catch {
+      // Evitar excepciones por expresiones regulares inválidas
+    }
+  }
+
+  return text
 }
 
 function stripExtension(name) {
@@ -260,6 +309,54 @@ export default function App() {
   const [applyingFront, setApplyingFront] = useState(false)
   const [exportingXml, setExportingXml] = useState(false)
   const [copied, setCopied] = useState(false)
+
+  // Estado para el Visor / Editor interactivo de XML
+  const [editorMode, setEditorMode] = useState('preview') // 'preview' | 'edit'
+  const [rawXmlDraft, setRawXmlDraft] = useState('')
+  const [rawXmlError, setRawXmlError] = useState('')
+  const [rawXmlSaved, setRawXmlSaved] = useState(false)
+  const [searchQuery, setSearchQuery] = useState('')
+  const [wrapLines, setWrapLines] = useState(false)
+  const [isExpanded, setIsExpanded] = useState(false)
+
+  const xmlLines = useMemo(() => (xml ? xml.split('\n') : []), [xml])
+  const matchCount = useMemo(() => {
+    if (!searchQuery.trim() || !xml) return 0
+    try {
+      const escaped = searchQuery.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+      const matches = xml.match(new RegExp(escaped, 'gi'))
+      return matches ? matches.length : 0
+    } catch {
+      return 0
+    }
+  }, [xml, searchQuery])
+
+  const highlightedXmlCode = useMemo(() => {
+    return highlightXml(xml, searchQuery)
+  }, [xml, searchQuery])
+
+  const handleSaveRawXml = () => {
+    if (!rawXmlDraft.trim()) {
+      setRawXmlError('El contenido XML no puede estar vacío.')
+      return
+    }
+    try {
+      const doc = new DOMParser().parseFromString(rawXmlDraft, 'application/xml')
+      const parseError = doc.querySelector('parsererror')
+      if (parseError) {
+        setRawXmlError(`Error de sintaxis XML: ${parseError.textContent.slice(0, 160)}`)
+        return
+      }
+      setXml(rawXmlDraft)
+      setRawXmlError('')
+      setRawXmlSaved(true)
+      setTimeout(() => setRawXmlSaved(false), 3000)
+      loadFrontFields(rawXmlDraft)
+      setStatus({ type: 'ok', message: 'XML modificado y sincronizado con éxito con los metadatos' })
+    } catch (e) {
+      setRawXmlError(`Error al procesar el XML: ${e.message}`)
+    }
+  }
 
   const inputRef = useRef(null)
 
@@ -710,33 +807,52 @@ export default function App() {
 
         {/* BLOQUE 02 · EDICIÓN COMPLETA DEL METADATO (4 BLOQUES MULTIREVISTA) */}
         {front && (
-          <div className="sheet" data-label="02 · CONFIGURACIÓN Y METADATOS EDITORIALES (4 BLOQUES)">
-            
+          <div className="sheet editor-sheet" data-label="02 · CONFIGURACIÓN Y METADATOS EDITORIALES (4 BLOQUES)">
+            <div className="editor-intro">
+              <div>
+                <h2>Editor Estructural de Metadatos JATS</h2>
+                <p>
+                  Parametrizá los 4 bloques del &lt;front&gt; (artículo, estándares SPS, revista, ciclo editorial y autorías).
+                  Los cambios se sincronizan e inyectan automáticamente en el árbol XML.
+                </p>
+              </div>
+            </div>
+
             {/* Barra de Plantillas Rápidas */}
             <div className="preset-bar">
-              <span className="preset-label">Plantillas Rápidas:</span>
-              <button
-                type="button"
-                className={`preset-btn ${front.journalTitle === 'Salud Colectiva' ? 'active' : ''}`}
-                onClick={() => applyPreset('salud-colectiva')}
-              >
-                Salud Colectiva (UNLa)
-              </button>
-              <button
-                type="button"
-                className={`preset-btn ${front.journalTitle !== 'Salud Colectiva' ? 'active' : ''}`}
-                onClick={() => applyPreset('generico')}
-              >
-                Revista Genérica / Multirevista
-              </button>
+              <div className="preset-title">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+                <span>Plantilla de Perfil Editorial:</span>
+              </div>
+              <div className="preset-options">
+                <button
+                  type="button"
+                  className={`preset-btn ${front.journalTitle === 'Salud Colectiva' ? 'active' : ''}`}
+                  onClick={() => applyPreset('salud-colectiva')}
+                >
+                  <span className="preset-indicator"></span>
+                  Salud Colectiva (UNLa)
+                </button>
+                <button
+                  type="button"
+                  className={`preset-btn ${front.journalTitle !== 'Salud Colectiva' ? 'active' : ''}`}
+                  onClick={() => applyPreset('generico')}
+                >
+                  <span className="preset-indicator"></span>
+                  Revista Científica Multirevista
+                </button>
+              </div>
             </div>
 
             <div className="front-form">
-              
               {/* BLOQUE 1 · TIPO DE ARTÍCULO */}
               <div className="block-card">
                 <div className="block-header">
-                  <span className="block-tag">Bloque 1 · Tipo de Artículo</span>
+                  <div className="block-header-left">
+                    <span className="block-num-pill">01</span>
+                    <span className="block-tag">Tipo de Artículo</span>
+                    <code className="block-tag-code">&lt;article article-type="..."&gt;</code>
+                  </div>
                   <a
                     href="https://jats.nlm.nih.gov/nlm-dtd/articleauthoring/tag-library/2.1/n-24v0.html"
                     target="_blank"
@@ -746,21 +862,21 @@ export default function App() {
                     Tag Library NLM (article-type) ↗
                   </a>
                 </div>
-                <div style={rowWrapStyle}>
-                  <label style={flexLabelStyle}>
-                    Tipo de Artículo (&lt;article article-type="..."&gt;)
+                <div className="fields-row">
+                  <label className="editor-field" style={{ minWidth: '320px', flex: '1 1 auto' }}>
+                    <FieldLabel title="Tipología de Publicación" tag="article-type" />
                     <select
                       className="form-select"
                       value={front.articleType || 'research-article'}
                       onChange={(e) => updateFrontField('articleType', e.target.value)}
                     >
-                      <option value="research-article">research-article (Artículo de investigación)</option>
+                      <option value="research-article">research-article (Artículo de investigación científica)</option>
                       <option value="review-article">review-article (Artículo de revisión / meta-análisis)</option>
                       <option value="editorial">editorial (Editorial / Declaración institucional)</option>
                       <option value="letter">letter (Carta al editor / debate)</option>
-                      <option value="case-report">case-report (Reporte o estudio de caso)</option>
+                      <option value="case-report">case-report (Reporte o estudio de caso clínico/social)</option>
                       <option value="brief-report">brief-report (Comunicación breve / reporte preliminar)</option>
-                      <option value="book-review">book-review (Reseña de libro)</option>
+                      <option value="book-review">book-review (Reseña o comentario de libro)</option>
                       <option value="other">other (Otro tipo de contribución)</option>
                     </select>
                   </label>
@@ -770,12 +886,16 @@ export default function App() {
               {/* BLOQUE 2 · ESTÁNDARES RAÍZ */}
               <div className="block-card">
                 <div className="block-header">
-                  <span className="block-tag">Bloque 2 · Estándares Raíz (DTD & SPS)</span>
-                  <span className="muted" style={{ fontSize: '12px' }}>Parámetros globales del XML</span>
+                  <div className="block-header-left">
+                    <span className="block-num-pill">02</span>
+                    <span className="block-tag">Estándares Raíz</span>
+                    <code className="block-tag-code">DTD & SPS</code>
+                  </div>
+                  <span className="block-header-sub">Parámetros globales del XML JATS</span>
                 </div>
-                <div style={rowWrapStyle}>
-                  <label style={flexLabelStyle}>
-                    Versión DTD JATS (dtd-version)
+                <div className="fields-row">
+                  <label className="editor-field">
+                    <FieldLabel title="Versión DTD JATS" tag="dtd-version" />
                     <select
                       className="form-select"
                       value={front.dtdVersion || '1.1'}
@@ -787,8 +907,8 @@ export default function App() {
                     </select>
                   </label>
 
-                  <label style={flexLabelStyle}>
-                    SciELO Publishing Schema (specific-use)
+                  <label className="editor-field">
+                    <FieldLabel title="SciELO Publishing Schema" tag="specific-use" />
                     <select
                       className="form-select"
                       value={front.spsVersion || 'sps-1.9'}
@@ -799,8 +919,8 @@ export default function App() {
                     </select>
                   </label>
 
-                  <label style={flexLabelStyle}>
-                    Idioma Principal (xml:lang)
+                  <label className="editor-field">
+                    <FieldLabel title="Idioma Principal del Documento" tag="xml:lang" />
                     <select
                       className="form-select"
                       value={front.xmlLang || 'es'}
@@ -817,12 +937,17 @@ export default function App() {
               {/* BLOQUE 3 · DATOS DE REVISTA, EDITORIAL, DOI Y SECCIÓN */}
               <div className="block-card">
                 <div className="block-header">
-                  <span className="block-tag">Bloque 3 · Revista, Publicador, DOI & Sección</span>
-                  <span className="muted" style={{ fontSize: '12px' }}>&lt;journal-meta&gt; & &lt;article-id&gt;</span>
+                  <div className="block-header-left">
+                    <span className="block-num-pill">03</span>
+                    <span className="block-tag">Revista, Publicador, DOI & Sección</span>
+                    <code className="block-tag-code">&lt;journal-meta&gt; & &lt;article-id&gt;</code>
+                  </div>
+                  <span className="block-header-sub">Identidad editorial y de publicación</span>
                 </div>
-                <div style={rowWrapStyle}>
-                  <label style={flexLabelStyle}>
-                    Título de la Revista (&lt;journal-title&gt;)
+
+                <div className="fields-row">
+                  <label className="editor-field">
+                    <FieldLabel title="Título de la Revista" tag="<journal-title>" />
                     <AutoInput
                       value={front.journalTitle || ''}
                       placeholder="Título de la revista"
@@ -831,8 +956,8 @@ export default function App() {
                     />
                   </label>
 
-                  <label style={flexLabelStyle}>
-                    Título Abreviado (&lt;abbrev-journal-title&gt;)
+                  <label className="editor-field">
+                    <FieldLabel title="Título Abreviado" tag="<abbrev-journal-title>" />
                     <AutoInput
                       value={front.journalAbbrev || ''}
                       placeholder="Abrev. oficial"
@@ -841,8 +966,8 @@ export default function App() {
                     />
                   </label>
 
-                  <label style={flexLabelStyle}>
-                    ID NLM-TA (&lt;journal-id journal-id-type="nlm-ta"&gt;)
+                  <label className="editor-field">
+                    <FieldLabel title="ID NLM-TA" tag="journal-id-type='nlm-ta'" />
                     <AutoInput
                       value={front.journalIdNlmTa || ''}
                       placeholder="NLM-TA ID"
@@ -851,8 +976,8 @@ export default function App() {
                     />
                   </label>
 
-                  <label style={flexLabelStyle}>
-                    ID Editorial (&lt;journal-id journal-id-type="publisher-id"&gt;)
+                  <label className="editor-field">
+                    <FieldLabel title="ID Editorial" tag="journal-id-type='publisher-id'" />
                     <AutoInput
                       value={front.journalIdPublisher || ''}
                       placeholder="scol"
@@ -862,9 +987,9 @@ export default function App() {
                   </label>
                 </div>
 
-                <div style={rowWrapStyle}>
-                  <label style={flexLabelStyle}>
-                    Editorial / Institución (&lt;publisher-name&gt;)
+                <div className="fields-row">
+                  <label className="editor-field">
+                    <FieldLabel title="Editorial / Institución" tag="<publisher-name>" />
                     <AutoInput
                       value={front.publisherName || ''}
                       placeholder="Nombre de la institución editorial"
@@ -873,8 +998,8 @@ export default function App() {
                     />
                   </label>
 
-                  <label style={flexLabelStyle}>
-                    ISSN Impreso (&lt;issn pub-type="ppub"&gt;)
+                  <label className="editor-field">
+                    <FieldLabel title="ISSN Impreso" tag="pub-type='ppub'" />
                     <AutoInput
                       value={front.issnPpub || ''}
                       placeholder="0000-0000"
@@ -883,8 +1008,8 @@ export default function App() {
                     />
                   </label>
 
-                  <label style={flexLabelStyle}>
-                    ISSN Digital (&lt;issn pub-type="epub"&gt;)
+                  <label className="editor-field">
+                    <FieldLabel title="ISSN Digital" tag="pub-type='epub'" />
                     <AutoInput
                       value={front.issnEpub || ''}
                       placeholder="0000-0000"
@@ -893,8 +1018,8 @@ export default function App() {
                     />
                   </label>
 
-                  <label style={flexLabelStyle}>
-                    DOI del Artículo (&lt;article-id pub-id-type="doi"&gt;)
+                  <label className="editor-field">
+                    <FieldLabel title="DOI del Artículo" tag="pub-id-type='doi'" />
                     <AutoInput
                       value={front.doi || ''}
                       placeholder="10.18294/sc.2026.xxxx"
@@ -903,8 +1028,8 @@ export default function App() {
                     />
                   </label>
 
-                  <label style={flexLabelStyle}>
-                    Sección Temática (&lt;subject&gt;)
+                  <label className="editor-field">
+                    <FieldLabel title="Sección Temática" tag="<subject>" />
                     <AutoInput
                       value={front.subject || ''}
                       placeholder="Artículos / Editorial"
@@ -918,7 +1043,11 @@ export default function App() {
               {/* BLOQUE 4 · FECHAS, NUMERACIÓN, HISTORIAL Y LICENCIAS */}
               <div className="block-card">
                 <div className="block-header">
-                  <span className="block-tag">Bloque 4 · Fechas, Numeración, Historial & Licencias</span>
+                  <div className="block-header-left">
+                    <span className="block-num-pill">04</span>
+                    <span className="block-tag">Fechas, Numeración, Historial & Licencias</span>
+                    <code className="block-tag-code">&lt;pub-date&gt; & &lt;permissions&gt;</code>
+                  </div>
                   <a
                     href="https://creativecommons.org/cc-licenses/"
                     target="_blank"
@@ -929,36 +1058,41 @@ export default function App() {
                   </a>
                 </div>
 
-                <div style={rowWrapStyle}>
-                  <label style={flexLabelStyle}>
-                    Fecha Publicación Electrónica (Día / Mes / Año)
-                    <div style={{ display: 'flex', gap: '6px' }}>
+                <div className="fields-row">
+                  <label className="editor-field">
+                    <FieldLabel title="Fecha Publicación Electrónica" tag="<pub-date pub-type='epub'>" />
+                    <div className="date-group">
                       <AutoInput
                         type="number"
                         placeholder="DD"
                         value={front.pubDay || ''}
-                        minChars={4}
+                        minChars={2}
+                        className="date-input"
                         onChange={(e) => updateFrontField('pubDay', e.target.value)}
                       />
+                      <span className="date-separator">/</span>
                       <AutoInput
                         type="number"
                         placeholder="MM"
                         value={front.pubMonth || ''}
-                        minChars={4}
+                        minChars={2}
+                        className="date-input"
                         onChange={(e) => updateFrontField('pubMonth', e.target.value)}
                       />
+                      <span className="date-separator">/</span>
                       <AutoInput
                         type="number"
                         placeholder="AAAA"
                         value={front.pubYear || ''}
-                        minChars={6}
+                        minChars={4}
+                        className="date-input"
                         onChange={(e) => updateFrontField('pubYear', e.target.value)}
                       />
                     </div>
                   </label>
 
-                  <label style={flexLabelStyle}>
-                    Año Colección (&lt;pub-date date-type="collection"&gt;)
+                  <label className="editor-field">
+                    <FieldLabel title="Año Colección" tag="date-type='collection'" />
                     <AutoInput
                       type="number"
                       placeholder="AAAA"
@@ -968,8 +1102,8 @@ export default function App() {
                     />
                   </label>
 
-                  <label style={flexLabelStyle}>
-                    Volumen (&lt;volume&gt;)
+                  <label className="editor-field">
+                    <FieldLabel title="Volumen" tag="<volume>" />
                     <AutoInput
                       placeholder="22"
                       value={front.volume || ''}
@@ -978,8 +1112,8 @@ export default function App() {
                     />
                   </label>
 
-                  <label style={flexLabelStyle}>
-                    Número (&lt;issue&gt;)
+                  <label className="editor-field">
+                    <FieldLabel title="Fascículo / Número" tag="<issue>" />
                     <AutoInput
                       placeholder="1"
                       value={front.issue || ''}
@@ -988,8 +1122,8 @@ export default function App() {
                     />
                   </label>
 
-                  <label style={flexLabelStyle}>
-                    Elocation-ID (&lt;elocation-id&gt;)
+                  <label className="editor-field">
+                    <FieldLabel title="Elocation-ID" tag="<elocation-id>" />
                     <AutoInput
                       placeholder="e6101"
                       value={front.elocationId || ''}
@@ -1000,86 +1134,102 @@ export default function App() {
                 </div>
 
                 {/* Subsección Historial Editorial */}
-                <div style={{ margin: '14px 0 10px', fontSize: '12px', fontWeight: '600', color: 'var(--ink-soft)', textTransform: 'uppercase' }}>
+                <div className="editor-subsection-title">
+                  <span className="subsection-bullet"></span>
                   Historial del Ciclo Editorial (&lt;history&gt;)
                 </div>
-                <div style={rowWrapStyle}>
-                  <label style={flexLabelStyle}>
-                    Fecha Recepción (DD/MM/AAAA)
-                    <div style={{ display: 'flex', gap: '6px' }}>
+                <div className="fields-row">
+                  <label className="editor-field">
+                    <FieldLabel title="Fecha Recepción" tag="date-type='received'" />
+                    <div className="date-group">
                       <AutoInput
                         type="number"
                         placeholder="DD"
                         value={front.historyReceivedDay || ''}
-                        minChars={4}
+                        minChars={2}
+                        className="date-input"
                         onChange={(e) => updateFrontField('historyReceivedDay', e.target.value)}
                       />
+                      <span className="date-separator">/</span>
                       <AutoInput
                         type="number"
                         placeholder="MM"
                         value={front.historyReceivedMonth || ''}
-                        minChars={4}
+                        minChars={2}
+                        className="date-input"
                         onChange={(e) => updateFrontField('historyReceivedMonth', e.target.value)}
                       />
+                      <span className="date-separator">/</span>
                       <AutoInput
                         type="number"
                         placeholder="AAAA"
                         value={front.historyReceivedYear || ''}
-                        minChars={6}
+                        minChars={4}
+                        className="date-input"
                         onChange={(e) => updateFrontField('historyReceivedYear', e.target.value)}
                       />
                     </div>
                   </label>
 
-                  <label style={flexLabelStyle}>
-                    Fecha Aceptación (DD/MM/AAAA)
-                    <div style={{ display: 'flex', gap: '6px' }}>
+                  <label className="editor-field">
+                    <FieldLabel title="Fecha Aceptación" tag="date-type='accepted'" />
+                    <div className="date-group">
                       <AutoInput
                         type="number"
                         placeholder="DD"
                         value={front.historyAcceptedDay || ''}
-                        minChars={4}
+                        minChars={2}
+                        className="date-input"
                         onChange={(e) => updateFrontField('historyAcceptedDay', e.target.value)}
                       />
+                      <span className="date-separator">/</span>
                       <AutoInput
                         type="number"
                         placeholder="MM"
                         value={front.historyAcceptedMonth || ''}
-                        minChars={4}
+                        minChars={2}
+                        className="date-input"
                         onChange={(e) => updateFrontField('historyAcceptedMonth', e.target.value)}
                       />
+                      <span className="date-separator">/</span>
                       <AutoInput
                         type="number"
                         placeholder="AAAA"
                         value={front.historyAcceptedYear || ''}
-                        minChars={6}
+                        minChars={4}
+                        className="date-input"
                         onChange={(e) => updateFrontField('historyAcceptedYear', e.target.value)}
                       />
                     </div>
                   </label>
 
-                  <label style={flexLabelStyle}>
-                    Fecha Publicación (DD/MM/AAAA)
-                    <div style={{ display: 'flex', gap: '6px' }}>
+                  <label className="editor-field">
+                    <FieldLabel title="Fecha Publicación" tag="date-type='pub'" />
+                    <div className="date-group">
                       <AutoInput
                         type="number"
                         placeholder="DD"
                         value={front.historyPubDay || ''}
-                        minChars={4}
+                        minChars={2}
+                        className="date-input"
                         onChange={(e) => updateFrontField('historyPubDay', e.target.value)}
                       />
+                      <span className="date-separator">/</span>
                       <AutoInput
                         type="number"
                         placeholder="MM"
                         value={front.historyPubMonth || ''}
-                        minChars={4}
+                        minChars={2}
+                        className="date-input"
                         onChange={(e) => updateFrontField('historyPubMonth', e.target.value)}
                       />
+                      <span className="date-separator">/</span>
                       <AutoInput
                         type="number"
                         placeholder="AAAA"
                         value={front.historyPubYear || ''}
-                        minChars={6}
+                        minChars={4}
+                        className="date-input"
                         onChange={(e) => updateFrontField('historyPubYear', e.target.value)}
                       />
                     </div>
@@ -1087,12 +1237,13 @@ export default function App() {
                 </div>
 
                 {/* Subsección Permisos y Licencias */}
-                <div style={{ margin: '14px 0 10px', fontSize: '12px', fontWeight: '600', color: 'var(--ink-soft)', textTransform: 'uppercase' }}>
+                <div className="editor-subsection-title">
+                  <span className="subsection-bullet"></span>
                   Permisos y Licencia de Acceso Abierto (&lt;permissions&gt;)
                 </div>
-                <div style={rowWrapStyle}>
-                  <label style={flexLabelStyle}>
-                    Plantilla Licencia Creative Commons
+                <div className="fields-row">
+                  <label className="editor-field" style={{ minWidth: '240px' }}>
+                    <FieldLabel title="Plantilla Licencia Creative Commons" tag="<license>" />
                     <select
                       className="form-select"
                       onChange={(e) => handleLicensePresetChange(e.target.value)}
@@ -1104,8 +1255,8 @@ export default function App() {
                     </select>
                   </label>
 
-                  <label style={flexLabelStyle}>
-                    URL de la Licencia (&lt;license xlink:href="..."&gt;)
+                  <label className="editor-field">
+                    <FieldLabel title="URL de la Licencia" tag="license xlink:href='...'" />
                     <AutoInput
                       placeholder="https://creativecommons.org/licenses/by/4.0/"
                       value={front.licenseUrl || ''}
@@ -1114,8 +1265,8 @@ export default function App() {
                     />
                   </label>
 
-                  <label style={flexLabelStyle}>
-                    Declaración de Copyright (&lt;copyright-statement&gt;)
+                  <label className="editor-field">
+                    <FieldLabel title="Declaración de Copyright" tag="<copyright-statement>" />
                     <AutoInput
                       placeholder="© 2026 Universidad Nacional de Lanús"
                       value={front.copyrightStatement || ''}
@@ -1129,13 +1280,17 @@ export default function App() {
               {/* BLOQUE 5 · CONTENIDO DEL MANUSCRITO & AUTORES */}
               <div className="block-card">
                 <div className="block-header">
-                  <span className="block-tag">Bloque 5 · Contenido del Manuscrito & Autores</span>
-                  <span className="muted" style={{ fontSize: '12px' }}>Títulos, Resúmenes, Palabras Clave y Filiaciones</span>
+                  <div className="block-header-left">
+                    <span className="block-num-pill">05</span>
+                    <span className="block-tag">Contenido del Manuscrito & Autores</span>
+                    <code className="block-tag-code">&lt;title-group&gt; & &lt;contrib-group&gt;</code>
+                  </div>
+                  <span className="block-header-sub">Títulos, Resúmenes, Palabras Clave y Filiaciones</span>
                 </div>
 
-                <div style={rowWrapStyle}>
-                  <label style={flexLabelStyle}>
-                    Título Principal (&lt;article-title&gt;)
+                <div className="fields-row">
+                  <label className="editor-field">
+                    <FieldLabel title="Título Principal" tag="<article-title>" />
                     <AutoInput
                       value={front.articleTitle || ''}
                       placeholder="Título principal del artículo"
@@ -1143,8 +1298,8 @@ export default function App() {
                       onChange={(e) => updateFrontField('articleTitle', e.target.value)}
                     />
                   </label>
-                  <label style={flexLabelStyle}>
-                    Subtítulo (&lt;subtitle&gt;)
+                  <label className="editor-field">
+                    <FieldLabel title="Subtítulo" tag="<subtitle>" />
                     <AutoInput
                       value={front.subtitle || ''}
                       placeholder="Subtítulo opcional"
@@ -1152,8 +1307,8 @@ export default function App() {
                       onChange={(e) => updateFrontField('subtitle', e.target.value)}
                     />
                   </label>
-                  <label style={flexLabelStyle}>
-                    Título Traducido al Inglés (&lt;trans-title xml:lang="en"&gt;)
+                  <label className="editor-field">
+                    <FieldLabel title="Título Traducido al Inglés" tag="trans-title xml:lang='en'" />
                     <AutoInput
                       value={front.transTitleEn || ''}
                       placeholder="Translated title"
@@ -1163,31 +1318,33 @@ export default function App() {
                   </label>
                 </div>
 
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '12px' }}>
-                  <label style={{ display: 'flex', flexDirection: 'column', gap: '4px', fontSize: '0.85rem' }}>
-                    Resumen Español (&lt;abstract xml:lang="es"&gt;)
+                <div className="abstracts-grid">
+                  <label className="editor-field">
+                    <FieldLabel title="Resumen Español" tag="abstract xml:lang='es'" />
                     <textarea
                       rows={4}
                       value={front.abstractEs || ''}
                       onChange={(e) => updateFrontField('abstractEs', e.target.value)}
-                      style={{ width: '100%' }}
+                      placeholder="Resumen del artículo en español..."
+                      className="abstract-textarea"
                     />
                   </label>
 
-                  <label style={{ display: 'flex', flexDirection: 'column', gap: '4px', fontSize: '0.85rem' }}>
-                    Abstract Inglés (&lt;trans-abstract xml:lang="en"&gt;)
+                  <label className="editor-field">
+                    <FieldLabel title="Abstract Inglés" tag="trans-abstract xml:lang='en'" />
                     <textarea
                       rows={4}
                       value={front.abstractEn || ''}
                       onChange={(e) => updateFrontField('abstractEn', e.target.value)}
-                      style={{ width: '100%' }}
+                      placeholder="Article abstract in English..."
+                      className="abstract-textarea"
                     />
                   </label>
                 </div>
 
-                <div style={rowWrapStyle}>
-                  <label style={flexLabelStyle}>
-                    Palabras clave (es) · separadas por coma
+                <div className="fields-row">
+                  <label className="editor-field">
+                    <FieldLabel title="Palabras clave (es) · separadas por coma" tag="kwd-group xml:lang='es'" />
                     <AutoInput
                       value={Array.isArray(front.keywordsEs) ? front.keywordsEs.join(', ') : (front.keywordsEs || '')}
                       placeholder="palabra 1, palabra 2"
@@ -1195,8 +1352,8 @@ export default function App() {
                       onChange={(e) => updateFrontField('keywordsEs', e.target.value)}
                     />
                   </label>
-                  <label style={flexLabelStyle}>
-                    Palabras clave (en) · separadas por coma
+                  <label className="editor-field">
+                    <FieldLabel title="Palabras clave (en) · separadas por coma" tag="kwd-group xml:lang='en'" />
                     <AutoInput
                       value={Array.isArray(front.keywordsEn) ? front.keywordsEn.join(', ') : (front.keywordsEn || '')}
                       placeholder="keyword 1, keyword 2"
@@ -1207,19 +1364,45 @@ export default function App() {
                 </div>
 
                 {/* Autores */}
-                <div className="authors-edit" style={{ marginTop: '20px' }}>
-                  <div className="authors-edit-title" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
-                    <strong>Autores (&lt;contrib-group&gt;)</strong>
-                    <button type="button" className="select-btn" onClick={addAuthor} style={{ padding: '4px 10px', fontSize: '0.8rem' }}>
-                      + Añadir Autor
+                <div className="authors-edit">
+                  <div className="authors-edit-header">
+                    <div className="authors-title-wrap">
+                      <FieldLabel title="Autores e Investigadores" tag="<contrib-group>" />
+                      <span className="authors-counter">
+                        {front.authors?.length || 0} autor{(front.authors?.length || 0) === 1 ? '' : 'es'} registrado{(front.authors?.length || 0) === 1 ? '' : 's'}
+                      </span>
+                    </div>
+                    <button type="button" className="add-author-btn" onClick={addAuthor}>
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                      <span>Añadir Autor</span>
                     </button>
                   </div>
 
                   {front.authors && front.authors.map((author, i) => (
-                    <div key={i} style={{ border: '1px solid var(--border-color, #d0d0d0)', padding: '16px', borderRadius: '6px', marginBottom: '14px', backgroundColor: '#faf9f6' }}>
-                      <div style={rowWrapStyle}>
-                        <label style={flexLabelStyle}>
-                          Nombre/s
+                    <div key={i} className="author-card">
+                      <div className="author-card-header">
+                        <div className="author-badge">
+                          <span className="author-num-pill">#{i + 1}</span>
+                          <strong className="author-name-preview">
+                            {author.givenNames || author.surname
+                              ? `${author.givenNames} ${author.surname}`.trim()
+                              : `Autor ${i + 1}`}
+                          </strong>
+                        </div>
+                        <button
+                          type="button"
+                          className="delete-author-btn"
+                          onClick={() => removeAuthor(i)}
+                          title="Eliminar autor de la lista"
+                        >
+                          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                          <span>Eliminar</span>
+                        </button>
+                      </div>
+
+                      <div className="author-fields-grid">
+                        <label className="editor-field">
+                          <FieldLabel title="Nombre/s" tag="<given-names>" />
                           <AutoInput
                             placeholder="Nombre/s"
                             value={author.givenNames || ''}
@@ -1227,8 +1410,8 @@ export default function App() {
                             onChange={(e) => updateAuthorField(i, 'givenNames', e.target.value)}
                           />
                         </label>
-                        <label style={flexLabelStyle}>
-                          Apellido
+                        <label className="editor-field">
+                          <FieldLabel title="Apellido" tag="<surname>" />
                           <AutoInput
                             placeholder="Apellido"
                             value={author.surname || ''}
@@ -1236,8 +1419,8 @@ export default function App() {
                             onChange={(e) => updateAuthorField(i, 'surname', e.target.value)}
                           />
                         </label>
-                        <label style={flexLabelStyle}>
-                          ORCID
+                        <label className="editor-field">
+                          <FieldLabel title="ORCID" tag="<contrib-id>" />
                           <AutoInput
                             placeholder="0000-0000-0000-0000"
                             value={author.orcid || ''}
@@ -1245,8 +1428,8 @@ export default function App() {
                             onChange={(e) => updateAuthorField(i, 'orcid', e.target.value)}
                           />
                         </label>
-                        <label style={flexLabelStyle}>
-                          Correo electrónico 
+                        <label className="editor-field">
+                          <FieldLabel title="Correo electrónico" tag="<email>" />
                           <AutoInput
                             type="email"
                             placeholder="correo@ejemplo.com"
@@ -1257,41 +1440,50 @@ export default function App() {
                         </label>
                       </div>
 
-                      <div style={{ marginBottom: '12px' }}>
-                        <label style={flexLabelStyle}>
-                          Afiliación Institucional (&lt;aff&gt; / &lt;institution&gt;)
+                      <div className="author-aff-field">
+                        <label className="editor-field" style={{ width: '100%' }}>
+                          <FieldLabel title="Afiliación Institucional" tag="<aff> / <institution>" />
                           <AutoInput
                             placeholder="Ej: Universidad Nacional de Lanús, Lanús, Argentina"
                             value={author.affiliation || ''}
                             minChars={40}
+                            style={{ width: '100%' }}
                             onChange={(e) => updateAuthorField(i, 'affiliation', e.target.value)}
                           />
                         </label>
                       </div>
-
-                      <div style={{ display: 'flex', justifyContent: 'flex-end', paddingTop: '8px', borderTop: '1px solid #f0f0f0' }}>
-                        <button
-                          type="button"
-                          onClick={() => removeAuthor(i)}
-                          style={{ color: '#d9534f', background: 'none', border: 'none', cursor: 'pointer', marginLeft: 'auto', fontWeight: 'bold' }}
-                        >
-                          Eliminar
-                        </button>
-                      </div>
                     </div>
                   ))}
                 </div>
-
               </div>
-
             </div>
 
-            <div className="actions" style={{ marginTop: '20px' }}>
-              <button className="primary" onClick={handleApplyFront} disabled={applyingFront}>
-                {applyingFront ? 'Aplicando…' : 'APLICAR CAMBIOS AL XML'}
+            <div className="editor-actions-bar">
+              <button className="primary-editor-btn" onClick={handleApplyFront} disabled={applyingFront}>
+                {applyingFront ? (
+                  <>
+                    <span className="btn-spinner"></span>
+                    <span>Aplicando cambios al XML…</span>
+                  </>
+                ) : (
+                  <>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                    <span>APLICAR CAMBIOS AL XML</span>
+                  </>
+                )}
               </button>
-              <button className="secondary" onClick={handleExportEditedXml} disabled={exportingXml || !xml}>
-                {exportingXml ? 'Generando…' : 'DESCARGAR XML EDITADO (.XML)'}
+              <button className="secondary-editor-btn" onClick={handleExportEditedXml} disabled={exportingXml || !xml}>
+                {exportingXml ? (
+                  <>
+                    <span className="btn-spinner dark"></span>
+                    <span>Generando XML…</span>
+                  </>
+                ) : (
+                  <>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                    <span>DESCARGAR XML EDITADO (.XML)</span>
+                  </>
+                )}
               </button>
             </div>
           </div>
@@ -1343,10 +1535,185 @@ export default function App() {
           </div>
         )}
 
-        {/* BLOQUE 03 · PREVISUALIZACIÓN */}
+        {/* BLOQUE 03 · EDITOR Y VISOR DE CÓDIGO XML */}
         {xml && (
-          <div className="sheet" data-label={`03 · PREVISUALIZACIÓN XML${imageCount ? ` · ${imageCount} IMAGEN(ES)` : ''}`}>
-            <pre className="xml-view" dangerouslySetInnerHTML={{ __html: highlightXml(xml) }} />
+          <div className="sheet xml-editor-sheet" data-label={`03 · PREVISUALIZACIÓN & EDITOR XML${imageCount ? ` · ${imageCount} IMAGEN(ES)` : ''}`}>
+            <div className="xml-editor-header">
+              <div className="xml-editor-title-group">
+                <div className="xml-tab active">
+                  <span className="xml-tab-icon">‹/›</span>
+                  <span className="xml-tab-name">{file ? `${stripExtension(file.name)}.xml` : 'documento-jats.xml'}</span>
+                  <span className="xml-format-pill">{front?.spsVersion || 'sps-1.9'}</span>
+                </div>
+                <div className="xml-editor-meta">
+                  <span className="xml-meta-chip">
+                    <strong>{xmlLines.length.toLocaleString()}</strong> líneas
+                  </span>
+                  <span className="xml-meta-chip">
+                    <strong>{(new Blob([xml]).size / 1024).toFixed(1)}</strong> KB
+                  </span>
+                  <span className="xml-meta-chip validation-chip valid">
+                    ● JATS XML Válido
+                  </span>
+                </div>
+              </div>
+
+              <div className="xml-toolbar-actions">
+                {/* Switcher: Resaltador / Editor Directo */}
+                <div className="xml-view-mode-switch">
+                  <button
+                    type="button"
+                    className={`mode-btn ${editorMode === 'preview' ? 'active' : ''}`}
+                    onClick={() => setEditorMode('preview')}
+                    title="Vista de sólo lectura con resaltado de sintaxis profesional"
+                  >
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                    <span>Visor Resaltado</span>
+                  </button>
+                  <button
+                    type="button"
+                    className={`mode-btn ${editorMode === 'edit' ? 'active' : ''}`}
+                    onClick={() => {
+                      setRawXmlDraft(xml)
+                      setRawXmlError('')
+                      setEditorMode('edit')
+                    }}
+                    title="Editar directamente las etiquetas y texto del XML"
+                  >
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+                    <span>Editor Directo</span>
+                  </button>
+                </div>
+
+                {/* Buscador */}
+                <div className="xml-search-bar">
+                  <svg className="search-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                  <input
+                    type="text"
+                    placeholder="Buscar etiqueta o texto…"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="xml-search-input"
+                  />
+                  {searchQuery && (
+                    <span className="search-counter">
+                      {matchCount} coincidencia{matchCount === 1 ? '' : 's'}
+                    </span>
+                  )}
+                  {searchQuery && (
+                    <button type="button" className="clear-search-btn" onClick={() => setSearchQuery('')}>×</button>
+                  )}
+                </div>
+
+                {/* Wrap toggle */}
+                <button
+                  type="button"
+                  className={`toolbar-icon-btn ${wrapLines ? 'active' : ''}`}
+                  onClick={() => setWrapLines(!wrapLines)}
+                  title={wrapLines ? 'Desactivar ajuste de línea' : 'Activar ajuste de línea'}
+                >
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="9 10 4 15 9 20"/><path d="M20 4v7a4 4 0 0 1-4 4H4"/></svg>
+                  <span>Ajustar</span>
+                </button>
+
+                {/* Expand / Minimize */}
+                <button
+                  type="button"
+                  className={`toolbar-icon-btn ${isExpanded ? 'active' : ''}`}
+                  onClick={() => setIsExpanded(!isExpanded)}
+                  title={isExpanded ? 'Reducir altura' : 'Expandir ventana del editor'}
+                >
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    {isExpanded ? (
+                      <path d="M4 14h6v6m10-10h-6V4m0 6l7-7M3 21l7-7" />
+                    ) : (
+                      <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7" />
+                    )}
+                  </svg>
+                  <span>{isExpanded ? 'Reducir' : 'Expandir'}</span>
+                </button>
+
+                {/* Copiar XML */}
+                <button
+                  type="button"
+                  className={`toolbar-icon-btn copy-action-btn ${copied ? 'copied' : ''}`}
+                  onClick={handleCopyXml}
+                  title="Copiar código XML completo al portapapeles"
+                >
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                  <span>{copied ? '¡Copiado!' : 'Copiar'}</span>
+                </button>
+              </div>
+            </div>
+
+            {/* CUERPO DEL EDITOR */}
+            {editorMode === 'preview' ? (
+              <div className={`xml-code-wrapper ${wrapLines ? 'wrap' : ''} ${isExpanded ? 'expanded' : ''}`}>
+                <div className="xml-gutter-lines" aria-hidden="true">
+                  {xmlLines.map((_, i) => (
+                    <span key={i} className="gutter-num">{i + 1}</span>
+                  ))}
+                </div>
+                <pre
+                  className="xml-code-body"
+                  dangerouslySetInnerHTML={{ __html: highlightedXmlCode }}
+                />
+              </div>
+            ) : (
+              <div className={`xml-direct-edit-container ${isExpanded ? 'expanded' : ''}`}>
+                <div className="direct-edit-banner">
+                  <div className="direct-edit-info">
+                    <span className="edit-pill">MODO EDICIÓN DIRECTA</span>
+                    <span>Modificá el código XML. Al guardar, se sincronizarán los metadatos y la estructura en tiempo real.</span>
+                  </div>
+                  <div className="direct-edit-actions">
+                    <button
+                      type="button"
+                      className="save-direct-btn"
+                      onClick={handleSaveRawXml}
+                    >
+                      ✓ Guardar y Sincronizar XML
+                    </button>
+                    <button
+                      type="button"
+                      className="discard-direct-btn"
+                      onClick={() => {
+                        setRawXmlDraft(xml)
+                        setRawXmlError('')
+                        setEditorMode('preview')
+                      }}
+                    >
+                      Cancelar
+                    </button>
+                  </div>
+                </div>
+
+                {rawXmlError && (
+                  <div className="xml-edit-error-banner">
+                    ⚠️ {rawXmlError}
+                  </div>
+                )}
+                {rawXmlSaved && (
+                  <div className="xml-edit-success-banner">
+                    ✓ XML actualizado y validado con éxito
+                  </div>
+                )}
+
+                <div className="direct-textarea-wrapper">
+                  <textarea
+                    className={`xml-raw-textarea ${wrapLines ? 'wrap' : ''}`}
+                    value={rawXmlDraft}
+                    onChange={(e) => {
+                      setRawXmlDraft(e.target.value)
+                      setRawXmlError('')
+                      setRawXmlSaved(false)
+                    }}
+                    spellCheck="false"
+                    placeholder="Contenido XML..."
+                  />
+                </div>
+              </div>
+            )}
           </div>
         )}
       </main>

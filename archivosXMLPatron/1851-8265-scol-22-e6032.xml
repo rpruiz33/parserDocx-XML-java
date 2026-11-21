@@ -32,39 +32,39 @@
 			</title-group>
 			<contrib-group>
 				<contrib contrib-type="author">
-					<contrib-id contrib-id-type="orcid">0000-0002-4574-8974</contrib-id>
+					<contrib-id contrib-id-type="orcid">https://orcid.org/0000-0002-4574-8974</contrib-id>
 					<name>
 						<surname>Perner</surname>
 						<given-names>Serena</given-names>
 					</name>
-					<bio>Doctora en Salud Colectiva. Docente-Investigadora, Instituto de Salud Colectiva, Universidad Nacional de Lanús, Buenos Aires, Argentina. serenaperner@gmail.com </bio>
+					<bio><p>Doctora en Salud Colectiva. Docente-Investigadora, Instituto de Salud Colectiva, Universidad Nacional de Lanús, Buenos Aires, Argentina. serenaperner@gmail.com</p></bio>
 					<xref ref-type="aff" rid="aff1"><sup>1</sup></xref>
 				</contrib>
 				<contrib contrib-type="author">
-					<contrib-id contrib-id-type="orcid">0000-0001-5021-6377</contrib-id>
+					<contrib-id contrib-id-type="orcid">https://orcid.org/0000-0001-5021-6377</contrib-id>
 					<name>
 						<surname>Spinelli</surname>
 						<given-names>Hugo</given-names>
 					</name>
-					<bio>Doctor en Salud Colectiva. Investigador, Instituto de Salud Colectiva, Universidad Nacional de Lanús, Buenos Aires, Argentina. hugospinelli09@gmail.com</bio>
+					<bio><p>Doctor en Salud Colectiva. Investigador, Instituto de Salud Colectiva, Universidad Nacional de Lanús, Buenos Aires, Argentina. hugospinelli09@gmail.com</p></bio>
 					<xref ref-type="aff" rid="aff2"><sup>2</sup></xref>
 				</contrib>
 				<contrib contrib-type="author">
-					<contrib-id contrib-id-type="orcid">0000-0003-4607-2221</contrib-id>
+					<contrib-id contrib-id-type="orcid">https://orcid.org/0000-0003-4607-2221</contrib-id>
 					<name>
 						<surname>Martinovich</surname>
 						<given-names>Viviana</given-names>
 					</name>
-					<bio>Doctora en Salud Colectiva. Docente-Investigadora, Instituto de Salud Colectiva, Universidad Nacional de Lanús, Buenos Aires, Argentina. vivianamartinovich@gmail.com </bio>
+					<bio><p>Doctora en Salud Colectiva. Docente-Investigadora, Instituto de Salud Colectiva, Universidad Nacional de Lanús, Buenos Aires, Argentina. vivianamartinovich@gmail.com</p></bio>
 					<xref ref-type="aff" rid="aff3"><sup>3</sup></xref>
 				</contrib>
 				<contrib contrib-type="author">
-					<contrib-id contrib-id-type="orcid">0000-0002-6507-0208</contrib-id>
+					<contrib-id contrib-id-type="orcid">https://orcid.org/0000-0002-6507-0208</contrib-id>
 					<name>
 						<surname>Alazraqui</surname>
 						<given-names>Marcio</given-names>
 					</name>
-					<bio>Doctor en Salud Colectiva. Director, Instituto de Salud Colectiva, Universidad Nacional de Lanús, Buenos Aires, Argentina. malazraqui@yahoo.com.ar </bio>
+					<bio><p>Doctor en Salud Colectiva. Director, Instituto de Salud Colectiva, Universidad Nacional de Lanús, Buenos Aires, Argentina. malazraqui@yahoo.com.ar</p></bio>
 					<xref ref-type="aff" rid="aff4"><sup>4</sup></xref>
 				</contrib>
 			</contrib-group>
@@ -149,11 +149,6 @@
 				</date>
 				<date date-type="accepted">
 					<day>07</day>
-					<month>05</month>
-					<year>2026</year>
-				</date>
-				<date date-type="pub">
-					<day>15</day>
 					<month>05</month>
 					<year>2026</year>
 				</date>
@@ -541,7 +536,7 @@
 							</tbody>
 						</table>
 						<table-wrap-foot>
-							<fn id="TFN1">
+							<fn fn-type="other" id="TFN1">
 								<p>Fuente: Elaboración propia con base en estadísticas vitales de la provincia del Neuquén.</p>
 								<p><sup>1</sup>Nivel educativo de la persona gestante: baja (hasta secundaria incompleta); media (secundaria completa o universitario, terciario incompleto); alto (universitaria o terciario completo). <sup>2</sup>Vía pública, transporte, etc.</p>
 							</fn>
@@ -694,7 +689,7 @@
 								<td align="center" style="vertical-align:top">35,7</td>
 							  </tr>
 							  <tr>
-								<td align="left" style="vertical-align:top">Medio &nbsp;</td>
+								<td align="left" style="vertical-align:top">Medio &#160;</td>
 								<td align="center" style="vertical-align:top">17.956</td>
 								<td align="center" style="vertical-align:top">5.994</td>
 								<td align="center" style="vertical-align:top">33,4</td>
@@ -804,7 +799,7 @@
 							</tbody>
 						</table>
 						<table-wrap-foot>
-							<fn id="TFN2">
+							<fn fn-type="other" id="TFN2">
 								<p>Fuente: Elaboración propia con base en estadísticas vitales de la provincia del Neuquén.</p>
 								<p>Nota: Nivel educativo: Bajo (primaria completa o menos); Medio (secundaria completa o universitaria incompleta); Alto (universitaria completa o más).</p>
 							</fn>
@@ -930,7 +925,7 @@
 							</tbody>
 						</table>
 						<table-wrap-foot>
-							<fn id="TFN3">
+							<fn fn-type="other" id="TFN3">
 								<p>Fuente: Elaboración propia con base en estadísticas vitales de la provincia del Neuquén.</p>
 								<p>RP: razón de prevalencias. IC95%: intervalo de confianza del 95%.</p>
 								<p>Nivel educativo: Bajo (Primaria completa o menos); Medio (Secundaria completa o universitaria incompleta); Alto (Universitaria completa o más)</p>
@@ -2544,7 +2539,7 @@
 			</ref>
 			<ref id="B60">
 				<label>60</label>
-				<mixed-citation>60. Lin HC, Xirasagar S. Institutional factors in cesarean delivery rates: policy and research implications. Obstetrics and Gynecology. 2004;103(1):128-136. doi: 10.1097/01.aog.0000 102935.91389.53</mixed-citation>
+				<mixed-citation>60. Lin HC, Xirasagar S. Institutional factors in cesarean delivery rates: policy and research implications. Obstetrics and Gynecology. 2004;103(1):128-136. doi: 10.1097/01.aog.0000102935.91389.53</mixed-citation>
 				<element-citation publication-type="journal">
 					<person-group person-group-type="author">
 						<name>
@@ -2563,12 +2558,12 @@
 					<issue>1</issue>
 					<fpage>128</fpage>
 					<lpage>136</lpage>
-					<pub-id pub-id-type="doi">10.1097/01.aog.0000 102935.91389.53</pub-id>
+					<pub-id pub-id-type="doi">10.1097/01.aog.0000102935.91389.53</pub-id>
 				</element-citation>
 			</ref>
 			<ref id="B61">
 				<label>61</label>
-				<mixed-citation>61. Rebelo F, Rocha CMM, Cortes TR, Dutra CL, Kac G. High cesarean prevalence in a national population-based study in Brazil: the role of private practice. Acta Obstetricia et Gynecologica Scandinavica. 2010;89(7):903-908. doi: 10.3109/ 00016349.2010.484044</mixed-citation>
+				<mixed-citation>61. Rebelo F, Rocha CMM, Cortes TR, Dutra CL, Kac G. High cesarean prevalence in a national population-based study in Brazil: the role of private practice. Acta Obstetricia et Gynecologica Scandinavica. 2010;89(7):903-908. doi: 10.3109/00016349.2010.484044</mixed-citation>
 				<element-citation publication-type="journal">
 					<person-group person-group-type="author">
 						<name>
@@ -2599,7 +2594,7 @@
 					<issue>7</issue>
 					<fpage>903</fpage>
 					<lpage>908</lpage>
-					<pub-id pub-id-type="doi">10.3109/ 00016349.2010.484044</pub-id>
+					<pub-id pub-id-type="doi">10.3109/00016349.2010.484044</pub-id>
 				</element-citation>
 			</ref>
 			<ref id="B62">

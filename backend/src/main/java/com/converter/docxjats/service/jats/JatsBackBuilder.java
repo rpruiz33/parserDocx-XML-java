@@ -75,6 +75,7 @@ public class JatsBackBuilder {
     // ---------------------------------------------------------------
     private enum FootnoteType {
         FINANCIAL_DISCLOSURE("financial-disclosure"),
+        SUPPORTED_BY("supported-by"),
         CONFLICT("conflict"),
         CONTRIBUTIONS("con"),
         OTHER("other"),
@@ -441,9 +442,10 @@ public class JatsBackBuilder {
             sb.append("<publisher-name>").append(XmlUtils.escape(ref.publisherName())).append("</publisher-name>\n");
         }
 
-        // DOI
+        // DOI (strip internal whitespace - e.g. "10.1097/01.aog.0000 102935.91389.53")
         if (ref.doi() != null && !ref.doi().isBlank()) {
-            sb.append("<pub-id pub-id-type=\"doi\">").append(XmlUtils.escape(ref.doi())).append("</pub-id>\n");
+            String sanitizedDoi = ref.doi().replaceAll("\\s+", "");
+            sb.append("<pub-id pub-id-type=\"doi\">").append(XmlUtils.escape(sanitizedDoi)).append("</pub-id>\n");
         }
 
         // ISBN
@@ -742,6 +744,9 @@ public class JatsBackBuilder {
         
         String lower = fnType.toLowerCase();
         
+        if (lower.contains("supported-by") || lower.contains("supported")) {
+            return FootnoteType.SUPPORTED_BY.type;
+        }
         if (lower.contains("financial") || lower.contains("funding") || lower.contains("financing")) {
             return FootnoteType.FINANCIAL_DISCLOSURE.type;
         }
