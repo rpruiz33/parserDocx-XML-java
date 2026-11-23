@@ -514,13 +514,17 @@ public record AwardGroup(String awardType, String sponsor, String awardId) {}
 
                 appendPersonName(sb, author.name());
 
+                if (!"sps-1.9".equalsIgnoreCase(spsVersion) && notBlank(author.bio())) {
+                    sb.append("<bio><p>").append(XmlUtils.escape(author.bio())).append("</p></bio>\n");
+                }
+
                 for (String rid : author.affRefs()) {
                     boolean known = affiliations.stream().anyMatch(a -> a.id().equals(rid));
                     if (!known) continue;
                     int supIndex = indexOfAffiliation(rid) + 1;
-                    sb.append("<xref ref-type=\"aff\" rid=\"").append(escAttr(rid)).append("\">");
+                    sb.append("<xref ref-type=\"aff\" rid=\"").append(escAttr(rid)).append("\"><sup>");
                     if (supIndex > 0) sb.append(supIndex);
-                    sb.append("</xref>\n");
+                    sb.append("</sup></xref>\n");
                 }
 
                 if (author.corresponding()) {
@@ -529,12 +533,6 @@ public record AwardGroup(String awardType, String sponsor, String awardId) {}
 
                 if (author.deceased()) {
                     sb.append("<author-comment><p>Fallecido/a</p></author-comment>\n");
-                }
-
-                if (!"sps-1.9".equalsIgnoreCase(spsVersion) && notBlank(author.bio())) {
-                    sb.append("<bio>\n");
-                    tag(sb, "p", author.bio());
-                    sb.append("</bio>\n");
                 }
 
                 sb.append("</contrib>\n");

@@ -30,6 +30,13 @@ public class DocxBodyParser {
     private static final Pattern SECTION_TYPE =
             Pattern.compile("(?i)^(introducci[oó]n|introduction|metodolog[ií]a|m[eé]todos|methods|resultados|results|discusi[oó]n|discussion|conclusiones|conclusion).*$");
 
+    private static final Pattern FIGURE_CAPTION =
+            Pattern.compile("^(Figura|Figure|Gr[aá]fico|Gr[aá]fica)\\s+(\\d+)[\\s.:-]*\\s*(.*)$", Pattern.CASE_INSENSITIVE);
+    private static final Pattern TABLE_CAPTION =
+            Pattern.compile("^(Tabla|Table|Cuadro)\\s+(\\d+)[\\s.:-]*\\s*(.*)$", Pattern.CASE_INSENSITIVE);
+    private static final Pattern SOURCE_NOTE =
+            Pattern.compile("^(Fuente|Source|Nota|Note):\\s*(.*)$", Pattern.CASE_INSENSITIVE);
+
     private final XWPFDocument document;
     private final JatsBodyBuilder bodyBuilder;
     private final RunRenderer runRenderer;
@@ -51,8 +58,16 @@ public class DocxBodyParser {
     public void parse() {
         List<IBodyElement> elements = document.getBodyElements();
         int paraOrdinal = -1;
+        String pendingTableLabel = null;
+        String pendingTableCaption = null;
+        java.util.Set<Integer> skippedElementIndices = new java.util.HashSet<>();
 
-        for (IBodyElement element : elements) {
+        for (int i = 0; i < elements.size(); i++) {
+            if (skippedElementIndices.contains(i)) {
+                continue;
+            }
+
+            IBodyElement element = elements.get(i);
 
             if (element instanceof XWPFParagraph paragraph) {
                 paraOrdinal++;
@@ -73,10 +88,63 @@ public class DocxBodyParser {
                     continue;
                 }
 
+                // 1. Detectar si es un caption de tabla que precede a una tabla
+                Matcher tabM = TABLE_CAPTION.matcher(trimmedText);
+                if (tabM.matches() && i + 1 < elements.size() && elements.get(i + 1) instanceof XWPFTable) {
+                    pendingTableLabel = tabM.group(1) + " " + tabM.group(2);
+                    pendingTableCaption = tabM.group(3) != null ? tabM.group(3).trim() : "";
+                    continue;
+                }
+
+                // 2. Procesamiento de figuras con caption y fuente
+                if (isImageOnlyParagraph(paragraph) && trimmedText.isBlank()) {
+                    String figLabel = null;
+                    String figCaption = null;
+                    String figAttrib = null;
+
+                    if (i + 1 < elements.size() && elements.get(i + 1) instanceof XWPFParagraph nextP) {
+                        String nextTxt = nextP.getText() != null ? nextP.getText().trim() : "";
+                        Matcher figM = FIGURE_CAPTION.matcher(nextTxt);
+                        if (figM.matches()) {
+                            figLabel = figM.group(1) + " " + figM.group(2);
+                            figCaption = figM.group(3) != null ? figM.group(3).trim() : "";
+                            skippedElementIndices.add(i + 1);
+
+                            if (i + 2 < elements.size() && elements.get(i + 2) instanceof XWPFParagraph srcP) {
+                                String srcTxt = srcP.getText() != null ? srcP.getText().trim() : "";
+                                if (SOURCE_NOTE.matcher(srcTxt).matches()) {
+                                    figAttrib = srcTxt;
+                                    skippedElementIndices.add(i + 2);
+                                }
+                            }
+                        }
+                    }
+
+                    for (XWPFRun run : paragraph.getRuns()) {
+                        for (XWPFPicture picture : run.getEmbeddedPictures()) {
+                            String filename = imageRegistry.register(picture);
+                            if (filename != null) {
+                                bodyBuilder.appendFigure(filename, figLabel, figCaption, figAttrib);
+                            }
+                        }
+                    }
+                    continue;
+                }
+
                 processParagraph(paragraph, trimmedText);
 
             } else if (element instanceof XWPFTable table) {
-                bodyBuilder.appendTable(table, null, null, runRenderer);
+                String footnote = null;
+                if (i + 1 < elements.size() && elements.get(i + 1) instanceof XWPFParagraph nextP) {
+                    String nextTxt = nextP.getText() != null ? nextP.getText().trim() : "";
+                    if (SOURCE_NOTE.matcher(nextTxt).matches()) {
+                        footnote = nextTxt;
+                        skippedElementIndices.add(i + 1);
+                    }
+                }
+                bodyBuilder.appendTable(table, pendingTableLabel, pendingTableCaption, footnote, runRenderer);
+                pendingTableLabel = null;
+                pendingTableCaption = null;
             }
         }
     }
@@ -85,10 +153,17 @@ public class DocxBodyParser {
         String styleName = resolveStyleName(paragraph);
         String normalizedText = normalizeHeading(trimmedText);
 
-        // Detección de encabezados
+        // Detección de encabezados por estilo Word
         Matcher hm = styleName != null ? HEADING_PATTERN.matcher(styleName) : null;
         if (hm != null && hm.matches()) {
             int level = Integer.parseInt(hm.group(2));
+            bodyBuilder.openSection(level, trimmedText, resolveSectionType(trimmedText));
+            return;
+        }
+
+        // Detección de encabezados por negrita completa (cuando el autor no usó estilos de Word)
+        if (isBoldHeadingParagraph(paragraph, trimmedText)) {
+            int level = resolveHeadingLevel(trimmedText);
             bodyBuilder.openSection(level, trimmedText, resolveSectionType(trimmedText));
             return;
         }
@@ -176,6 +251,44 @@ public class DocxBodyParser {
         String noAccents = Normalizer.normalize(text, Normalizer.Form.NFD)
                 .replaceAll("\\p{M}", "");
         return noAccents.toLowerCase(Locale.ROOT).trim();
+    }
+
+    private boolean isBoldHeadingParagraph(XWPFParagraph paragraph, String trimmedText) {
+        if (trimmedText == null || trimmedText.isBlank() || trimmedText.length() > 140) return false;
+        if (paragraph.getNumID() != null) return false;
+        if (FIGURE_CAPTION.matcher(trimmedText).matches()) return false;
+        if (TABLE_CAPTION.matcher(trimmedText).matches()) return false;
+        if (SOURCE_NOTE.matcher(trimmedText).matches()) return false;
+
+        // Secciones principales canónicas
+        if (resolveSectionType(trimmedText) != null) {
+            return isParagraphFullyBold(paragraph) || trimmedText.length() < 50;
+        }
+
+        // Títulos de subsección en negrita que no terminen con punto
+        if (trimmedText.endsWith(".")) return false;
+        return isParagraphFullyBold(paragraph);
+    }
+
+    private int resolveHeadingLevel(String text) {
+        if (resolveSectionType(text) != null) {
+            return 1;
+        }
+        return 2;
+    }
+
+    private boolean isParagraphFullyBold(XWPFParagraph paragraph) {
+        List<XWPFRun> runs = paragraph.getRuns();
+        if (runs == null || runs.isEmpty()) return false;
+        boolean hasText = false;
+        for (XWPFRun run : runs) {
+            String text = run.getText(0);
+            if (text != null && !text.isBlank()) {
+                hasText = true;
+                if (!run.isBold()) return false;
+            }
+        }
+        return hasText;
     }
 
     private String resolveSectionType(String title) {

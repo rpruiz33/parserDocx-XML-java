@@ -142,6 +142,9 @@ public class JatsBackBuilder {
     private String publisherLoc = null;
     private final RunRenderer runRenderer;
 
+    /** Devuelve la cantidad de referencias acumuladas (para inyectar en counts). */
+    public int getRefCount() { return references.size(); }
+
     /**
      * Constructor que recibe el renderizador de runs para mantener formato inline
      * (negrita, cursiva, etc.) en agradecimientos y notas.
@@ -263,7 +266,8 @@ public class JatsBackBuilder {
 
     /**
      * Construye y retorna el XML completo del bloque {@code <back>}.
-     * El orden de generación es: agradecimientos, notas, datos disponibilidad, referencias.
+     * El orden de generación es: agradecimientos, referencias, notas de artículo.
+     * (Orden conforme al patrón SciELO: ack → ref-list → fn-group)
      */
     public String build() {
         if (!hasContent()) {
@@ -278,19 +282,19 @@ public class JatsBackBuilder {
             result.append(buildAcknowledgements());
         }
 
-        // 2. Notas del Artículo
-        if (!footnotes.isEmpty()) {
-            result.append(buildFootnoteGroup());
-        }
-
-        // 3. Disponibilidad de Datos
+        // 2. Disponibilidad de Datos
         if (dataAvailabilityText != null) {
             result.append(buildDataAvailability());
         }
 
-        // 4. Referencias Bibliográficas
+        // 3. Referencias Bibliográficas
         if (!references.isEmpty()) {
             result.append(buildReferenceList());
+        }
+
+        // 4. Notas del Artículo (fn-group va después de ref-list, igual que en patrón SciELO)
+        if (!footnotes.isEmpty()) {
+            result.append(buildFootnoteGroup());
         }
 
         result.append("</back>\n");

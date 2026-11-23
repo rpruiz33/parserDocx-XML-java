@@ -727,19 +727,49 @@ export default function App() {
   }
 
   const handleDownload = async () => {
-    if (!file) return
-    const match = file.name.match(/\d+/)
-    const extractedId = match ? match[0] : null
-
-    if (!extractedId) {
-      setStatus({
-        type: 'error',
-        message: 'No se pudo detectar el ID del artículo en el nombre del archivo.',
-      })
-      return
+    let xmlToDownload = xml
+    if (!xmlToDownload) {
+      if (!file) return
+      setLoading(true)
+      setStatus(null)
+      try {
+        const form = new FormData()
+        form.append('file', file)
+        const res = await fetch(`${API_BASE}/api/convert/preview`, { method: 'POST', body: form })
+        const data = await res.json()
+        if (!res.ok) throw new Error(data.error || 'Error al convertir')
+        setXml(data.xml)
+        setImageCount(data.imageCount || 0)
+        xmlToDownload = data.xml
+        await loadFrontFields(data.xml, data.metadata)
+        runComplianceAudit(data.xml)
+        await fetchDbDocs()
+      } catch (err) {
+        setStatus({ type: 'error', message: err.message })
+        return
+      } finally {
+        setLoading(false)
+      }
     }
 
-    await getJatsXmlAxios(extractedId)
+    if (!xmlToDownload) return
+
+    const baseName = stripExtension(file?.name || 'documento')
+    const blob = new Blob([xmlToDownload], { type: 'application/xml;charset=utf-8' })
+    const url = window.URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.setAttribute('download', `${baseName}-jats.xml`)
+    document.body.appendChild(link)
+    link.click()
+    link.remove()
+    window.URL.revokeObjectURL(url)
+
+    const linesCount = xmlToDownload.split('\n').length
+    setStatus({
+      type: 'ok',
+      message: `XML descargado con éxito (${linesCount.toLocaleString()} líneas, idéntico al visor de pantalla).`,
+    })
   }
 
   async function getJatsXmlAxios(idToFetch) {

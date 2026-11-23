@@ -22,6 +22,12 @@ public class JatsBodyBuilder {
     private int tableCounter = 0;
     private int figCounter = 0;
 
+    /** Devuelve la cantidad de figuras emitidas hasta ahora. */
+    public int getFigCount() { return figCounter; }
+
+    /** Devuelve la cantidad de tablas emitidas hasta ahora. */
+    public int getTableCount() { return tableCounter; }
+
     /** Abre un <sec> en el nivel indicado, cerrando los niveles iguales o más profundos que estén abiertos. */
     public void openSection(int level, String title) {
         openSection(level, title, null);
@@ -64,12 +70,27 @@ public class JatsBodyBuilder {
     }
 
     public void appendFigure(String filename) {
+        appendFigure(filename, null, null, null);
+    }
+
+    public void appendFigure(String filename, String label, String caption, String attrib) {
         listTracker.closeIfOpen(body);
         figCounter++;
-        body.append("<fig type=\"figure\" id=\"fig").append(figCounter).append("\">\n")
-            .append("<caption><p></p></caption>\n")
-            .append("<graphic xlink:href=\"images/").append(filename).append("\"/>\n")
-            .append("</fig>\n");
+        String id = "f" + figCounter;
+        body.append("<fig id=\"").append(id).append("\">\n");
+        if (label != null && !label.isBlank()) {
+            body.append("<label>").append(XmlUtils.escape(label)).append("</label>\n");
+        }
+        if (caption != null && !caption.isBlank()) {
+            body.append("<caption><title>").append(XmlUtils.escape(caption)).append("</title></caption>\n");
+        } else {
+            body.append("<caption><p></p></caption>\n");
+        }
+        body.append("<graphic xlink:href=\"images/").append(XmlUtils.escape(filename)).append("\"/>\n");
+        if (attrib != null && !attrib.isBlank()) {
+            body.append("<attrib>").append(XmlUtils.escape(attrib)).append("</attrib>\n");
+        }
+        body.append("</fig>\n");
     }
 
     public void appendTable(XWPFTable table, String label, String caption, RunRenderer runRenderer) {

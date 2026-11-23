@@ -75,6 +75,12 @@ public class DocxToJatsConverter implements IJatsDocumentConverter {
                     back.addFootnote(fnType, "Financiamiento", front.getFundingStatement());
                 }
 
+                // ---- Inyectar counts reales (fig, table, ref) ----
+                // body y back ya fueron parseados, por lo que sus contadores son finales.
+                front.setFigCount(body.getFigCount());
+                front.setTableCount(body.getTableCount());
+                front.setRefCount(back.getRefCount());
+
                 String fallbackTitle = stripExtension(originalFilename);
                 String xml = assembleArticle(front.build(fallbackTitle), body.build(), back.build());
 
@@ -90,8 +96,8 @@ public class DocxToJatsConverter implements IJatsDocumentConverter {
 
     private String assembleArticle(String frontXml, String bodyXml, String backXml) {
         StringBuilder sb = new StringBuilder();
-        sb.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
-        sb.append("<!DOCTYPE article PUBLIC \"-//NLM//DTD JATS (Z39.96) Journal Publishing DTD v1.1 20151215//EN\" ")
+        sb.append("<?xml version=\"1.0\" encoding=\"utf-8\"?>\n");
+        sb.append("<!DOCTYPE article\n  PUBLIC \"-//NLM//DTD JATS (Z39.96) Journal Publishing DTD v1.1 20151215//EN\" ")
             .append("\"https://jats.nlm.nih.gov/publishing/1.1/JATS-journalpublishing1.dtd\">\n");
         sb.append("<article article-type=\"research-article\" dtd-version=\"1.1\" specific-use=\"sps-1.9\" xml:lang=\"es\" ")
             .append("xmlns:mml=\"http://www.w3.org/1998/Math/MathML\" xmlns:xlink=\"http://www.w3.org/1999/xlink\">\n");

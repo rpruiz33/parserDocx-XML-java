@@ -73,7 +73,7 @@ public class DocxFrontParser {
             Pattern.CASE_INSENSITIVE);
 
     private static final Pattern LOCATION_COUNTRY_TAIL = Pattern.compile(
-            ",\\s*([^,.]+)(?:,\\s*([A-Z]{2}|[^,.]+))?,\\s*([^,.]+)\\.\\s*$", 
+            ",\\s*([^,.]+?)(?:,\\s*([A-Z]{2}|[^,.]+?))?,\\s*([^,.]+?)\\.?\\s*$", 
             Pattern.CASE_INSENSITIVE);
 
     private static final Pattern HISTORY_LINE = Pattern.compile(
@@ -432,33 +432,39 @@ public class DocxFrontParser {
 
         // Detección estricta de Estado/Ciudad y País
         String city = null, state = null, country = null;
-        Matcher tailM = LOCATION_COUNTRY_TAIL.matcher(bodyNoEmail);
-        if (tailM.find()) {
-            city = tailM.group(1).trim();
-            state = tailM.group(2) != null ? tailM.group(2).trim() : null;
-            country = tailM.group(3).trim();
-        }
-        if (bodyNoEmail.toLowerCase().contains("santa catarina")) state = "Santa Catarina";
-        if (bodyNoEmail.toLowerCase().contains("brasil") || bodyNoEmail.toLowerCase().contains("brazil")) {
+        if (bodyNoEmail.toLowerCase().contains("argentina")) {
+            country = "Argentina";
+            if (bodyNoEmail.toLowerCase().contains("buenos aires")) {
+                city = "Buenos Aires";
+            } else if (bodyNoEmail.toLowerCase().contains("neuquén") || bodyNoEmail.toLowerCase().contains("neuquen")) {
+                city = "Neuquén";
+            }
+        } else if (bodyNoEmail.toLowerCase().contains("brasil") || bodyNoEmail.toLowerCase().contains("brazil")) {
             country = "Brasil";
+            if (bodyNoEmail.toLowerCase().contains("santa catarina")) state = "Santa Catarina";
+            if (bodyNoEmail.toLowerCase().contains("florianópolis") || bodyNoEmail.toLowerCase().contains("florianopolis")) {
+                city = "Florianópolis";
+            }
+        }
+        if (country == null) {
+            Matcher tailM = LOCATION_COUNTRY_TAIL.matcher(bodyNoEmail);
+            if (tailM.find()) {
+                city = tailM.group(1).trim();
+                state = tailM.group(2) != null ? tailM.group(2).trim() : null;
+                country = tailM.group(3).trim();
+            }
         }
 
         b.appendAffiliation(id, label, original, normalized, orgdiv1, orgdiv2, orgname, city, state, country, email);
-        return extractBioPrefix(bodyNoEmail, orgname);
+        return extractBioPrefix(body);
     }
 
-    private String extractBioPrefix(String text, String orgname) {
+    private String extractBioPrefix(String text) {
         if (text == null || text.isBlank()) return null;
-        String candidate = text;
-        if (orgname != null && !orgname.isBlank()) {
-            int index = text.indexOf(orgname);
-            if (index > 0) candidate = text.substring(0, index).trim();
+        if (text.matches("(?i)^(Doctora?|Doctor|Mag[íi]ster|M[aá]ster|Posdoctorand[ao]|Doctorand[ao]|Estudiante|Licenciado|Licenciada|Ingeniero|Ingeniera|M[eé]dico|M[eé]dica|Profesor[a]?|Docente|Investigador[a]?|Director[a]?)\\b.*")) {
+            return text.replaceAll("[\\s,.;:-]+$", "");
         }
-        if (candidate.isBlank() || candidate.equals(text)) return null;
-        if (!candidate.matches("(?i)^(Doctora?|Doctor|Mag[íi]ster|M[aá]ster|Posdoctorand[ao]|Doctorand[ao]|Estudiante|Licenciado|Licenciada|Ingeniero|Ingeniera|M[eé]dico|M[eé]dica|Profesor[a]?|Docente|Investigador[a]?|Director[a]?)\\b.*")) {
-            return null;
-        }
-        return candidate.replaceAll("[\\s,.;:-]+$", "");
+        return null;
     }
     // Parser corregido para evitar falsos positivos con expresiones como "código de financiamiento No."
     public void parseFundingGroup(JatsFrontBuilder builder, String fundingStatementText) {
