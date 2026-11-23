@@ -18,13 +18,14 @@ public class ComplianceValidationServiceTest {
     }
 
     @Test
-    public void testCompleteXmlIsAptoForBothPmcAndRedalyc() {
+    public void testCompleteXmlIsAptoForBothPmcAndScielo() {
         String completeXml = """
             <?xml version="1.0" encoding="utf-8"?>
             <!DOCTYPE article PUBLIC "-//NLM//DTD JATS (Z39.96) Journal Publishing DTD v1.1 20151215//EN" "https://jats.nlm.nih.gov/publishing/1.1/JATS-journalpublishing1.dtd">
             <article article-type="research-article" dtd-version="1.1" specific-use="sps-1.9" xml:lang="es" xmlns:xlink="http://www.w3.org/1999/xlink">
               <front>
                 <journal-meta>
+                  <journal-id journal-id-type="nlm-ta">Salud Colect</journal-id>
                   <journal-title>Salud Colectiva</journal-title>
                   <issn pub-type="epub">1851-8265</issn>
                   <publisher><publisher-name>Universidad Nacional de Lanús</publisher-name></publisher>
@@ -61,8 +62,8 @@ public class ComplianceValidationServiceTest {
                       <license-p>CC-BY 4.0</license-p>
                     </license>
                   </permissions>
-                  <abstract><p>Resumen en español.</p></abstract>
-                  <trans-abstract xml:lang="en"><p>Abstract in English.</p></trans-abstract>
+                  <abstract><p>Resumen en español estructurado y completo.</p></abstract>
+                  <trans-abstract xml:lang="en"><p>Abstract in English structured and complete.</p></trans-abstract>
                   <kwd-group xml:lang="es">
                     <kwd>salud</kwd>
                     <kwd>colectiva</kwd>
@@ -74,7 +75,7 @@ public class ComplianceValidationServiceTest {
                 </article-meta>
               </front>
               <body>
-                <sec><title>Introducción</title><p>Contenido del artículo.</p></sec>
+                <sec><title>Introducción</title><p>Contenido del artículo con cita <xref ref-type="bibr" rid="B1">1</xref>.</p></sec>
                 <sec sec-type="data-availability"><title>Disponibilidad de Datos</title><p>Datos abiertos.</p></sec>
               </body>
               <back>
@@ -86,6 +87,7 @@ public class ComplianceValidationServiceTest {
                     <element-citation publication-type="journal">
                       <person-group person-group-type="author"><name><surname>Gómez</surname></name></person-group>
                       <year>2024</year>
+                      <source>Revista de Salud</source>
                     </element-citation>
                   </ref>
                 </ref-list>
@@ -94,14 +96,16 @@ public class ComplianceValidationServiceTest {
             """;
 
         ComplianceReportDto report = service.auditCompliance(completeXml);
-        assertThat(report.checksPmc().size(), is(28));
-        assertThat(report.checksRedalyc().size(), is(18));
+        assertThat(report.checksPmc().size(), is(30));
+        assertThat(report.checksScielo().size(), is(23));
+        assertThat(report.checksRedalyc().size(), is(23));
         assertThat(report.pmcApto(), is(true));
+        assertThat(report.scieloApto(), is(true));
         assertThat(report.redalycApto(), is(true));
     }
 
     @Test
-    public void testMissingBilingualTitlesFailsRedalyc() {
+    public void testMissingBilingualTitlesFailsScielo() {
         String monolingualXml = """
             <?xml version="1.0" encoding="utf-8"?>
             <article article-type="research-article" dtd-version="1.1" specific-use="sps-1.9" xml:lang="es">
@@ -120,7 +124,7 @@ public class ComplianceValidationServiceTest {
             """;
 
         ComplianceReportDto report = service.auditCompliance(monolingualXml);
-        assertThat(report.redalycApto(), is(false));
+        assertThat(report.scieloApto(), is(false));
     }
 
     @Test

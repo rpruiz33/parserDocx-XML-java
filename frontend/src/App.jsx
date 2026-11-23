@@ -311,17 +311,17 @@ export default function App() {
   const [copied, setCopied] = useState(false)
   const [wantsToEdit, setWantsToEdit] = useState(false)
 
-  // Estado para Registros en Base de Datos MySQL
+  // Estado para Registros en Base de Datos
   const [dbDocs, setDbDocs] = useState([])
   const [loadingDb, setLoadingDb] = useState(false)
   const [savingDb, setSavingDb] = useState(false)
   const [dbError, setDbError] = useState(null)
 
-  // Estado para Auditoría de Conformidad PMC & Redalyc
+  // Estado para Auditoría de Conformidad PMC & SciELO
   const [complianceReport, setComplianceReport] = useState(null)
   const [auditingCompliance, setAuditingCompliance] = useState(false)
   const [showPmcDetails, setShowPmcDetails] = useState(false)
-  const [showRedalycDetails, setShowRedalycDetails] = useState(false)
+  const [showScieloDetails, setShowScieloDetails] = useState(false)
 
   // Estado para el Visor / Editor interactivo de XML
   const [editorMode, setEditorMode] = useState('preview') // 'preview' | 'edit'
@@ -754,7 +754,7 @@ export default function App() {
   }
 
   // -----------------------------------------------------------------
-  // Operaciones con la Base de Datos MySQL (/api/documentos)
+  // Operaciones con la Base de Datos (/api/documentos)
   // -----------------------------------------------------------------
   const fetchDbDocs = useCallback(async () => {
     setLoadingDb(true)
@@ -766,11 +766,11 @@ export default function App() {
         setDbDocs(Array.isArray(data) ? data : [])
       } else {
         const err = await res.json().catch(() => ({}))
-        setDbError(err.error || `Error HTTP ${res.status} al consultar MySQL`)
+        setDbError(err.error || `Error HTTP ${res.status} al consultar la base de datos`)
       }
     } catch (err) {
       console.warn('No se pudo conectar con la base de datos:', err)
-      setDbError('No se pudo conectar con MySQL. Asegurate de que el servicio de base de datos esté iniciado en tu máquina.')
+      setDbError('No se pudo conectar con la base de datos. Asegurate de que el servicio esté iniciado en tu máquina.')
     } finally {
       setLoadingDb(false)
     }
@@ -808,7 +808,7 @@ export default function App() {
       const guardado = await res.json()
       setStatus({
         type: 'ok',
-        message: `✓ XML guardado con éxito en la base de datos MySQL (Registro ID: #${guardado.id})`,
+        message: `✓ XML guardado con éxito en la base de datos (Registro ID: #${guardado.id})`,
       })
       await fetchDbDocs()
     } catch (err) {
@@ -824,7 +824,7 @@ export default function App() {
     setWantsToEdit(false)
     setStatus({
       type: 'ok',
-      message: `XML del artículo cargado desde MySQL (ID: #${doc.id} · ${doc.nombreArchivo})`,
+      message: `XML del artículo cargado desde la base de datos (ID: #${doc.id} · ${doc.nombreArchivo})`,
     })
     await loadFrontFields(doc.contenidoXml)
     runComplianceAudit(doc.contenidoXml)
@@ -936,14 +936,14 @@ export default function App() {
           </div>
         )}
 
-        {/* REGISTROS EN BASE DE DATOS MYSQL */}
+        {/* REGISTROS EN BASE DE DATOS */}
         <div className="sheet" data-label={`BASE DE DATOS · DOCUMENTOS XML GUARDADOS (${dbDocs.length})`}>
           <div style={{ padding: '20px 24px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
               <div>
                 <strong style={{ fontSize: '13px', color: 'var(--ink)' }}>Tabla: documentos_xml</strong>
                 <p style={{ margin: '4px 0 0', fontSize: '12px', color: 'var(--ink-soft)' }}>
-                  Registros JATS XML persistidos en el servidor MySQL local. Podés cargarlos en el editor con un solo clic.
+                  Registros JATS XML persistidos en la base de datos (DB). Podés cargarlos en el editor con un solo clic.
                 </p>
               </div>
               <button
@@ -969,14 +969,14 @@ export default function App() {
               }}>
                 ⚠️ <strong>Aviso de Base de Datos:</strong> {dbError}
                 <div style={{ marginTop: '6px', fontSize: '11.5px', color: '#8d6e63' }}>
-                  Recordá iniciar MySQL en tu terminal con: <code>sudo systemctl start mysqld</code> (o <code>sudo /usr/bin/mysqld_safe &amp;</code>)
+                  Asegurate de que el servicio de base de datos esté iniciado en tu máquina.
                 </div>
               </div>
             )}
 
             {dbDocs.length === 0 ? (
               <div style={{ padding: '16px', border: '1px dashed var(--rule)', background: '#fafaf8', fontSize: '13px', color: 'var(--ink-soft)' }}>
-                No hay documentos guardados en MySQL aún. Convertí un manuscrito y hacé clic en &quot;Guardar en Base de Datos&quot;.
+                No hay documentos guardados en la base de datos aún. Convertí un manuscrito y hacé clic en &quot;Guardar en Base de Datos&quot;.
               </div>
             ) : (
               <div style={{ overflowX: 'auto', border: '1px solid var(--rule)', borderRadius: '4px' }}>
@@ -1834,7 +1834,7 @@ export default function App() {
                 className="secondary-editor-btn"
                 onClick={handleSaveToDb}
                 disabled={savingDb || !xml}
-                title="Persistir el XML actual en la tabla documentos_xml de MySQL"
+                title="Persistir el XML actual en la tabla documentos_xml de la base de datos"
               >
                 {savingDb ? (
                   <>
@@ -1844,7 +1844,7 @@ export default function App() {
                 ) : (
                   <>
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
-                    <span>GUARDAR EN BASE DE DATOS (MYSQL)</span>
+                    <span>GUARDAR EN BASE DE DATOS</span>
                   </>
                 )}
               </button>
@@ -1870,14 +1870,14 @@ export default function App() {
               <div className="quality-info">
                 <h3>Verificación Formal de Calidad y Estándares</h3>
                 <p>
-                  Conforme a los criterios de <strong>SciELO</strong>, <strong>PubMed Central (PMC)</strong> y <strong>Redalyc (Marcalyc)</strong>,
+                  Conforme a los criterios de <strong>SciELO (SPS 1.9 / 1.10)</strong> y <strong>PubMed Central (PMC Style Checker)</strong>,
                   la calidad y validez del marcado XML JATS no se mide por similitud del peso en bytes, sino por
                   la <strong>precisión semántica y la estricta conformidad del esquema DTD / Schematron</strong>.
                 </p>
               </div>
             </div>
 
-            {/* AUDITORÍA AUTOMATIZADA PMC & REDALYC */}
+            {/* AUDITORÍA AUTOMATIZADA PMC & SCIELO */}
             <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--rule)', background: '#fafaf8' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px', flexWrap: 'wrap', gap: '8px' }}>
                 <strong style={{ fontSize: '13px', color: 'var(--ink)' }}>
@@ -1896,7 +1896,7 @@ export default function App() {
 
               {auditingCompliance ? (
                 <div style={{ fontSize: '12.5px', color: 'var(--ink-soft)', padding: '10px 0' }}>
-                  ⏳ Evaluando reglas de conformidad técnica para PubMed Central y Redalyc…
+                  ⏳ Evaluando reglas de conformidad técnica para PubMed Central y SciELO…
                 </div>
               ) : complianceReport ? (
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '14px' }}>
@@ -1927,7 +1927,7 @@ export default function App() {
                     </div>
                     <p style={{ margin: 0, fontSize: '12px', color: 'var(--ink-soft)' }}>
                       {complianceReport.pmcApto
-                        ? 'Cumple con los 6 requisitos esenciales del PMC Stylechecker (ORCID, DOI limpio, autorías, citas y subsidios).'
+                        ? `Cumple con los ${complianceReport.checksPmc.length} requisitos formales del PMC Style Checker (NLM DTD, metadatos, autorías, ORCIDs, citas y licencias).`
                         : `Se detectaron inconsistencias técnicas (${complianceReport.checksPmc.filter(c => !c.cumplido).length} regla(s) pendiente(s)).`}
                     </p>
                     <button
@@ -1961,66 +1961,72 @@ export default function App() {
                     )}
                   </div>
 
-                  {/* Tarjeta Redalyc (Marcalyc) */}
-                  <div style={{
-                    border: '1px solid var(--rule)',
-                    borderRadius: '6px',
-                    padding: '14px',
-                    background: '#fff',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: '10px'
-                  }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '6px' }}>
-                      <strong style={{ fontSize: '13px', color: 'var(--ink)' }}>Redalyc (Marcalyc / JATS4R)</strong>
-                      <span style={{
-                        padding: '3px 8px',
-                        borderRadius: '4px',
-                        fontSize: '11px',
-                        fontWeight: 600,
-                        fontFamily: "'JetBrains Mono', monospace",
-                        background: complianceReport.redalycApto ? '#e8f5e9' : '#ffebee',
-                        color: complianceReport.redalycApto ? '#2e7d32' : '#c62828',
-                        border: `1px solid ${complianceReport.redalycApto ? '#c8e6c9' : '#ffcdd2'}`
+                  {/* Tarjeta SciELO (SPS 1.9 / 1.10) */}
+                  {(() => {
+                    const scieloChecks = complianceReport.checksScielo || complianceReport.checksRedalyc || []
+                    const scieloApto = complianceReport.scieloApto ?? complianceReport.redalycApto ?? false
+                    return (
+                      <div style={{
+                        border: '1px solid var(--rule)',
+                        borderRadius: '6px',
+                        padding: '14px',
+                        background: '#fff',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '10px'
                       }}>
-                        {complianceReport.redalycApto ? '✓ APTO PARA REDALYC' : '⚠️ REQUIERE AJUSTES'}
-                      </span>
-                    </div>
-                    <p style={{ margin: 0, fontSize: '12px', color: 'var(--ink-soft)' }}>
-                      {complianceReport.redalycApto
-                        ? 'Cumple con los criterios de marcación bilingüe, afiliaciones institucionales con país y licencias CC.'
-                        : `Se detectaron inconsistencias técnicas (${complianceReport.checksRedalyc.filter(c => !c.cumplido).length} regla(s) pendiente(s)).`}
-                    </p>
-                    <button
-                      type="button"
-                      className="secondary"
-                      style={{ padding: '5px 10px', fontSize: '11px', width: 'fit-content' }}
-                      onClick={() => setShowRedalycDetails(!showRedalycDetails)}
-                    >
-                      {showRedalycDetails ? '▲ Ocultar checklist' : `▼ Ver checklist de reglas (${complianceReport.checksRedalyc.length})`}
-                    </button>
-                    {showRedalycDetails && (
-                      <div style={{ marginTop: '6px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                        {complianceReport.checksRedalyc.map(c => (
-                          <div key={c.codigo} style={{
-                            padding: '6px 8px',
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '6px' }}>
+                          <strong style={{ fontSize: '13px', color: 'var(--ink)' }}>SciELO (SPS 1.9 / 1.10)</strong>
+                          <span style={{
+                            padding: '3px 8px',
                             borderRadius: '4px',
-                            background: c.cumplido ? '#f9fbf9' : '#fff8f8',
-                            border: `1px solid ${c.cumplido ? '#e0f0e2' : '#fcdcdc'}`,
-                            fontSize: '11.5px'
+                            fontSize: '11px',
+                            fontWeight: 600,
+                            fontFamily: "'JetBrains Mono', monospace",
+                            background: scieloApto ? '#e8f5e9' : '#ffebee',
+                            color: scieloApto ? '#2e7d32' : '#c62828',
+                            border: `1px solid ${scieloApto ? '#c8e6c9' : '#ffcdd2'}`
                           }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontWeight: 600, color: c.cumplido ? '#2e7d32' : '#c62828' }}>
-                              <span>{c.cumplido ? '✓' : '✕'}</span>
-                              <span>[{c.codigo}] {c.nombre}</span>
-                            </div>
-                            <div style={{ fontSize: '11px', color: 'var(--ink-soft)', marginTop: '2px', paddingLeft: '14px' }}>
-                              {c.detalle}
-                            </div>
+                            {scieloApto ? '✓ APTO PARA SCIELO' : '⚠️ REQUIERE AJUSTES'}
+                          </span>
+                        </div>
+                        <p style={{ margin: 0, fontSize: '12px', color: 'var(--ink-soft)' }}>
+                          {scieloApto
+                            ? `Cumple con los ${scieloChecks.length} criterios oficiales del SciELO Publishing Schema (metadatos bilingües, normalización institucional, arbitraje y citas).`
+                            : `Se detectaron inconsistencias técnicas (${scieloChecks.filter(c => !c.cumplido).length} regla(s) pendiente(s)).`}
+                        </p>
+                        <button
+                          type="button"
+                          className="secondary"
+                          style={{ padding: '5px 10px', fontSize: '11px', width: 'fit-content' }}
+                          onClick={() => setShowScieloDetails(!showScieloDetails)}
+                        >
+                          {showScieloDetails ? '▲ Ocultar checklist' : `▼ Ver checklist de reglas (${scieloChecks.length})`}
+                        </button>
+                        {showScieloDetails && (
+                          <div style={{ marginTop: '6px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                            {scieloChecks.map(c => (
+                              <div key={c.codigo} style={{
+                                padding: '6px 8px',
+                                borderRadius: '4px',
+                                background: c.cumplido ? '#f9fbf9' : '#fff8f8',
+                                border: `1px solid ${c.cumplido ? '#e0f0e2' : '#fcdcdc'}`,
+                                fontSize: '11.5px'
+                              }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontWeight: 600, color: c.cumplido ? '#2e7d32' : '#c62828' }}>
+                                  <span>{c.cumplido ? '✓' : '✕'}</span>
+                                  <span>[{c.codigo}] {c.nombre}</span>
+                                </div>
+                                <div style={{ fontSize: '11px', color: 'var(--ink-soft)', marginTop: '2px', paddingLeft: '14px' }}>
+                                  {c.detalle}
+                                </div>
+                              </div>
+                            ))}
                           </div>
-                        ))}
+                        )}
                       </div>
-                    )}
-                  </div>
+                    )
+                  })()}
                 </div>
               ) : (
                 <div style={{ fontSize: '12px', color: 'var(--ink-soft)' }}>

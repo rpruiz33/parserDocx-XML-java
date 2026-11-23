@@ -11,7 +11,7 @@ import java.util.Map;
 
 /**
  * Controlador REST para auditar la conformidad de documentos XML JATS
- * frente a los estándares de PubMed Central (PMC) y Redalyc (Marcalyc / JATS4R).
+ * frente a los estándares de PubMed Central (PMC) y SciELO (SPS 1.9 / 1.10 / JATS4R).
  */
 @RestController
 @RequestMapping("/api/compliance")
@@ -25,7 +25,7 @@ public class ComplianceController {
     }
 
     /**
-     * Evalúa el XML recibido y devuelve un reporte detallado con veredictos para PMC y Redalyc.
+     * Evalúa el XML recibido y devuelve un reporte detallado con veredictos para PMC y SciELO.
      * Payload: { "xml": "<?xml ...>" }
      */
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
