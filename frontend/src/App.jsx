@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import axios from 'axios'
 import './index.css'
 import logoUnla from './assets/unla-logo.png'
@@ -309,6 +309,19 @@ export default function App() {
   const [applyingFront, setApplyingFront] = useState(false)
   const [exportingXml, setExportingXml] = useState(false)
   const [copied, setCopied] = useState(false)
+  const [wantsToEdit, setWantsToEdit] = useState(false)
+
+  // Estado para Registros en Base de Datos MySQL
+  const [dbDocs, setDbDocs] = useState([])
+  const [loadingDb, setLoadingDb] = useState(false)
+  const [savingDb, setSavingDb] = useState(false)
+  const [dbError, setDbError] = useState(null)
+
+  // Estado para Auditoría de Conformidad PMC & Redalyc
+  const [complianceReport, setComplianceReport] = useState(null)
+  const [auditingCompliance, setAuditingCompliance] = useState(false)
+  const [showPmcDetails, setShowPmcDetails] = useState(false)
+  const [showRedalycDetails, setShowRedalycDetails] = useState(false)
 
   // Estado para el Visor / Editor interactivo de XML
   const [editorMode, setEditorMode] = useState('preview') // 'preview' | 'edit'
@@ -335,6 +348,29 @@ export default function App() {
     return highlightXml(xml, searchQuery)
   }, [xml, searchQuery])
 
+  const runComplianceAudit = useCallback(async (xmlToAudit) => {
+    if (!xmlToAudit) {
+      setComplianceReport(null)
+      return
+    }
+    setAuditingCompliance(true)
+    try {
+      const res = await fetch(`${API_BASE}/api/compliance`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ xml: xmlToAudit }),
+      })
+      if (res.ok) {
+        const data = await res.json()
+        setComplianceReport(data)
+      }
+    } catch (err) {
+      console.warn('Error al verificar conformidad:', err)
+    } finally {
+      setAuditingCompliance(false)
+    }
+  }, [])
+
   const handleSaveRawXml = () => {
     if (!rawXmlDraft.trim()) {
       setRawXmlError('El contenido XML no puede estar vacío.')
@@ -352,6 +388,7 @@ export default function App() {
       setRawXmlSaved(true)
       setTimeout(() => setRawXmlSaved(false), 3000)
       loadFrontFields(rawXmlDraft)
+      runComplianceAudit(rawXmlDraft)
       setStatus({ type: 'ok', message: 'XML modificado y sincronizado con éxito con los metadatos' })
     } catch (e) {
       setRawXmlError(`Error al procesar el XML: ${e.message}`)
@@ -370,6 +407,8 @@ export default function App() {
     setXml('')
     setFront(null)
     setStatus(null)
+    setComplianceReport(null)
+    setWantsToEdit(false)
   }, [])
 
   const onDrop = (e) => {
@@ -383,6 +422,7 @@ export default function App() {
     setLoading(true)
     setStatus(null)
     setFront(null)
+    setWantsToEdit(false)
     try {
       const form = new FormData()
       form.append('file', file)
@@ -391,8 +431,10 @@ export default function App() {
       if (!res.ok) throw new Error(data.error || 'Error al convertir')
       setXml(data.xml)
       setImageCount(data.imageCount || 0)
-      setStatus({ type: 'ok', message: `Conversión lista · ${data.imageCount} imagen(es) detectada(s)` })
+      setStatus({ type: 'ok', message: `Conversión lista · Guardado automáticamente en BD · ${data.imageCount} imagen(es) detectada(s)` })
       await loadFrontFields(data.xml, data.metadata)
+      runComplianceAudit(data.xml)
+      await fetchDbDocs()
     } catch (err) {
       setStatus({ type: 'error', message: err.message })
     } finally {
@@ -587,6 +629,7 @@ export default function App() {
       const data = await res.json()
       if (!res.ok) throw new Error(data.error || 'No se pudo aplicar la edición')
       setXml(data.xml)
+      runComplianceAudit(data.xml)
       if (data.valid) {
         setStatus({ type: 'ok', message: 'Cambios aplicados con éxito · El XML cumple con la estructura requerida' })
       } else {
@@ -710,6 +753,96 @@ export default function App() {
     }
   }
 
+  // -----------------------------------------------------------------
+  // Operaciones con la Base de Datos MySQL (/api/documentos)
+  // -----------------------------------------------------------------
+  const fetchDbDocs = useCallback(async () => {
+    setLoadingDb(true)
+    setDbError(null)
+    try {
+      const res = await fetch(`${API_BASE}/api/documentos`)
+      if (res.ok) {
+        const data = await res.json()
+        setDbDocs(Array.isArray(data) ? data : [])
+      } else {
+        const err = await res.json().catch(() => ({}))
+        setDbError(err.error || `Error HTTP ${res.status} al consultar MySQL`)
+      }
+    } catch (err) {
+      console.warn('No se pudo conectar con la base de datos:', err)
+      setDbError('No se pudo conectar con MySQL. Asegurate de que el servicio de base de datos esté iniciado en tu máquina.')
+    } finally {
+      setLoadingDb(false)
+    }
+  }, [])
+
+  useEffect(() => {
+    fetchDbDocs()
+  }, [fetchDbDocs])
+
+  const handleSaveToDb = async () => {
+    if (!xml) return
+    setSavingDb(true)
+    setStatus(null)
+    try {
+      const baseName = file?.name || 'documento.xml'
+      const match = baseName.match(/\d+/)
+      const extractedId = front?.publisherId || (match ? match[0] : '')
+
+      const res = await fetch(`${API_BASE}/api/documentos`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          nombreArchivo: baseName,
+          codigoArticulo: extractedId,
+          xml,
+          esValido: true,
+        }),
+      })
+
+      if (!res.ok) {
+        const errData = await res.json()
+        throw new Error(errData.error || 'Error al guardar en base de datos')
+      }
+
+      const guardado = await res.json()
+      setStatus({
+        type: 'ok',
+        message: `✓ XML guardado con éxito en la base de datos MySQL (Registro ID: #${guardado.id})`,
+      })
+      await fetchDbDocs()
+    } catch (err) {
+      setStatus({ type: 'error', message: err.message })
+    } finally {
+      setSavingDb(false)
+    }
+  }
+
+  const handleLoadFromDb = async (doc) => {
+    if (!doc || !doc.contenidoXml) return
+    setXml(doc.contenidoXml)
+    setWantsToEdit(false)
+    setStatus({
+      type: 'ok',
+      message: `XML del artículo cargado desde MySQL (ID: #${doc.id} · ${doc.nombreArchivo})`,
+    })
+    await loadFrontFields(doc.contenidoXml)
+    runComplianceAudit(doc.contenidoXml)
+  }
+
+  const handleDeleteFromDb = async (id) => {
+    if (!window.confirm('¿Eliminar este registro de la base de datos?')) return
+    try {
+      const res = await fetch(`${API_BASE}/api/documentos/${id}`, { method: 'DELETE' })
+      if (res.ok) {
+        setStatus({ type: 'ok', message: `Registro #${id} eliminado de la base de datos` })
+        await fetchDbDocs()
+      }
+    } catch (err) {
+      setStatus({ type: 'error', message: 'Error al eliminar el registro de la base de datos' })
+    }
+  }
+
   const flexLabelStyle = {
     display: 'flex',
     flexDirection: 'column',
@@ -803,20 +936,232 @@ export default function App() {
           </div>
         )}
 
+        {/* REGISTROS EN BASE DE DATOS MYSQL */}
+        <div className="sheet" data-label={`BASE DE DATOS · DOCUMENTOS XML GUARDADOS (${dbDocs.length})`}>
+          <div style={{ padding: '20px 24px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
+              <div>
+                <strong style={{ fontSize: '13px', color: 'var(--ink)' }}>Tabla: documentos_xml</strong>
+                <p style={{ margin: '4px 0 0', fontSize: '12px', color: 'var(--ink-soft)' }}>
+                  Registros JATS XML persistidos en el servidor MySQL local. Podés cargarlos en el editor con un solo clic.
+                </p>
+              </div>
+              <button
+                type="button"
+                className="secondary"
+                style={{ padding: '8px 16px', fontSize: '12px' }}
+                onClick={fetchDbDocs}
+                disabled={loadingDb}
+              >
+                {loadingDb ? 'Actualizando…' : '↻ Actualizar lista'}
+              </button>
+            </div>
+
+            {dbError && (
+              <div style={{
+                padding: '12px 14px',
+                background: '#fff8e6',
+                border: '1px solid #ffe082',
+                borderRadius: '4px',
+                color: '#795548',
+                fontSize: '12.5px',
+                lineHeight: 1.4
+              }}>
+                ⚠️ <strong>Aviso de Base de Datos:</strong> {dbError}
+                <div style={{ marginTop: '6px', fontSize: '11.5px', color: '#8d6e63' }}>
+                  Recordá iniciar MySQL en tu terminal con: <code>sudo systemctl start mysqld</code> (o <code>sudo /usr/bin/mysqld_safe &amp;</code>)
+                </div>
+              </div>
+            )}
+
+            {dbDocs.length === 0 ? (
+              <div style={{ padding: '16px', border: '1px dashed var(--rule)', background: '#fafaf8', fontSize: '13px', color: 'var(--ink-soft)' }}>
+                No hay documentos guardados en MySQL aún. Convertí un manuscrito y hacé clic en &quot;Guardar en Base de Datos&quot;.
+              </div>
+            ) : (
+              <div style={{ overflowX: 'auto', border: '1px solid var(--rule)', borderRadius: '4px' }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12.5px', textAlign: 'left', background: '#fff' }}>
+                  <thead>
+                    <tr style={{ background: '#f5f3ee', borderBottom: '1px solid var(--rule)', color: 'var(--ink-soft)', fontFamily: "'JetBrains Mono', monospace", fontSize: '11px' }}>
+                      <th style={{ padding: '10px 12px' }}>ID</th>
+                      <th style={{ padding: '10px 12px' }}>CÓDIGO</th>
+                      <th style={{ padding: '10px 12px' }}>ARCHIVO</th>
+                      <th style={{ padding: '10px 12px' }}>ESTADO</th>
+                      <th style={{ padding: '10px 12px' }}>FECHA GUARDADO</th>
+                      <th style={{ padding: '10px 12px', textAlign: 'right' }}>ACCIONES</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {dbDocs.map((doc) => (
+                      <tr key={doc.id} style={{ borderBottom: '1px solid var(--rule)' }}>
+                        <td style={{ padding: '10px 12px', fontFamily: "'JetBrains Mono', monospace", fontWeight: 600 }}>#{doc.id}</td>
+                        <td style={{ padding: '10px 12px' }}>
+                          <span className="field-tag-badge" style={{ margin: 0 }}>{doc.codigoArticulo || '—'}</span>
+                        </td>
+                        <td style={{ padding: '10px 12px', maxWidth: '240px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                          {doc.nombreArchivo}
+                        </td>
+                        <td style={{ padding: '10px 12px' }}>
+                          <span style={{ color: doc.esValido ? 'var(--accent)' : 'var(--mark)', fontWeight: 600, fontSize: '11px', fontFamily: "'JetBrains Mono', monospace" }}>
+                            {doc.esValido ? '✓ VÁLIDO JATS' : '⚠️ ERRORES'}
+                          </span>
+                        </td>
+                        <td style={{ padding: '10px 12px', color: 'var(--ink-soft)', fontSize: '12px' }}>
+                          {doc.fechaCreacion ? new Date(doc.fechaCreacion).toLocaleString() : '—'}
+                        </td>
+                        <td style={{ padding: '10px 12px', textAlign: 'right' }}>
+                          <div style={{ display: 'inline-flex', gap: '8px' }}>
+                            <button
+                              type="button"
+                              className="secondary"
+                              style={{ padding: '5px 10px', fontSize: '11.5px' }}
+                              onClick={() => handleLoadFromDb(doc)}
+                              title="Cargar este XML en el editor y previsualizador"
+                            >
+                              Cargar
+                            </button>
+                            <a
+                              href={`${API_BASE}/api/documentos/${doc.id}/xml`}
+                              className="secondary"
+                              style={{ padding: '5px 10px', fontSize: '11.5px', textDecoration: 'none', display: 'inline-block' }}
+                              download
+                              title="Descargar XML directamente"
+                            >
+                              Descargar
+                            </a>
+                            <button
+                              type="button"
+                              className="secondary"
+                              style={{ padding: '5px 10px', fontSize: '11.5px', color: 'var(--mark)', borderColor: 'var(--mark)' }}
+                              onClick={() => handleDeleteFromDb(doc.id)}
+                              title="Eliminar de la base de datos"
+                            >
+                              ✕
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        </div>
+
         {loadingFront && <div className="status">Cargando y parseando metadatos del XML…</div>}
 
         {/* BLOQUE 02 · EDICIÓN COMPLETA DEL METADATO (4 BLOQUES MULTIREVISTA) */}
         {front && (
-          <div className="sheet editor-sheet" data-label="02 · CONFIGURACIÓN Y METADATOS EDITORIALES (4 BLOQUES)">
-            <div className="editor-intro">
-              <div>
-                <h2>Editor Estructural de Metadatos JATS</h2>
-                <p>
-                  Parametrizá los 4 bloques del &lt;front&gt; (artículo, estándares SPS, revista, ciclo editorial y autorías).
-                  Los cambios se sincronizan e inyectan automáticamente en el árbol XML.
-                </p>
+          <div className="sheet editor-sheet" data-label={wantsToEdit ? "02 · CONFIGURACIÓN Y METADATOS EDITORIALES (MODO EDICIÓN)" : "02 · METADATOS EDITORIALES (MODO LECTURA)"}>
+            {!wantsToEdit ? (
+              <div style={{ padding: '24px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
+                  <div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '6px' }}>
+                      <h2 style={{ margin: 0, fontSize: '22px', fontFamily: "'Source Serif 4', serif", color: 'var(--ink)' }}>
+                        Metadatos Editoriales JATS
+                      </h2>
+                      <span style={{
+                        background: '#eef2f6',
+                        color: '#475569',
+                        fontSize: '11px',
+                        fontFamily: "'JetBrains Mono', monospace",
+                        fontWeight: 600,
+                        padding: '3px 8px',
+                        borderRadius: '4px'
+                      }}>
+                        SOLO LECTURA
+                      </span>
+                    </div>
+                    <p style={{ margin: 0, fontSize: '13.5px', color: 'var(--ink-soft)', maxWidth: '680px' }}>
+                      Metadatos mapeados e inyectados automáticamente en el XML. La edición está deshabilitada para evitar modificaciones accidentales; activala sólo si deseás editar el documento.
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    className="primary-editor-btn"
+                    onClick={() => setWantsToEdit(true)}
+                    style={{ padding: '10px 18px', fontSize: '13px', cursor: 'pointer' }}
+                  >
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M12 20h9" />
+                      <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
+                    </svg>
+                    <span>HABILITAR MODO EDICIÓN</span>
+                  </button>
+                </div>
+
+                {/* Resumen rápido de lectura */}
+                <div style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+                  gap: '12px',
+                  marginTop: '18px',
+                  padding: '16px 20px',
+                  background: '#f8f7f3',
+                  border: '1px solid #ece7dc',
+                  borderRadius: '6px'
+                }}>
+                  <div>
+                    <span style={{ fontSize: '11px', fontFamily: "'JetBrains Mono', monospace", color: 'var(--ink-soft)', textTransform: 'uppercase' }}>Título del Artículo:</span>
+                    <div style={{ fontSize: '13px', fontWeight: 600, color: 'var(--ink)', marginTop: '2px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={front.articleTitle || 'Sin título'}>
+                      {front.articleTitle || 'Sin título'}
+                    </div>
+                  </div>
+                  <div>
+                    <span style={{ fontSize: '11px', fontFamily: "'JetBrains Mono', monospace", color: 'var(--ink-soft)', textTransform: 'uppercase' }}>Revista / Publicación:</span>
+                    <div style={{ fontSize: '13px', fontWeight: 600, color: 'var(--ink)', marginTop: '2px' }}>
+                      {front.journalTitle || 'No especificada'}
+                    </div>
+                  </div>
+                  <div>
+                    <span style={{ fontSize: '11px', fontFamily: "'JetBrains Mono', monospace", color: 'var(--ink-soft)', textTransform: 'uppercase' }}>Autores ({front.authors?.length || 0}):</span>
+                    <div style={{ fontSize: '13px', fontWeight: 600, color: 'var(--ink)', marginTop: '2px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      {front.authors?.map(a => `${a.givenNames || ''} ${a.surname || ''}`.trim()).filter(Boolean).join(', ') || 'Sin autores'}
+                    </div>
+                  </div>
+                  <div>
+                    <span style={{ fontSize: '11px', fontFamily: "'JetBrains Mono', monospace", color: 'var(--ink-soft)', textTransform: 'uppercase' }}>Estándar SPS & Tipo:</span>
+                    <div style={{ fontSize: '13px', fontWeight: 600, color: 'var(--accent)', marginTop: '2px' }}>
+                      {front.spsVersion || 'sps-1.9'} · {front.articleType || 'research-article'}
+                    </div>
+                  </div>
+                </div>
               </div>
-            </div>
+            ) : (
+              <>
+                <div className="editor-intro" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '16px' }}>
+                  <div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '4px' }}>
+                      <h2 style={{ margin: 0 }}>Editor Estructural de Metadatos JATS</h2>
+                      <span style={{
+                        background: '#fef3c7',
+                        color: '#92400e',
+                        fontSize: '11px',
+                        fontFamily: "'JetBrains Mono', monospace",
+                        fontWeight: 600,
+                        padding: '2px 8px',
+                        borderRadius: '4px'
+                      }}>
+                        MODO EDICIÓN ACTIVO
+                      </span>
+                    </div>
+                    <p style={{ margin: 0 }}>
+                      Parametrizá los 4 bloques del &lt;front&gt; (artículo, estándares SPS, revista, ciclo editorial y autorías).
+                      Los cambios se sincronizan e inyectan automáticamente en el árbol XML.
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    className="secondary-editor-btn"
+                    onClick={() => setWantsToEdit(false)}
+                    title="Cerrar el modo edición"
+                    style={{ padding: '8px 14px', fontSize: '12px' }}
+                  >
+                    ✕ Salir del modo edición
+                  </button>
+                </div>
 
             {/* Barra de Plantillas Rápidas */}
             <div className="preset-bar">
@@ -1485,9 +1830,38 @@ export default function App() {
                   </>
                 )}
               </button>
+              <button
+                className="secondary-editor-btn"
+                onClick={handleSaveToDb}
+                disabled={savingDb || !xml}
+                title="Persistir el XML actual en la tabla documentos_xml de MySQL"
+              >
+                {savingDb ? (
+                  <>
+                    <span className="btn-spinner dark"></span>
+                    <span>Guardando en BD…</span>
+                  </>
+                ) : (
+                  <>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                    <span>GUARDAR EN BASE DE DATOS (MYSQL)</span>
+                  </>
+                )}
+              </button>
+              <button
+                type="button"
+                className="secondary-editor-btn"
+                onClick={() => setWantsToEdit(false)}
+                style={{ marginLeft: 'auto' }}
+                title="Cerrar la interfaz de edición y volver a solo lectura"
+              >
+                ✕ Cerrar editor
+              </button>
             </div>
-          </div>
+          </>
         )}
+      </div>
+    )}
 
         {/* CENTRO DE CALIDAD Y STYLECHECKERS FORMALES */}
         {xml && (
@@ -1496,11 +1870,163 @@ export default function App() {
               <div className="quality-info">
                 <h3>Verificación Formal de Calidad y Estándares</h3>
                 <p>
-                  Conforme a los criterios de <strong>SciELO</strong> y <strong>PubMed Central (PMC)</strong>,
+                  Conforme a los criterios de <strong>SciELO</strong>, <strong>PubMed Central (PMC)</strong> y <strong>Redalyc (Marcalyc)</strong>,
                   la calidad y validez del marcado XML JATS no se mide por similitud del peso en bytes, sino por
                   la <strong>precisión semántica y la estricta conformidad del esquema DTD / Schematron</strong>.
                 </p>
               </div>
+            </div>
+
+            {/* AUDITORÍA AUTOMATIZADA PMC & REDALYC */}
+            <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--rule)', background: '#fafaf8' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px', flexWrap: 'wrap', gap: '8px' }}>
+                <strong style={{ fontSize: '13px', color: 'var(--ink)' }}>
+                  Auditoría Automatizada de Conformidad Técnica
+                </strong>
+                <button
+                  type="button"
+                  className="secondary"
+                  style={{ padding: '6px 12px', fontSize: '11.5px' }}
+                  onClick={() => runComplianceAudit(xml)}
+                  disabled={auditingCompliance}
+                >
+                  {auditingCompliance ? 'Auditando…' : '↻ Re-auditar'}
+                </button>
+              </div>
+
+              {auditingCompliance ? (
+                <div style={{ fontSize: '12.5px', color: 'var(--ink-soft)', padding: '10px 0' }}>
+                  ⏳ Evaluando reglas de conformidad técnica para PubMed Central y Redalyc…
+                </div>
+              ) : complianceReport ? (
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '14px' }}>
+                  {/* Tarjeta PubMed Central (PMC) */}
+                  <div style={{
+                    border: '1px solid var(--rule)',
+                    borderRadius: '6px',
+                    padding: '14px',
+                    background: '#fff',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '10px'
+                  }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '6px' }}>
+                      <strong style={{ fontSize: '13px', color: 'var(--ink)' }}>PubMed Central (PMC)</strong>
+                      <span style={{
+                        padding: '3px 8px',
+                        borderRadius: '4px',
+                        fontSize: '11px',
+                        fontWeight: 600,
+                        fontFamily: "'JetBrains Mono', monospace",
+                        background: complianceReport.pmcApto ? '#e8f5e9' : '#ffebee',
+                        color: complianceReport.pmcApto ? '#2e7d32' : '#c62828',
+                        border: `1px solid ${complianceReport.pmcApto ? '#c8e6c9' : '#ffcdd2'}`
+                      }}>
+                        {complianceReport.pmcApto ? '✓ APTO PARA PMC' : '⚠️ REQUIERE AJUSTES'}
+                      </span>
+                    </div>
+                    <p style={{ margin: 0, fontSize: '12px', color: 'var(--ink-soft)' }}>
+                      {complianceReport.pmcApto
+                        ? 'Cumple con los 6 requisitos esenciales del PMC Stylechecker (ORCID, DOI limpio, autorías, citas y subsidios).'
+                        : `Se detectaron inconsistencias técnicas (${complianceReport.checksPmc.filter(c => !c.cumplido).length} regla(s) pendiente(s)).`}
+                    </p>
+                    <button
+                      type="button"
+                      className="secondary"
+                      style={{ padding: '5px 10px', fontSize: '11px', width: 'fit-content' }}
+                      onClick={() => setShowPmcDetails(!showPmcDetails)}
+                    >
+                      {showPmcDetails ? '▲ Ocultar checklist' : `▼ Ver checklist de reglas (${complianceReport.checksPmc.length})`}
+                    </button>
+                    {showPmcDetails && (
+                      <div style={{ marginTop: '6px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                        {complianceReport.checksPmc.map(c => (
+                          <div key={c.codigo} style={{
+                            padding: '6px 8px',
+                            borderRadius: '4px',
+                            background: c.cumplido ? '#f9fbf9' : '#fff8f8',
+                            border: `1px solid ${c.cumplido ? '#e0f0e2' : '#fcdcdc'}`,
+                            fontSize: '11.5px'
+                          }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontWeight: 600, color: c.cumplido ? '#2e7d32' : '#c62828' }}>
+                              <span>{c.cumplido ? '✓' : '✕'}</span>
+                              <span>[{c.codigo}] {c.nombre}</span>
+                            </div>
+                            <div style={{ fontSize: '11px', color: 'var(--ink-soft)', marginTop: '2px', paddingLeft: '14px' }}>
+                              {c.detalle}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Tarjeta Redalyc (Marcalyc) */}
+                  <div style={{
+                    border: '1px solid var(--rule)',
+                    borderRadius: '6px',
+                    padding: '14px',
+                    background: '#fff',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '10px'
+                  }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '6px' }}>
+                      <strong style={{ fontSize: '13px', color: 'var(--ink)' }}>Redalyc (Marcalyc / JATS4R)</strong>
+                      <span style={{
+                        padding: '3px 8px',
+                        borderRadius: '4px',
+                        fontSize: '11px',
+                        fontWeight: 600,
+                        fontFamily: "'JetBrains Mono', monospace",
+                        background: complianceReport.redalycApto ? '#e8f5e9' : '#ffebee',
+                        color: complianceReport.redalycApto ? '#2e7d32' : '#c62828',
+                        border: `1px solid ${complianceReport.redalycApto ? '#c8e6c9' : '#ffcdd2'}`
+                      }}>
+                        {complianceReport.redalycApto ? '✓ APTO PARA REDALYC' : '⚠️ REQUIERE AJUSTES'}
+                      </span>
+                    </div>
+                    <p style={{ margin: 0, fontSize: '12px', color: 'var(--ink-soft)' }}>
+                      {complianceReport.redalycApto
+                        ? 'Cumple con los criterios de marcación bilingüe, afiliaciones institucionales con país y licencias CC.'
+                        : `Se detectaron inconsistencias técnicas (${complianceReport.checksRedalyc.filter(c => !c.cumplido).length} regla(s) pendiente(s)).`}
+                    </p>
+                    <button
+                      type="button"
+                      className="secondary"
+                      style={{ padding: '5px 10px', fontSize: '11px', width: 'fit-content' }}
+                      onClick={() => setShowRedalycDetails(!showRedalycDetails)}
+                    >
+                      {showRedalycDetails ? '▲ Ocultar checklist' : `▼ Ver checklist de reglas (${complianceReport.checksRedalyc.length})`}
+                    </button>
+                    {showRedalycDetails && (
+                      <div style={{ marginTop: '6px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                        {complianceReport.checksRedalyc.map(c => (
+                          <div key={c.codigo} style={{
+                            padding: '6px 8px',
+                            borderRadius: '4px',
+                            background: c.cumplido ? '#f9fbf9' : '#fff8f8',
+                            border: `1px solid ${c.cumplido ? '#e0f0e2' : '#fcdcdc'}`,
+                            fontSize: '11.5px'
+                          }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontWeight: 600, color: c.cumplido ? '#2e7d32' : '#c62828' }}>
+                              <span>{c.cumplido ? '✓' : '✕'}</span>
+                              <span>[{c.codigo}] {c.nombre}</span>
+                            </div>
+                            <div style={{ fontSize: '11px', color: 'var(--ink-soft)', marginTop: '2px', paddingLeft: '14px' }}>
+                              {c.detalle}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ) : (
+                <div style={{ fontSize: '12px', color: 'var(--ink-soft)' }}>
+                  Hacé clic en &quot;Re-auditar&quot; o convertí un manuscrito para obtener el informe automático de aptitud.
+                </div>
+              )}
             </div>
 
             <div className="stylechecker-actions">
@@ -1577,6 +2103,7 @@ export default function App() {
                       setRawXmlDraft(xml)
                       setRawXmlError('')
                       setEditorMode('edit')
+                      setWantsToEdit(true)
                     }}
                     title="Editar directamente las etiquetas y texto del XML"
                   >
