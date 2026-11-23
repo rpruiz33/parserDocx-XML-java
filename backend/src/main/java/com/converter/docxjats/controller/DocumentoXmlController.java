@@ -1,5 +1,6 @@
 package com.converter.docxjats.controller;
 
+import com.converter.docxjats.dto.DocumentoXmlResumenDto;
 import com.converter.docxjats.entity.DocumentoXml;
 import com.converter.docxjats.service.interfaces.IDocumentoXmlService;
 import org.springframework.http.*;
@@ -10,7 +11,11 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Controlador REST para interactuar con la base de datos MySQL de documentos XML JATS.
+ * Controlador REST para interactuar con la base de datos de documentos XML JATS.
+ *
+ * <p>El endpoint {@code GET /api/documentos} devuelve solo metadatos (sin el XML completo)
+ * para evitar respuestas JSON masivas. Para cargar el contenido completo de un documento,
+ * usar {@code GET /api/documentos/{id}}.</p>
  */
 @RestController
 @RequestMapping("/api/documentos")
@@ -36,7 +41,14 @@ public class DocumentoXmlController {
             boolean esValido = Boolean.TRUE.equals(body.getOrDefault("esValido", true));
 
             DocumentoXml guardado = documentoService.guardar(nombreArchivo, codigoArticulo, xml, esValido);
-            return ResponseEntity.status(HttpStatus.CREATED).body(guardado);
+            // Devolver resumen (sin contenidoXml) para no hinchar la respuesta
+            return ResponseEntity.status(HttpStatus.CREATED).body(new DocumentoXmlResumenDto(
+                    guardado.getId(),
+                    guardado.getNombreArchivo(),
+                    guardado.getCodigoArticulo(),
+                    guardado.isEsValido(),
+                    guardado.getFechaCreacion()
+            ));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         } catch (Exception e) {
@@ -46,15 +58,17 @@ public class DocumentoXmlController {
     }
 
     /**
-     * Lista todos los documentos almacenados en la base de datos.
+     * Lista todos los documentos como DTOs de resumen (SIN el campo contenidoXml).
+     * Para obtener el XML completo de un documento, usar GET /api/documentos/{id}.
      */
     @GetMapping
-    public ResponseEntity<List<DocumentoXml>> listar() {
-        return ResponseEntity.ok(documentoService.listarTodos());
+    public ResponseEntity<List<DocumentoXmlResumenDto>> listar() {
+        return ResponseEntity.ok(documentoService.listarResumenes());
     }
 
     /**
-     * Obtiene un documento por su ID.
+     * Obtiene un documento completo (con contenidoXml) por su ID.
+     * Este es el endpoint a usar cuando el usuario hace clic en "Cargar".
      */
     @GetMapping("/{id}")
     public ResponseEntity<?> obtenerPorId(@PathVariable("id") Long id) {

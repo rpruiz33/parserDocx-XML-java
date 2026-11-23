@@ -25,6 +25,7 @@ public class DocumentoXml {
     private String codigoArticulo;
 
     @Lob
+    @Basic(fetch = jakarta.persistence.FetchType.EAGER)
     @Column(name = "contenido_xml", nullable = false, columnDefinition = "LONGTEXT")
     private String contenidoXml;
 

@@ -47,44 +47,61 @@ function FieldLabel({ title, tag, hint, required }) {
 }
 
 /**
- * Resaltador de sintaxis XML con soporte para declaraciones, comentarios,
- * etiquetas JATS, atributos, valores entrecomillados y búsqueda interactiva.
+ * Resaltador de sintaxis XML procesado línea por línea para evitar bloqueos
+ * en el hilo de UI con XMLs grandes (> 100 KB). Soporta declaraciones,
+ * comentarios, etiquetas JATS, atributos, valores entrecomillados y búsqueda.
  */
-function highlightXml(xml, searchQuery = '') {
-  if (!xml) return ''
-  let text = xml
+function highlightXmlLine(rawLine) {
+  // Escapar entidades HTML
+  let line = rawLine
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;')
 
-  // Comentarios XML: <!-- ... -->
-  text = text.replace(/(&lt;!--[\s\S]*?--&gt;)/g, '<span class="xml-cmt">$1</span>')
+  // Declaración XML <?xml ... ?>
+  line = line.replace(/(&lt;\?[a-zA-Z0-9_\-:]+)(.*?)(\?&gt;)/g,
+    '<span class="xml-decl">$1$2$3</span>')
 
-  // Declaraciones XML (<?xml ... ?>) y DOCTYPE
-  text = text.replace(/(&lt;\?[\s\S]*?\?&gt;)/g, '<span class="xml-decl">$1</span>')
-  text = text.replace(/(&lt;!DOCTYPE[\s\S]*?&gt;)/g, '<span class="xml-doc">$1</span>')
+  // Comentario XML <!-- ... -->
+  line = line.replace(/(&lt;!--)(.*?)(--&gt;)/g,
+    '<span class="xml-cmt">$1$2$3</span>')
 
-  // Etiquetas y atributos XML
-  text = text.replace(/(&lt;\/?[a-zA-Z0-9_\-:]+)([\s\S]*?)(\/?&gt;)/g, (m, openTag, attrs, closeTag) => {
-    const styledAttrs = attrs.replace(
-      /([a-zA-Z0-9_\-:]+)=(".*?"|'.*?')/g,
-      '<span class="xml-attr">$1</span>=<span class="xml-val">$2</span>'
-    )
-    return `<span class="xml-tag">${openTag}</span>${styledAttrs}<span class="xml-tag">${closeTag}</span>`
-  })
+  // DOCTYPE
+  line = line.replace(/(&lt;!DOCTYPE[^&]*&gt;)/g,
+    '<span class="xml-doc">$1</span>')
 
-  // Resaltado de texto coincidente con la búsqueda
+  // Etiqueta de apertura/cierre con atributos (todo en una línea)
+  line = line.replace(/(&lt;\/?[a-zA-Z0-9_\-:]+)([^&]*)(&gt;|\/&gt;)/g,
+    (m, tag, attrs, close) => {
+      const styledAttrs = attrs.replace(
+        /([a-zA-Z0-9_\-:]+)=("(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*')/g,
+        '<span class="xml-attr">$1</span>=<span class="xml-val">$2</span>'
+      )
+      return `<span class="xml-tag">${tag}</span>${styledAttrs}<span class="xml-tag">${close}</span>`
+    })
+
+  return line
+}
+
+function highlightXml(xml, searchQuery = '') {
+  if (!xml) return ''
+
+  // Procesar línea por línea para evitar regex globales sobre strings de 300K+
+  const lines = xml.split('\n')
+  let result = lines.map(highlightXmlLine).join('\n')
+
+  // Resaltado de búsqueda (solo si hay query)
   if (searchQuery && searchQuery.trim().length > 1) {
     try {
       const escapedQuery = searchQuery.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
       const regex = new RegExp(`(?![^<]*>)(${escapedQuery})`, 'gi')
-      text = text.replace(regex, '<mark class="xml-search-match">$1</mark>')
+      result = result.replace(regex, '<mark class="xml-search-match">$1</mark>')
     } catch {
-      // Evitar excepciones por expresiones regulares inválidas
+      // Expresión regular inválida: ignorar sin crashear
     }
   }
 
-  return text
+  return result
 }
 
 function stripExtension(name) {
@@ -344,8 +361,29 @@ export default function App() {
     }
   }, [xml, searchQuery])
 
-  const highlightedXmlCode = useMemo(() => {
-    return highlightXml(xml, searchQuery)
+  const highlightedLines = useMemo(() => {
+    if (!xml) return []
+    const lines = xml.split('\n')
+    let searchRegex = null
+    if (searchQuery && searchQuery.trim().length > 1) {
+      try {
+        const escaped = searchQuery.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+        searchRegex = new RegExp(`(?![^<]*>)(${escaped})`, 'gi')
+      } catch {
+        searchRegex = null
+      }
+    }
+    return lines.map((rawLine) => {
+      let hl = highlightXmlLine(rawLine)
+      if (searchRegex) {
+        try {
+          hl = hl.replace(searchRegex, '<mark class="xml-search-match">$1</mark>')
+        } catch {
+          // ignorar regex error
+        }
+      }
+      return hl
+    })
   }, [xml, searchQuery])
 
   const runComplianceAudit = useCallback(async (xmlToAudit) => {
@@ -819,15 +857,26 @@ export default function App() {
   }
 
   const handleLoadFromDb = async (doc) => {
-    if (!doc || !doc.contenidoXml) return
-    setXml(doc.contenidoXml)
-    setWantsToEdit(false)
-    setStatus({
-      type: 'ok',
-      message: `XML del artículo cargado desde la base de datos (ID: #${doc.id} · ${doc.nombreArchivo})`,
-    })
-    await loadFrontFields(doc.contenidoXml)
-    runComplianceAudit(doc.contenidoXml)
+    if (!doc || !doc.id) return
+    // Siempre cargar el documento completo via GET /api/documentos/{id}
+    // para garantizar que el contenidoXml no esté truncado por carga lazy del @Lob
+    setStatus({ type: 'ok', message: `Cargando XML #${doc.id} desde la base de datos…` })
+    try {
+      const res = await fetch(`${API_BASE}/api/documentos/${doc.id}`)
+      if (!res.ok) throw new Error(`Error HTTP ${res.status}`)
+      const fullDoc = await res.json()
+      if (!fullDoc.contenidoXml) throw new Error('El registro no contiene XML válido')
+      setXml(fullDoc.contenidoXml)
+      setWantsToEdit(false)
+      setStatus({
+        type: 'ok',
+        message: `XML del artículo cargado desde la base de datos (ID: #${fullDoc.id} · ${fullDoc.nombreArchivo})`,
+      })
+      await loadFrontFields(fullDoc.contenidoXml)
+      runComplianceAudit(fullDoc.contenidoXml)
+    } catch (err) {
+      setStatus({ type: 'error', message: `No se pudo cargar el XML #${doc.id}: ${err.message}` })
+    }
   }
 
   const handleDeleteFromDb = async (id) => {
@@ -2182,15 +2231,21 @@ export default function App() {
             {/* CUERPO DEL EDITOR */}
             {editorMode === 'preview' ? (
               <div className={`xml-code-wrapper ${wrapLines ? 'wrap' : ''} ${isExpanded ? 'expanded' : ''}`}>
-                <div className="xml-gutter-lines" aria-hidden="true">
-                  {xmlLines.map((_, i) => (
-                    <span key={i} className="gutter-num">{i + 1}</span>
-                  ))}
-                </div>
-                <pre
-                  className="xml-code-body"
-                  dangerouslySetInnerHTML={{ __html: highlightedXmlCode }}
-                />
+                <table className="xml-code-table">
+                  <tbody>
+                    {highlightedLines.map((lineHtml, i) => (
+                      <tr key={i} className="xml-code-row">
+                        <td className="xml-gutter-cell" aria-hidden="true">
+                          <span className="gutter-num">{i + 1}</span>
+                        </td>
+                        <td
+                          className="xml-line-content"
+                          dangerouslySetInnerHTML={{ __html: lineHtml || '&nbsp;' }}
+                        />
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
             ) : (
               <div className={`xml-direct-edit-container ${isExpanded ? 'expanded' : ''}`}>

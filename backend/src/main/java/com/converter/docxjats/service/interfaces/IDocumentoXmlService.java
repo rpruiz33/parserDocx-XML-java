@@ -1,5 +1,6 @@
 package com.converter.docxjats.service.interfaces;
 
+import com.converter.docxjats.dto.DocumentoXmlResumenDto;
 import com.converter.docxjats.entity.DocumentoXml;
 import java.util.List;
 import java.util.Optional;
@@ -25,8 +26,16 @@ public interface IDocumentoXmlService {
     Optional<DocumentoXml> obtenerUltimoPorCodigo(String codigoArticulo);
 
     /**
-     * Lista todos los documentos XML almacenados ordenados del más reciente al más antiguo.
+     * Lista todos los documentos como DTOs de resumen (sin contenidoXml)
+     * para evitar cargar LOBs masivos en la respuesta de listado.
      */
+    List<DocumentoXmlResumenDto> listarResumenes();
+
+    /**
+     * Lista todos los documentos XML almacenados ordenados del más reciente al más antiguo.
+     * @deprecated Usar {@link #listarResumenes()} para listados, y {@link #obtenerPorId(Long)} para cargar el contenido completo.
+     */
+    @Deprecated
     List<DocumentoXml> listarTodos();
 
     /**

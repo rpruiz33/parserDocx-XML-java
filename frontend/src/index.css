@@ -1243,51 +1243,70 @@ footer.credit {
 
 /* Contenedor del Código */
 .xml-code-wrapper {
-  display: flex;
+  display: block;
   background: #ffffff;
-  max-height: 520px;
+  max-height: 540px;
   overflow: auto;
   font-family: 'JetBrains Mono', monospace;
   font-size: 12px;
   line-height: 1.6;
+  border-top: 1px solid var(--rule);
 }
 
 .xml-code-wrapper.expanded {
-  max-height: 80vh;
+  max-height: 85vh;
 }
 
-.xml-gutter-lines {
-  display: flex;
-  flex-direction: column;
-  padding: 16px 12px 16px 16px;
+.xml-code-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  line-height: 1.6;
+  table-layout: auto;
+  border-spacing: 0;
+}
+
+.xml-code-row {
+  border: none;
+}
+
+.xml-code-row:hover {
+  background: rgba(128, 0, 0, 0.03);
+}
+
+.xml-gutter-cell {
+  width: 1%;
+  white-space: nowrap;
+  padding: 0 12px 0 16px;
   background: #fafaf8;
   border-right: 1px solid var(--rule);
   color: #8c857b;
   text-align: right;
   user-select: none;
-  flex-shrink: 0;
+  vertical-align: top;
+  position: sticky;
+  left: 0;
+  z-index: 2;
 }
 
 .gutter-num {
-  height: 1.6em;
-  display: block;
   font-variant-numeric: tabular-nums;
+  display: inline-block;
+  line-height: inherit;
 }
 
-.xml-code-body {
-  margin: 0;
-  padding: 16px 20px;
-  flex: 1;
+.xml-line-content {
+  padding: 0 20px;
   color: #800000;
-  background: #ffffff;
+  background: transparent;
   white-space: pre;
-  overflow-x: auto;
+  vertical-align: top;
   font-family: 'JetBrains Mono', monospace;
-  font-size: 12px;
-  line-height: 1.6;
+  line-height: inherit;
 }
 
-.xml-code-wrapper.wrap .xml-code-body {
+.xml-code-wrapper.wrap .xml-line-content {
   white-space: pre-wrap;
   word-break: break-word;
 }

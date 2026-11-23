@@ -1,5 +1,6 @@
 package com.converter.docxjats.service.impl;
 
+import com.converter.docxjats.dto.DocumentoXmlResumenDto;
 import com.converter.docxjats.entity.DocumentoXml;
 import com.converter.docxjats.repository.DocumentoXmlRepository;
 import com.converter.docxjats.service.interfaces.IDocumentoXmlService;
@@ -44,6 +45,25 @@ public class DocumentoXmlServiceImpl implements IDocumentoXmlService {
     public Optional<DocumentoXml> obtenerUltimoPorCodigo(String codigoArticulo) {
         if (codigoArticulo == null || codigoArticulo.isBlank()) return Optional.empty();
         return repository.findTopByCodigoArticuloOrderByIdDesc(codigoArticulo.trim());
+    }
+
+    /**
+     * Devuelve DTOs de resumen SIN el campo contenidoXml para evitar cargar
+     * LOBs masivos al listar todos los documentos. Para obtener el XML completo,
+     * usar {@link #obtenerPorId(Long)}.
+     */
+    @Override
+    @Transactional(readOnly = true)
+    public List<DocumentoXmlResumenDto> listarResumenes() {
+        return repository.findAllByOrderByIdDesc().stream()
+                .map(doc -> new DocumentoXmlResumenDto(
+                        doc.getId(),
+                        doc.getNombreArchivo(),
+                        doc.getCodigoArticulo(),
+                        doc.isEsValido(),
+                        doc.getFechaCreacion()
+                ))
+                .toList();
     }
 
     @Override
