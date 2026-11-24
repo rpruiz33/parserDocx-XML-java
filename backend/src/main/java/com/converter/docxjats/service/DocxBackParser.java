@@ -23,6 +23,9 @@ public class DocxBackParser {
         this.bodyEnd = bodyEnd;
     }
 
+    private static final java.util.regex.Pattern BACK_SECTION_OR_HISTORY = java.util.regex.Pattern.compile(
+            "^(?i)(?:Recibido|Versi[oó]n\\s+final|Aprobado|Aceptado|Financiamiento|Apoyo\\s+financiero|Conflicto\\s+de\\s+intereses?|Contribuci[oó]n|Agradecimientos?|Disponibilidad\\s+de\\s+datos)\\s*:?.*");
+
     public void parse() {
         List<IBodyElement> elements = document.getBodyElements();
         int paraOrdinal = -1;
@@ -57,8 +60,13 @@ public class DocxBackParser {
                     continue;
                 }
 
-                // Si estamos en referencias, agregar como referencia
+                // Si estamos en referencias, verificar si empezó otra sección o historial editorial
                 if (inReferences) {
+                    if (BACK_SECTION_OR_HISTORY.matcher(trimmedText).matches()) {
+                        backBuilder.closeReferences();
+                        inReferences = false;
+                        continue;
+                    }
                     backBuilder.appendReference(trimmedText);
                 }
 

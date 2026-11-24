@@ -710,7 +710,7 @@ public class DocxFrontParser {
         List<String> lines = collectUntilNextHeading(c);
         String contribution = String.join(" ", lines).trim();
         if (!contribution.isBlank()) {
-            b.addAuthorNoteFn("equal", "fn3", "Contribución", contribution);
+            b.addAuthorNoteFn("equal", "fn3", "Contribución autoral", contribution);
         }
     }
 

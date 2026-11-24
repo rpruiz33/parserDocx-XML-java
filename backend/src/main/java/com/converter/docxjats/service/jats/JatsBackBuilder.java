@@ -3,6 +3,7 @@ package com.converter.docxjats.service.jats;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -70,6 +71,21 @@ public class JatsBackBuilder {
         Pattern.DOTALL | Pattern.CASE_INSENSITIVE
     );
 
+    private static final Map<String, String> MESES_ES = Map.ofEntries(
+        Map.entry("ene", "01"), Map.entry("jan", "01"),
+        Map.entry("feb", "02"), Map.entry("fev", "02"),
+        Map.entry("mar", "03"),
+        Map.entry("abr", "04"), Map.entry("apr", "04"),
+        Map.entry("may", "05"), Map.entry("mai", "05"),
+        Map.entry("jun", "06"),
+        Map.entry("jul", "07"),
+        Map.entry("ago", "08"), Map.entry("aug", "08"),
+        Map.entry("sep", "09"), Map.entry("set", "09"),
+        Map.entry("oct", "10"), Map.entry("out", "10"),
+        Map.entry("nov", "11"),
+        Map.entry("dic", "12"), Map.entry("dez", "12"), Map.entry("dec", "12")
+    );
+
     // ---------------------------------------------------------------
     // Tipos de Notas (fn-type) permitidos por SciELO PS
     // ---------------------------------------------------------------
@@ -116,7 +132,9 @@ public class JatsBackBuilder {
         String url,
         String publisherName,
         String publisherLoc,
-        String accessDate
+        String accessDate,
+        String accessDateIso,
+        String comment
     ) {}
 
     /** Representa una nota al pie del artículo clasificada. */
@@ -457,15 +475,25 @@ public class JatsBackBuilder {
             sb.append("<pub-id pub-id-type=\"isbn\">").append(XmlUtils.escape(ref.isbn())).append("</pub-id>\n");
         }
 
-        // URL / Enlace externo
-        if (ref.url() != null && !ref.url().isBlank()) {
-            sb.append("<ext-link ext-link-type=\"uri\" xlink:href=\"").append(XmlUtils.escape(ref.url())).append("\">");
-            sb.append(XmlUtils.escape(ref.url())).append("</ext-link>\n");
-        }
-
         // Fecha de acceso (para sitios web)
         if (ref.accessDate() != null && !ref.accessDate().isBlank()) {
-            sb.append("<date-in-citation content-type=\"access-date\">").append(XmlUtils.escape(ref.accessDate())).append("</date-in-citation>\n");
+            sb.append("<date-in-citation content-type=\"access-date\"");
+            if (ref.accessDateIso() != null && !ref.accessDateIso().isBlank()) {
+                sb.append(" iso-8601-date=\"").append(XmlUtils.escape(ref.accessDateIso())).append("\"");
+            }
+            sb.append(">").append(XmlUtils.escape(ref.accessDate())).append("</date-in-citation>\n");
+        }
+
+        // URL / Enlace externo (con comment si está disponible)
+        if (ref.url() != null && !ref.url().isBlank()) {
+            if (ref.comment() != null && !ref.comment().isBlank()) {
+                sb.append("<comment>").append(XmlUtils.escape(ref.comment()))
+                  .append(" <ext-link ext-link-type=\"uri\" xlink:href=\"").append(XmlUtils.escape(ref.url())).append("\">")
+                  .append(XmlUtils.escape(ref.url())).append("</ext-link>\n</comment>\n");
+            } else {
+                sb.append("<ext-link ext-link-type=\"uri\" xlink:href=\"").append(XmlUtils.escape(ref.url())).append("\">");
+                sb.append(XmlUtils.escape(ref.url())).append("</ext-link>\n");
+            }
         }
 
         sb.append("</element-citation>\n");
@@ -568,16 +596,18 @@ public class JatsBackBuilder {
                     elocationId = pages;
                 } else {
                     String[] pageRange = pages.split("-");
-                    fpage = pageRange[0];
+                    fpage = pageRange[0].trim();
                     if (pageRange.length > 1) {
-                        lpage = pageRange[1];
+                        lpage = pageRange[1].trim();
+                    } else if (fpage.matches("\\d+")) {
+                        lpage = fpage; // En patrón SciELO, página única se replica en lpage
                     }
                 }
             }
             
             return new Reference(refId, label, citationText, publicationType, authors, collaborators,
                     articleTitle, source, year, volume, issue, fpage, lpage, elocationId, 
-                    doi, isbn, url, publisherName, publisherLoc, accessDate);
+                    doi, isbn, url, publisherName, publisherLoc, accessDate, null, null);
         }
 
         // Intentar parsear como libro
@@ -596,7 +626,7 @@ public class JatsBackBuilder {
             
             return new Reference(refId, label, citationText, publicationType, authors, collaborators,
                     articleTitle, source, year, volume, issue, fpage, lpage, elocationId, 
-                    doi, isbn, url, publisherName, publisherLoc, accessDate);
+                    doi, isbn, url, publisherName, publisherLoc, accessDate, null, null);
         }
 
         // Intentar parsear como tesis
@@ -612,7 +642,33 @@ public class JatsBackBuilder {
             
             return new Reference(refId, label, citationText, publicationType, authors, collaborators,
                     articleTitle, source, year, volume, issue, fpage, lpage, elocationId, 
-                    doi, isbn, url, publisherName, publisherLoc, accessDate);
+                    doi, isbn, url, publisherName, publisherLoc, accessDate, null, null);
+        }
+
+        // Extraer fecha de acceso: [citado 10 feb 2025] o [cited 10 Feb 2025]
+        Pattern accessPattern = Pattern.compile("(?i)\\[citad[oa]\\s+([^\\]]+)\\]|\\[cited\\s+([^\\]]+)\\]");
+        Matcher accessMatcher = accessPattern.matcher(citationText);
+        String accessDateIso = null;
+        if (accessMatcher.find()) {
+            accessDate = accessMatcher.group(0).replaceAll("[\\[\\]]", "").trim();
+            Matcher dateM = Pattern.compile("(\\d{1,2})\\s+([a-zA-Zé]+)\\s+(\\d{4})").matcher(accessDate);
+            if (dateM.find()) {
+                String d = String.format("%02d", Integer.parseInt(dateM.group(1)));
+                String mName = dateM.group(2).toLowerCase(Locale.ROOT);
+                if (mName.length() >= 3) mName = mName.substring(0, 3);
+                String m = MESES_ES.getOrDefault(mName, "01");
+                String y = dateM.group(3);
+                accessDateIso = y + "-" + m + "-" + d;
+            }
+        }
+
+        // Extraer texto previo a la URL como comentario: "Disponible en:"
+        String comment = null;
+        if (url != null) {
+            Matcher dispM = Pattern.compile("(?i)(Disponible en:|Available from:)\\s*").matcher(citationText);
+            if (dispM.find()) {
+                comment = dispM.group(1).trim();
+            }
         }
 
         // Si contiene [Internet] o URL, probablemente sea una página web
@@ -624,10 +680,21 @@ public class JatsBackBuilder {
             if (firstDot > 0) {
                 String authorPart = citationText.substring(0, firstDot);
                 parseAuthors(authorPart, authors, collaborators);
+                String remainder = citationText.substring(firstDot + 1).trim();
+                int internetIdx = remainder.toLowerCase(Locale.ROOT).indexOf("[internet]");
+                if (internetIdx > 0) {
+                    source = remainder.substring(0, internetIdx).trim();
+                } else {
+                    int dispIdx = remainder.toLowerCase(Locale.ROOT).indexOf("disponible en");
+                    if (dispIdx > 0) {
+                        source = remainder.substring(0, dispIdx).replaceAll("\\.\\s*$", "").trim();
+                    } else {
+                        source = remainder;
+                    }
+                }
+            } else {
+                source = citationText;
             }
-            
-            // El título/fuente es el texto completo
-            source = citationText;
         } else {
             // Por defecto, tratar como libro o misc
             int firstDot = citationText.indexOf('.');
@@ -639,7 +706,7 @@ public class JatsBackBuilder {
 
         return new Reference(refId, label, citationText, publicationType, authors, collaborators,
                 articleTitle, source, year, volume, issue, fpage, lpage, elocationId, 
-                doi, isbn, url, publisherName, publisherLoc, accessDate);
+                doi, isbn, url, publisherName, publisherLoc, accessDate, accessDateIso, comment);
     }
 
     /**
@@ -686,14 +753,18 @@ public class JatsBackBuilder {
 
         name = name.trim();
         
-        // Formato típico: "Apellido Nombres" o "Nombres Apellido"
-        // Heurística: si hay mayúscula, considerar la primera mayúscula seguida
-        // como inicio del apellido
-        
         int lastSpace = name.lastIndexOf(' ');
         if (lastSpace <= 0) {
             // Un solo término: asumir como apellido
             return new Author(name, "");
+        }
+
+        String possibleInitials = name.substring(lastSpace + 1).trim();
+        // En estilo Vancouver / NLM: "Apellido Iniciales" (ej. "Gracia D", "Alonso JP", "Carmo Leal M", "Silva AAM")
+        if (possibleInitials.matches("^[A-ZÁÉÍÓÚÑa-z]{1,4}\\.?$")) {
+            String surname = name.substring(0, lastSpace).trim();
+            String givenNames = possibleInitials.replace(".", "");
+            return new Author(surname, givenNames);
         }
 
         String surname = name.substring(lastSpace + 1).trim();
@@ -708,18 +779,29 @@ public class JatsBackBuilder {
     private boolean isOrganization(String text) {
         if (text == null) return false;
         
-        text = text.toLowerCase();
+        String lower = text.toLowerCase(Locale.ROOT).trim();
         
-        // Palabras clave típicas de organizaciones
-        return text.contains("organization") || text.contains("organización") ||
-               text.contains("ministry") || text.contains("ministerio") ||
-               text.contains("university") || text.contains("universidad") ||
-               text.contains("institute") || text.contains("instituto") ||
-               text.contains("association") || text.contains("asociación") ||
-               text.contains("department") || text.contains("departamento") ||
-               text.contains("march of dimes") || text.contains("who") ||
-               text.contains("world health") || text.contains("fund") ||
-               text.contains("fondo") || (!text.contains(",") && text.length() > 30);
+        // Entidades estatales / gubernamentales: "País, Entidad"
+        if (lower.matches("^(?:brasil|argentina|colombia|chile|m[eé]xico|per[uú]|uruguay|espa[ñn]a|spain|united states|usa),\\s+.*")) {
+            return true;
+        }
+        
+        // Palabras clave típicas de organizaciones y órganos
+        return lower.contains("organization") || lower.contains("organización") ||
+               lower.contains("ministry") || lower.contains("ministerio") ||
+               lower.contains("university") || lower.contains("universidad") || lower.contains("universidade") ||
+               lower.contains("institute") || lower.contains("instituto") ||
+               lower.contains("association") || lower.contains("asociación") || lower.contains("associação") ||
+               lower.contains("department") || lower.contains("departamento") ||
+               lower.contains("senado") || lower.contains("câmara") || lower.contains("camara") ||
+               lower.contains("deputados") || lower.contains("comissão") || lower.contains("comision") ||
+               lower.contains("comisión") || lower.contains("conselho") || lower.contains("consejo") ||
+               lower.contains("secretaría") || lower.contains("secretaria") ||
+               lower.contains("tribunal") || lower.contains("corte") ||
+               lower.contains("governo") || lower.contains("gobierno") ||
+               lower.contains("unicef") || lower.contains("who") || lower.contains("world health") ||
+               lower.contains("march of dimes") || lower.contains("reliefweb") ||
+               lower.contains("fund") || lower.contains("fondo") || (!text.contains(",") && text.length() > 30);
     }
 
     /**

@@ -95,17 +95,22 @@ public class DocxToJatsConverter implements IJatsDocumentConverter {
     }
 
     private String assembleArticle(String frontXml, String bodyXml, String backXml) {
-        StringBuilder sb = new StringBuilder();
-        sb.append("<?xml version=\"1.0\" encoding=\"utf-8\"?>\n");
-        sb.append("<!DOCTYPE article\n  PUBLIC \"-//NLM//DTD JATS (Z39.96) Journal Publishing DTD v1.1 20151215//EN\" ")
-            .append("\"https://jats.nlm.nih.gov/publishing/1.1/JATS-journalpublishing1.dtd\">\n");
-        sb.append("<article article-type=\"research-article\" dtd-version=\"1.1\" specific-use=\"sps-1.9\" xml:lang=\"es\" ")
-            .append("xmlns:mml=\"http://www.w3.org/1998/Math/MathML\" xmlns:xlink=\"http://www.w3.org/1999/xlink\">\n");
-        sb.append(frontXml);
-        sb.append(bodyXml);
-        sb.append(backXml);
-        sb.append("</article>\n");
-        return sb.toString();
+        // Ensamblar el XML crudo (sin indentación previa)
+        StringBuilder raw = new StringBuilder();
+        raw.append("<?xml version=\"1.0\" encoding=\"utf-8\"?>\n");
+        raw.append("<!DOCTYPE article\n  PUBLIC \"-//NLM//DTD JATS (Z39.96) Journal Publishing DTD v1.1 20151215//EN\" ")
+           .append("\"https://jats.nlm.nih.gov/publishing/1.1/JATS-journalpublishing1.dtd\">\n");
+        raw.append("<article article-type=\"research-article\" dtd-version=\"1.1\" specific-use=\"sps-1.9\" xml:lang=\"es\" ")
+           .append("xmlns:mml=\"http://www.w3.org/1998/Math/MathML\" xmlns:xlink=\"http://www.w3.org/1999/xlink\">\n");
+        // En el JATS final conforme a SciELO, specific-use y xml:lang están en <article>, <front> va limpio
+        String normalizedFront = frontXml != null ? frontXml.replaceFirst("^<front\\b[^>]*>", "<front>") : "";
+        raw.append(normalizedFront);
+        raw.append(bodyXml);
+        raw.append(backXml);
+        raw.append("</article>\n");
+
+        // Reformatear con tabs para que coincida con el estilo de los archivos patrón SciELO
+        return com.converter.docxjats.service.jats.XmlTabIndenter.indent(raw.toString());
     }
 
     private String stripExtension(String filename) {

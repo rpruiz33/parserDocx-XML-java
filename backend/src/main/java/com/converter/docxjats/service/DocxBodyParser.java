@@ -192,13 +192,24 @@ public class DocxBodyParser {
             bodyBuilder.closeListIfOpen();
         }
 
-        // Procesamiento de citas
+        // Procesamiento de citas en bloque (<disp-quote>)
         String runsXml = runRenderer.render(paragraph);
-        if (styleName != null && QUOTE_STYLE.matcher(styleName).find()) {
+        if (isBlockQuote(paragraph, styleName, trimmedText)) {
             bodyBuilder.appendDispQuote(runsXml);
         } else {
             bodyBuilder.appendParagraph(runsXml);
         }
+    }
+
+    private boolean isBlockQuote(XWPFParagraph paragraph, String styleName, String text) {
+        if (styleName != null && QUOTE_STYLE.matcher(styleName).find()) {
+            return true;
+        }
+        int leftIndent = paragraph.getIndentationLeft();
+        if (leftIndent > 700 && text != null && (text.startsWith("“") || text.startsWith("\"") || text.startsWith("‘") || text.startsWith("«") || text.startsWith("…"))) {
+            return true;
+        }
+        return false;
     }
 
     private String resolveStyleName(XWPFParagraph paragraph) {

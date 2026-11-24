@@ -349,6 +349,164 @@ export default function App() {
   const [wrapLines, setWrapLines] = useState(false)
   const [isExpanded, setIsExpanded] = useState(false)
 
+  // Estado de Autenticación / Sesión de Usuario
+  const [currentUser, setCurrentUser] = useState(() => {
+    try {
+      const saved = localStorage.getItem('docx_jats_user')
+      return saved ? JSON.parse(saved) : null
+    } catch {
+      return null
+    }
+  })
+  const [authToken, setAuthToken] = useState(() => localStorage.getItem('docx_jats_token') || '')
+  const [showLoginModal, setShowLoginModal] = useState(false)
+  const [authTab, setAuthTab] = useState('login') // 'login' | 'register'
+  const [loginForm, setLoginForm] = useState({ username: '', password: '' })
+  const [registerForm, setRegisterForm] = useState({ username: '', nombreCompleto: '', email: '', password: '' })
+  const [authLoading, setAuthLoading] = useState(false)
+  const [authError, setAuthError] = useState('')
+
+  // Verificar validez del token al cargar la aplicación
+  useEffect(() => {
+    if (authToken) {
+      fetch(`${API_BASE}/api/auth/me`, {
+        headers: { Authorization: `Bearer ${authToken}` }
+      })
+        .then((res) => {
+          if (!res.ok) throw new Error('Sesión inválida')
+          return res.json()
+        })
+        .then((data) => {
+          setCurrentUser(data)
+          localStorage.setItem('docx_jats_user', JSON.stringify(data))
+        })
+        .catch(() => {
+          setCurrentUser(null)
+          setAuthToken('')
+          localStorage.removeItem('docx_jats_token')
+          localStorage.removeItem('docx_jats_user')
+        })
+    }
+  }, [authToken])
+
+  const handleLoginSubmit = async (e) => {
+    e.preventDefault()
+    if (!loginForm.username || !loginForm.password) {
+      setAuthError('Ingresá usuario y contraseña')
+      return
+    }
+    setAuthLoading(true)
+    setAuthError('')
+    try {
+      const res = await fetch(`${API_BASE}/api/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(loginForm),
+      })
+      const data = await res.json()
+      if (!res.ok) {
+        throw new Error(data.error || 'Credenciales inválidas')
+      }
+      setAuthToken(data.token)
+      setCurrentUser(data)
+      localStorage.setItem('docx_jats_token', data.token)
+      localStorage.setItem('docx_jats_user', JSON.stringify(data))
+      setShowLoginModal(false)
+      setLoginForm({ username: '', password: '' })
+      setStatus({ type: 'ok', message: `¡Bienvenido/a, ${data.nombreCompleto}!` })
+    } catch (err) {
+      setAuthError(err.message)
+    } finally {
+      setAuthLoading(false)
+    }
+  }
+
+  const handleRegisterSubmit = async (e) => {
+    e.preventDefault()
+    if (!registerForm.username || !registerForm.password || !registerForm.nombreCompleto) {
+      setAuthError('Completá nombre completo, usuario y contraseña')
+      return
+    }
+    setAuthLoading(true)
+    setAuthError('')
+    try {
+      const res = await fetch(`${API_BASE}/api/auth/register`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(registerForm),
+      })
+      const data = await res.json()
+      if (!res.ok) {
+        throw new Error(data.error || 'Error al registrar usuario')
+      }
+      setAuthToken(data.token)
+      setCurrentUser(data)
+      localStorage.setItem('docx_jats_token', data.token)
+      localStorage.setItem('docx_jats_user', JSON.stringify(data))
+      setShowLoginModal(false)
+      setRegisterForm({ username: '', nombreCompleto: '', email: '', password: '' })
+      setStatus({ type: 'ok', message: `¡Cuenta creada con éxito! Bienvenido/a, ${data.nombreCompleto}` })
+    } catch (err) {
+      setAuthError(err.message)
+    } finally {
+      setAuthLoading(false)
+    }
+  }
+
+  const handleGoogleFederatedAuth = async () => {
+    setAuthLoading(true)
+    setAuthError('')
+    try {
+      // Simulación de autenticación federada con Google Identity Services
+      // En un entorno de producción, Google Identity Services (GIS) entrega el credential JWT
+      const mockGoogleAccount = {
+        email: `investigador.${Date.now().toString().slice(-4)}@gmail.com`,
+        name: 'Investigador Científico UNLa',
+        sub: `google_oauth_${Date.now()}`,
+        picture: 'https://lh3.googleusercontent.com/a/default-user',
+      }
+
+      const res = await fetch(`${API_BASE}/api/auth/google`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(mockGoogleAccount),
+      })
+      const data = await res.json()
+      if (!res.ok) {
+        throw new Error(data.error || 'Error al autenticar con Google')
+      }
+      setAuthToken(data.token)
+      setCurrentUser(data)
+      localStorage.setItem('docx_jats_token', data.token)
+      localStorage.setItem('docx_jats_user', JSON.stringify(data))
+      setShowLoginModal(false)
+      setStatus({ type: 'ok', message: `¡Autenticado con Google! Bienvenido/a, ${data.nombreCompleto}` })
+    } catch (err) {
+      setAuthError(err.message)
+    } finally {
+      setAuthLoading(false)
+    }
+  }
+
+  const handleLogout = async () => {
+    try {
+      if (authToken) {
+        await fetch(`${API_BASE}/api/auth/logout`, {
+          method: 'POST',
+          headers: { Authorization: `Bearer ${authToken}` },
+        })
+      }
+    } catch (e) {
+      // ignorar error en logout
+    } finally {
+      setCurrentUser(null)
+      setAuthToken('')
+      localStorage.removeItem('docx_jats_token')
+      localStorage.removeItem('docx_jats_user')
+      setStatus({ type: 'ok', message: 'Sesión cerrada correctamente' })
+    }
+  }
+
   const xmlLines = useMemo(() => (xml ? xml.split('\n') : []), [xml])
   const matchCount = useMemo(() => {
     if (!searchQuery.trim() || !xml) return 0
@@ -941,6 +1099,233 @@ export default function App() {
 
   return (
     <div className="container">
+      {/* Barra de Autenticación de Usuario */}
+      <div className="top-bar-auth">
+        {currentUser ? (
+          <div className="auth-user-pill">
+            <span className="auth-avatar">
+              {(currentUser.nombreCompleto || currentUser.username || 'U')[0].toUpperCase()}
+            </span>
+            <span className="auth-user-name">{currentUser.nombreCompleto || currentUser.username}</span>
+            <span className="auth-user-role">{currentUser.rol === 'ROLE_ADMIN' ? 'ADMIN' : 'EDITOR'}</span>
+            <button type="button" className="auth-btn-logout" onClick={handleLogout} title="Cerrar sesión">
+              Salir
+            </button>
+          </div>
+        ) : (
+          <button
+            type="button"
+            className="auth-btn-login"
+            onClick={() => {
+              setAuthError('')
+              setShowLoginModal(true)
+            }}
+          >
+            Iniciar Sesión
+          </button>
+        )}
+      </div>
+
+      {/* Modal de Autenticación (Iniciar Sesión / Registro / Google OAuth) */}
+      {showLoginModal && (
+        <div className="modal-overlay" onClick={() => setShowLoginModal(false)}>
+          <div className="modal-card" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-tabs">
+              <button
+                type="button"
+                className={`modal-tab-btn ${authTab === 'login' ? 'active' : ''}`}
+                onClick={() => {
+                  setAuthTab('login')
+                  setAuthError('')
+                }}
+              >
+                Iniciar Sesión
+              </button>
+              <button
+                type="button"
+                className={`modal-tab-btn ${authTab === 'register' ? 'active' : ''}`}
+                onClick={() => {
+                  setAuthTab('register')
+                  setAuthError('')
+                }}
+              >
+                Registrarse
+              </button>
+            </div>
+
+            <h2 className="modal-title">
+              {authTab === 'login' ? 'Ingreso Editorial' : 'Crear Cuenta Editorial'}
+            </h2>
+            <p className="modal-subtitle">
+              {authTab === 'login'
+                ? 'Accedé como editor científico o administrador para asociar autoría a los documentos JATS y habilitar permisos de edición.'
+                : 'Registrate para gestionar tus manuscritos científicos, guardar versiones en base de datos y auditar estándares SciELO.'}
+            </p>
+
+            {/* Botón de Autenticación Federada con Google */}
+            <button
+              type="button"
+              className="google-auth-btn"
+              onClick={handleGoogleFederatedAuth}
+              disabled={authLoading}
+              title="Continuar con Google"
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24">
+                <path
+                  fill="#4285F4"
+                  d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+                />
+                <path
+                  fill="#34A853"
+                  d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+                />
+                <path
+                  fill="#FBBC05"
+                  d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"
+                />
+                <path
+                  fill="#EA4335"
+                  d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"
+                />
+              </svg>
+              <span>Continuar con Google</span>
+            </button>
+
+            <div className="auth-separator">
+              <span>o mediante credenciales</span>
+            </div>
+
+            {authError && <div className="modal-error">{authError}</div>}
+
+            {authTab === 'login' ? (
+              <form onSubmit={handleLoginSubmit}>
+                <div className="modal-form-group">
+                  <label>Nombre de usuario</label>
+                  <input
+                    type="text"
+                    className="modal-input"
+                    placeholder="editor o admin"
+                    value={loginForm.username}
+                    onChange={(e) => setLoginForm({ ...loginForm, username: e.target.value })}
+                    autoFocus
+                  />
+                </div>
+
+                <div className="modal-form-group">
+                  <label>Contraseña</label>
+                  <input
+                    type="password"
+                    className="modal-input"
+                    placeholder="••••••••"
+                    value={loginForm.password}
+                    onChange={(e) => setLoginForm({ ...loginForm, password: e.target.value })}
+                  />
+                </div>
+
+                <div className="modal-actions">
+                  <button
+                    type="button"
+                    className="modal-btn-cancel"
+                    onClick={() => setShowLoginModal(false)}
+                    disabled={authLoading}
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    type="submit"
+                    className="modal-btn-submit"
+                    disabled={authLoading}
+                  >
+                    {authLoading ? 'Ingresando…' : 'Ingresar'}
+                  </button>
+                </div>
+
+                <div className="modal-default-users">
+                  <strong>Usuarios de prueba disponibles (clic para autocompletar):</strong>
+                  <div
+                    style={{ marginTop: '6px', cursor: 'pointer', padding: '2px 0' }}
+                    onClick={() => setLoginForm({ username: 'editor', password: 'editor123' })}
+                  >
+                    👉 <code>editor</code> / <code>editor123</code> <span style={{ color: 'var(--accent)', fontSize: '11px' }}>(Editor Científico)</span>
+                  </div>
+                  <div
+                    style={{ marginTop: '2px', cursor: 'pointer', padding: '2px 0' }}
+                    onClick={() => setLoginForm({ username: 'admin', password: 'admin123' })}
+                  >
+                    👉 <code>admin</code> / <code>admin123</code> <span style={{ color: 'var(--accent)', fontSize: '11px' }}>(Administrador)</span>
+                  </div>
+                </div>
+              </form>
+            ) : (
+              <form onSubmit={handleRegisterSubmit}>
+                <div className="modal-form-group">
+                  <label>Nombre completo</label>
+                  <input
+                    type="text"
+                    className="modal-input"
+                    placeholder="Ej. Dra. Valeria Rossi"
+                    value={registerForm.nombreCompleto}
+                    onChange={(e) => setRegisterForm({ ...registerForm, nombreCompleto: e.target.value })}
+                    autoFocus
+                  />
+                </div>
+
+                <div className="modal-form-group">
+                  <label>Nombre de usuario</label>
+                  <input
+                    type="text"
+                    className="modal-input"
+                    placeholder="Ej. vrossi"
+                    value={registerForm.username}
+                    onChange={(e) => setRegisterForm({ ...registerForm, username: e.target.value })}
+                  />
+                </div>
+
+                <div className="modal-form-group">
+                  <label>Correo electrónico (opcional)</label>
+                  <input
+                    type="email"
+                    className="modal-input"
+                    placeholder="ejemplo@unla.edu.ar"
+                    value={registerForm.email}
+                    onChange={(e) => setRegisterForm({ ...registerForm, email: e.target.value })}
+                  />
+                </div>
+
+                <div className="modal-form-group">
+                  <label>Contraseña</label>
+                  <input
+                    type="password"
+                    className="modal-input"
+                    placeholder="Mínimo 6 caracteres"
+                    value={registerForm.password}
+                    onChange={(e) => setRegisterForm({ ...registerForm, password: e.target.value })}
+                  />
+                </div>
+
+                <div className="modal-actions">
+                  <button
+                    type="button"
+                    className="modal-btn-cancel"
+                    onClick={() => setShowLoginModal(false)}
+                    disabled={authLoading}
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    type="submit"
+                    className="modal-btn-submit"
+                    disabled={authLoading}
+                  >
+                    {authLoading ? 'Registrando…' : 'Crear Cuenta'}
+                  </button>
+                </div>
+              </form>
+            )}
+          </div>
+        </div>
+      )}
+
       <header className="masthead">
         <div className="masthead-content">
           <div className="eyebrow">Herramienta de conversión editorial</div>

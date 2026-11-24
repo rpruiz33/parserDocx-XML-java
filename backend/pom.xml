@@ -60,11 +60,10 @@
             <scope>runtime</scope>
         </dependency>
 
-        <!-- H2 para ejecución autónoma de tests sin requerir MySQL levantado -->
+        <!-- H2 para ejecución autónoma sin requerir MySQL levantado -->
         <dependency>
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
-            <scope>test</scope>
         </dependency>
 
         <dependency>

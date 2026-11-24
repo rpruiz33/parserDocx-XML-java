@@ -435,7 +435,7 @@ public record AwardGroup(String awardType, String sponsor, String awardId) {}
         buildArticleMeta(sb, finalTitle);
 
         sb.append("</front>\n");
-        return indentXml(sb.toString());
+        return sb.toString(); // La indentación final con tabs la aplica DocxToJatsConverter
     }
 
     private void buildJournalMeta(StringBuilder sb) {
@@ -698,7 +698,7 @@ public record AwardGroup(String awardType, String sponsor, String awardId) {}
             sb.append("</pub-date>\n");
         }
         if (notBlank(collectionYear)) {
-            sb.append("<pub-date date-type=\"collection\">\n");
+            sb.append("<pub-date date-type=\"collection\" publication-format=\"electronic\">\n");
             tag(sb, "year", collectionYear);
             sb.append("</pub-date>\n");
         }
@@ -786,7 +786,7 @@ public record AwardGroup(String awardType, String sponsor, String awardId) {}
         // Inferir año de colección desde el DOI: "10.18294/sc.2026.6032" → "2026"
         if (!notBlank(collectionYear) && notBlank(articleIdDoi)) {
             java.util.regex.Matcher m = java.util.regex.Pattern
-                    .compile("/(\\d{4})\\.\\d+$")
+                    .compile("[./](\\d{4})\\.\\d+$")
                     .matcher(articleIdDoi.trim());
             if (m.find()) {
                 collectionYear = m.group(1);
@@ -796,6 +796,25 @@ public record AwardGroup(String awardType, String sponsor, String awardId) {}
         // Inferir año de publicación desde el año de colección si no está seteado
         if (!notBlank(pubDateYear) && notBlank(collectionYear)) {
             pubDateYear = collectionYear;
+        }
+
+        // Inferir volumen desde el año si no está seteado: Salud Colectiva comenzó en 2005 (vol 1)
+        if (!notBlank(volume) && notBlank(collectionYear)) {
+            try {
+                int y = Integer.parseInt(collectionYear);
+                volume = String.valueOf(y - 2004);
+            } catch (Exception ignored) {}
+        }
+
+        // Si tenemos año de publicación pero faltan día/mes, inferir desde fecha de aceptación
+        if (notBlank(pubDateYear) && (!notBlank(pubDateDay) || !notBlank(pubDateMonth))) {
+            if (historyAccepted != null && historyAccepted.length >= 2 && notBlank(historyAccepted[0]) && notBlank(historyAccepted[1])) {
+                if (!notBlank(pubDateDay)) pubDateDay = historyAccepted[0];
+                if (!notBlank(pubDateMonth)) pubDateMonth = historyAccepted[1];
+            } else {
+                if (!notBlank(pubDateDay)) pubDateDay = "01";
+                if (!notBlank(pubDateMonth)) pubDateMonth = "01";
+            }
         }
     }
 
