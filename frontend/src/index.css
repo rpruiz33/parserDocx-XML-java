@@ -121,6 +121,15 @@ body {
   font-size: 12px;
 }
 
+.auth-avatar-img {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1px solid var(--rule);
+}
+
+
 .auth-user-name {
   font-weight: 600;
   color: var(--ink);
@@ -234,6 +243,41 @@ body {
   background: #fff;
 }
 
+.password-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.password-input-wrapper .modal-input {
+  padding-right: 40px;
+}
+
+.password-toggle-btn {
+  position: absolute;
+  right: 8px;
+  background: transparent;
+  border: none;
+  color: var(--ink-muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px;
+  border-radius: 4px;
+  transition: color 0.15s ease, background-color 0.15s ease;
+}
+
+.password-toggle-btn:hover {
+  color: var(--ink);
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.password-toggle-btn svg {
+  display: block;
+}
+
 .modal-actions {
   display: flex;
   justify-content: flex-end;
@@ -325,57 +369,6 @@ body {
 
 .modal-tab-btn:hover:not(.active) {
   color: var(--ink);
-}
-
-/* Botón Google OAuth Federado */
-.google-auth-btn {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-  background: #ffffff;
-  color: #3c4043;
-  border: 1px solid #dadce0;
-  border-radius: 4px;
-  padding: 10px 16px;
-  font-size: 13.5px;
-  font-weight: 500;
-  cursor: pointer;
-  box-shadow: 0 1px 2px rgba(60,64,67,0.08);
-  transition: background-color 0.2s, box-shadow 0.2s;
-  font-family: 'Inter', sans-serif;
-}
-
-.google-auth-btn:hover {
-  background: #f8fafd;
-  box-shadow: 0 1px 3px rgba(60,64,67,0.15);
-  border-color: #c6c9ce;
-}
-
-.google-auth-btn:disabled {
-  opacity: 0.65;
-  cursor: not-allowed;
-}
-
-.auth-separator {
-  display: flex;
-  align-items: center;
-  text-align: center;
-  margin: 18px 0;
-  color: var(--ink-soft);
-  font-size: 12px;
-}
-
-.auth-separator::before,
-.auth-separator::after {
-  content: '';
-  flex: 1;
-  border-bottom: 1px solid var(--rule);
-}
-
-.auth-separator span {
-  padding: 0 10px;
 }
 
 /* Área de Trabajo */

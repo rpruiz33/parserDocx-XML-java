@@ -1,7 +1,6 @@
 package com.converter.docxjats.service.impl;
 
 import com.converter.docxjats.dto.AuthResponse;
-import com.converter.docxjats.dto.GoogleAuthRequest;
 import com.converter.docxjats.dto.LoginRequest;
 import com.converter.docxjats.dto.RegisterRequest;
 import com.converter.docxjats.entity.Usuario;
@@ -55,10 +54,15 @@ public class AuthServiceImpl implements IAuthService {
     @Override
     public AuthResponse login(LoginRequest request) {
         if (request == null || request.getUsername() == null || request.getPassword() == null) {
-            throw new IllegalArgumentException("Usuario y contraseña requeridos");
+            throw new IllegalArgumentException("Usuario o email y contraseña requeridos");
         }
 
-        Optional<Usuario> usuarioOpt = usuarioRepository.findByUsername(request.getUsername().trim());
+        String identifier = request.getUsername().trim();
+        Optional<Usuario> usuarioOpt = usuarioRepository.findByUsername(identifier);
+        if (usuarioOpt.isEmpty() && identifier.contains("@")) {
+            usuarioOpt = usuarioRepository.findByEmail(identifier.toLowerCase());
+        }
+
         if (usuarioOpt.isEmpty()) {
             throw new IllegalArgumentException("Credenciales incorrectas");
         }
@@ -96,32 +100,44 @@ public class AuthServiceImpl implements IAuthService {
         if (request == null) {
             throw new IllegalArgumentException("Datos de registro requeridos");
         }
-        String username = request.getUsername() != null ? request.getUsername().trim() : "";
-        String password = request.getPassword() != null ? request.getPassword().trim() : "";
-        String nombre = request.getNombreCompleto() != null ? request.getNombreCompleto().trim() : "";
         String email = request.getEmail() != null ? request.getEmail().trim().toLowerCase() : "";
+        String password = request.getPassword() != null ? request.getPassword().trim() : "";
 
-        if (username.length() < 3) {
-            throw new IllegalArgumentException("El nombre de usuario debe tener al menos 3 caracteres");
+        if (email.isEmpty() || !email.contains("@")) {
+            throw new IllegalArgumentException("Ingresá un correo electrónico válido");
         }
         if (password.length() < 6) {
             throw new IllegalArgumentException("La contraseña debe tener al menos 6 caracteres");
         }
-        if (nombre.isEmpty()) {
-            throw new IllegalArgumentException("El nombre completo es obligatorio");
-        }
-        if (usuarioRepository.existsByUsername(username)) {
-            throw new IllegalArgumentException("El nombre de usuario ya está registrado");
-        }
-        if (!email.isEmpty() && usuarioRepository.existsByEmail(email)) {
+
+        if (usuarioRepository.existsByEmail(email)) {
             throw new IllegalArgumentException("El correo electrónico ya está registrado");
         }
 
+        // Generar username y nombre a partir del email o de los campos provistos
+        String baseUsername = (request.getUsername() != null && !request.getUsername().trim().isEmpty())
+                ? request.getUsername().trim()
+                : email.substring(0, email.indexOf('@')).replaceAll("[^a-zA-Z0-9_.-]", "");
+
+        if (baseUsername.length() < 3) {
+            baseUsername = "user_" + baseUsername;
+        }
+
+        String finalUsername = baseUsername;
+        int counter = 1;
+        while (usuarioRepository.existsByUsername(finalUsername)) {
+            finalUsername = baseUsername + counter++;
+        }
+
+        String nombre = (request.getNombreCompleto() != null && !request.getNombreCompleto().trim().isEmpty())
+                ? request.getNombreCompleto().trim()
+                : finalUsername;
+
         Usuario nuevo = new Usuario(
-                username,
+                finalUsername,
                 tokenManager.hashPassword(password),
                 nombre,
-                email.isEmpty() ? null : email,
+                email,
                 "ROLE_EDITOR"
         );
         nuevo.setAuthProvider("LOCAL");
@@ -144,119 +160,6 @@ public class AuthServiceImpl implements IAuthService {
                 guardado.getAvatarUrl(),
                 guardado.getAuthProvider()
         );
-    }
-
-    @Override
-    public AuthResponse loginWithGoogle(GoogleAuthRequest request) {
-        if (request == null) {
-            throw new IllegalArgumentException("Datos de autenticación con Google requeridos");
-        }
-
-        String email = request.getEmail();
-        String name = request.getName();
-        String sub = request.getSub();
-        String picture = request.getPicture();
-
-        // Si viene un token JWT (credential de Google), extraer el payload si es posible
-        if (request.getCredential() != null && !request.getCredential().isBlank()) {
-            try {
-                String[] parts = request.getCredential().split("\\.");
-                if (parts.length >= 2) {
-                    byte[] decoded = java.util.Base64.getUrlDecoder().decode(parts[1]);
-                    String payloadJson = new String(decoded, java.nio.charset.StandardCharsets.UTF_8);
-                    
-                    // Parseo simple de campos comunes del JWT de Google
-                    email = extractJsonField(payloadJson, "email", email);
-                    name = extractJsonField(payloadJson, "name", name);
-                    sub = extractJsonField(payloadJson, "sub", sub);
-                    picture = extractJsonField(payloadJson, "picture", picture);
-                }
-            } catch (Exception e) {
-                // Si falla el parseo manual del token, se usan los datos directos del request
-            }
-        }
-
-        if (sub == null || sub.isBlank()) {
-            if (email != null && !email.isBlank()) {
-                sub = "google_" + email;
-            } else {
-                throw new IllegalArgumentException("No se pudo identificar la cuenta de Google");
-            }
-        }
-
-        // 1. Buscar si ya existe por Google provider y sub
-        Optional<Usuario> usuarioOpt = usuarioRepository.findByAuthProviderAndProviderId("GOOGLE", sub);
-
-        // 2. Si no, buscar por email
-        if (usuarioOpt.isEmpty() && email != null && !email.isBlank()) {
-            usuarioOpt = usuarioRepository.findByEmail(email.toLowerCase());
-        }
-
-        Usuario usuario;
-        if (usuarioOpt.isPresent()) {
-            usuario = usuarioOpt.get();
-            // Actualizar avatar o provider si es necesario
-            if (picture != null && !picture.isBlank()) {
-                usuario.setAvatarUrl(picture);
-            }
-            if (usuario.getProviderId() == null) {
-                usuario.setProviderId(sub);
-            }
-            usuarioRepository.save(usuario);
-        } else {
-            // Registrar nuevo usuario federado con Google
-            String baseUsername = (email != null && email.contains("@")) 
-                    ? email.substring(0, email.indexOf('@')).replaceAll("[^a-zA-Z0-9_.-]", "") 
-                    : ("google_" + sub.substring(0, Math.min(8, sub.length())));
-            
-            String finalUsername = baseUsername;
-            int counter = 1;
-            while (usuarioRepository.existsByUsername(finalUsername)) {
-                finalUsername = baseUsername + counter++;
-            }
-
-            usuario = new Usuario();
-            usuario.setUsername(finalUsername);
-            usuario.setNombreCompleto(name != null && !name.isBlank() ? name : finalUsername);
-            usuario.setEmail(email != null ? email.toLowerCase() : null);
-            usuario.setRol("ROLE_EDITOR");
-            usuario.setAuthProvider("GOOGLE");
-            usuario.setProviderId(sub);
-            usuario.setAvatarUrl(picture);
-            usuario.setPasswordHash(""); // En MySQL la columna existente puede tener NOT NULL; usamos string vacío para federados
-            usuario = usuarioRepository.save(usuario);
-        }
-
-        String token = tokenManager.createSessionToken(
-                usuario.getId(),
-                usuario.getUsername(),
-                usuario.getNombreCompleto(),
-                usuario.getRol()
-        );
-
-        return new AuthResponse(
-                token,
-                usuario.getId(),
-                usuario.getUsername(),
-                usuario.getNombreCompleto(),
-                usuario.getEmail(),
-                usuario.getRol(),
-                usuario.getAvatarUrl(),
-                usuario.getAuthProvider()
-        );
-    }
-
-    private String extractJsonField(String json, String field, String defaultValue) {
-        String key = "\"" + field + "\"";
-        int idx = json.indexOf(key);
-        if (idx == -1) return defaultValue;
-        int colon = json.indexOf(':', idx + key.length());
-        if (colon == -1) return defaultValue;
-        int quoteStart = json.indexOf('"', colon);
-        if (quoteStart == -1) return defaultValue;
-        int quoteEnd = json.indexOf('"', quoteStart + 1);
-        if (quoteEnd == -1) return defaultValue;
-        return json.substring(quoteStart + 1, quoteEnd);
     }
 
     @Override

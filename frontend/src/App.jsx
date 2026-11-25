@@ -3,7 +3,7 @@ import axios from 'axios'
 import './index.css'
 import logoUnla from './assets/unla-logo.png'
 
-const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:8081'
+const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:8080'
 
 /**
  * Componente reutilizable para inputs que adaptan su ancho
@@ -362,7 +362,10 @@ export default function App() {
   const [showLoginModal, setShowLoginModal] = useState(false)
   const [authTab, setAuthTab] = useState('login') // 'login' | 'register'
   const [loginForm, setLoginForm] = useState({ username: '', password: '' })
-  const [registerForm, setRegisterForm] = useState({ username: '', nombreCompleto: '', email: '', password: '' })
+  const [registerForm, setRegisterForm] = useState({ email: '', password: '', confirmPassword: '' })
+  const [showLoginPassword, setShowLoginPassword] = useState(false)
+  const [showRegisterPassword, setShowRegisterPassword] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [authLoading, setAuthLoading] = useState(false)
   const [authError, setAuthError] = useState('')
 
@@ -423,8 +426,12 @@ export default function App() {
 
   const handleRegisterSubmit = async (e) => {
     e.preventDefault()
-    if (!registerForm.username || !registerForm.password || !registerForm.nombreCompleto) {
-      setAuthError('Completá nombre completo, usuario y contraseña')
+    if (!registerForm.email || !registerForm.password) {
+      setAuthError('Ingresá correo electrónico y contraseña')
+      return
+    }
+    if (registerForm.password !== registerForm.confirmPassword) {
+      setAuthError('Las contraseñas no coinciden')
       return
     }
     setAuthLoading(true)
@@ -433,7 +440,10 @@ export default function App() {
       const res = await fetch(`${API_BASE}/api/auth/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(registerForm),
+        body: JSON.stringify({
+          email: registerForm.email,
+          password: registerForm.password,
+        }),
       })
       const data = await res.json()
       if (!res.ok) {
@@ -444,43 +454,8 @@ export default function App() {
       localStorage.setItem('docx_jats_token', data.token)
       localStorage.setItem('docx_jats_user', JSON.stringify(data))
       setShowLoginModal(false)
-      setRegisterForm({ username: '', nombreCompleto: '', email: '', password: '' })
-      setStatus({ type: 'ok', message: `¡Cuenta creada con éxito! Bienvenido/a, ${data.nombreCompleto}` })
-    } catch (err) {
-      setAuthError(err.message)
-    } finally {
-      setAuthLoading(false)
-    }
-  }
-
-  const handleGoogleFederatedAuth = async () => {
-    setAuthLoading(true)
-    setAuthError('')
-    try {
-      // Simulación de autenticación federada con Google Identity Services
-      // En un entorno de producción, Google Identity Services (GIS) entrega el credential JWT
-      const mockGoogleAccount = {
-        email: `investigador.${Date.now().toString().slice(-4)}@gmail.com`,
-        name: 'Investigador Científico UNLa',
-        sub: `google_oauth_${Date.now()}`,
-        picture: 'https://lh3.googleusercontent.com/a/default-user',
-      }
-
-      const res = await fetch(`${API_BASE}/api/auth/google`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(mockGoogleAccount),
-      })
-      const data = await res.json()
-      if (!res.ok) {
-        throw new Error(data.error || 'Error al autenticar con Google')
-      }
-      setAuthToken(data.token)
-      setCurrentUser(data)
-      localStorage.setItem('docx_jats_token', data.token)
-      localStorage.setItem('docx_jats_user', JSON.stringify(data))
-      setShowLoginModal(false)
-      setStatus({ type: 'ok', message: `¡Autenticado con Google! Bienvenido/a, ${data.nombreCompleto}` })
+      setRegisterForm({ email: '', password: '', confirmPassword: '' })
+      setStatus({ type: 'ok', message: `¡Cuenta creada con éxito! Bienvenido/a, ${data.nombreCompleto || data.username}` })
     } catch (err) {
       setAuthError(err.message)
     } finally {
@@ -1103,9 +1078,18 @@ export default function App() {
       <div className="top-bar-auth">
         {currentUser ? (
           <div className="auth-user-pill">
-            <span className="auth-avatar">
-              {(currentUser.nombreCompleto || currentUser.username || 'U')[0].toUpperCase()}
-            </span>
+            {currentUser.avatarUrl ? (
+              <img
+                src={currentUser.avatarUrl}
+                alt={currentUser.nombreCompleto || currentUser.username}
+                className="auth-avatar-img"
+                referrerPolicy="no-referrer"
+              />
+            ) : (
+              <span className="auth-avatar">
+                {(currentUser.nombreCompleto || currentUser.username || 'U')[0].toUpperCase()}
+              </span>
+            )}
             <span className="auth-user-name">{currentUser.nombreCompleto || currentUser.username}</span>
             <span className="auth-user-role">{currentUser.rol === 'ROLE_ADMIN' ? 'ADMIN' : 'EDITOR'}</span>
             <button type="button" className="auth-btn-logout" onClick={handleLogout} title="Cerrar sesión">
@@ -1162,39 +1146,6 @@ export default function App() {
                 : 'Registrate para gestionar tus manuscritos científicos, guardar versiones en base de datos y auditar estándares SciELO.'}
             </p>
 
-            {/* Botón de Autenticación Federada con Google */}
-            <button
-              type="button"
-              className="google-auth-btn"
-              onClick={handleGoogleFederatedAuth}
-              disabled={authLoading}
-              title="Continuar con Google"
-            >
-              <svg width="18" height="18" viewBox="0 0 24 24">
-                <path
-                  fill="#4285F4"
-                  d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
-                />
-                <path
-                  fill="#34A853"
-                  d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-                />
-                <path
-                  fill="#FBBC05"
-                  d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"
-                />
-                <path
-                  fill="#EA4335"
-                  d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"
-                />
-              </svg>
-              <span>Continuar con Google</span>
-            </button>
-
-            <div className="auth-separator">
-              <span>o mediante credenciales</span>
-            </div>
-
             {authError && <div className="modal-error">{authError}</div>}
 
             {authTab === 'login' ? (
@@ -1213,13 +1164,33 @@ export default function App() {
 
                 <div className="modal-form-group">
                   <label>Contraseña</label>
-                  <input
-                    type="password"
-                    className="modal-input"
-                    placeholder="••••••••"
-                    value={loginForm.password}
-                    onChange={(e) => setLoginForm({ ...loginForm, password: e.target.value })}
-                  />
+                  <div className="password-input-wrapper">
+                    <input
+                      type={showLoginPassword ? 'text' : 'password'}
+                      className="modal-input"
+                      placeholder="••••••••"
+                      value={loginForm.password}
+                      onChange={(e) => setLoginForm({ ...loginForm, password: e.target.value })}
+                    />
+                    <button
+                      type="button"
+                      className="password-toggle-btn"
+                      onClick={() => setShowLoginPassword(!showLoginPassword)}
+                      title={showLoginPassword ? 'Ocultar contraseña' : 'Ver contraseña'}
+                    >
+                      {showLoginPassword ? (
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+                          <line x1="1" y1="1" x2="23" y2="23"></line>
+                        </svg>
+                      ) : (
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                          <circle cx="12" cy="12" r="3"></circle>
+                        </svg>
+                      )}
+                    </button>
+                  </div>
                 </div>
 
                 <div className="modal-actions">
@@ -1259,48 +1230,77 @@ export default function App() {
             ) : (
               <form onSubmit={handleRegisterSubmit}>
                 <div className="modal-form-group">
-                  <label>Nombre completo</label>
-                  <input
-                    type="text"
-                    className="modal-input"
-                    placeholder="Ej. Dra. Valeria Rossi"
-                    value={registerForm.nombreCompleto}
-                    onChange={(e) => setRegisterForm({ ...registerForm, nombreCompleto: e.target.value })}
-                    autoFocus
-                  />
-                </div>
-
-                <div className="modal-form-group">
-                  <label>Nombre de usuario</label>
-                  <input
-                    type="text"
-                    className="modal-input"
-                    placeholder="Ej. vrossi"
-                    value={registerForm.username}
-                    onChange={(e) => setRegisterForm({ ...registerForm, username: e.target.value })}
-                  />
-                </div>
-
-                <div className="modal-form-group">
-                  <label>Correo electrónico (opcional)</label>
+                  <label>Correo electrónico</label>
                   <input
                     type="email"
                     className="modal-input"
                     placeholder="ejemplo@unla.edu.ar"
                     value={registerForm.email}
                     onChange={(e) => setRegisterForm({ ...registerForm, email: e.target.value })}
+                    autoFocus
                   />
                 </div>
 
                 <div className="modal-form-group">
                   <label>Contraseña</label>
-                  <input
-                    type="password"
-                    className="modal-input"
-                    placeholder="Mínimo 6 caracteres"
-                    value={registerForm.password}
-                    onChange={(e) => setRegisterForm({ ...registerForm, password: e.target.value })}
-                  />
+                  <div className="password-input-wrapper">
+                    <input
+                      type={showRegisterPassword ? 'text' : 'password'}
+                      className="modal-input"
+                      placeholder="Mínimo 6 caracteres"
+                      value={registerForm.password}
+                      onChange={(e) => setRegisterForm({ ...registerForm, password: e.target.value })}
+                    />
+                    <button
+                      type="button"
+                      className="password-toggle-btn"
+                      onClick={() => setShowRegisterPassword(!showRegisterPassword)}
+                      title={showRegisterPassword ? 'Ocultar contraseña' : 'Ver contraseña'}
+                    >
+                      {showRegisterPassword ? (
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+                          <line x1="1" y1="1" x2="23" y2="23"></line>
+                        </svg>
+                      ) : (
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                          <circle cx="12" cy="12" r="3"></circle>
+                        </svg>
+                      )}
+                    </button>
+                  </div>
+                </div>
+
+                <div className="modal-form-group">
+                  <label>Confirmar contraseña</label>
+                  <div className="password-input-wrapper">
+                    <input
+                      type={showConfirmPassword ? 'text' : 'password'}
+                      className="modal-input"
+                      placeholder="Repetí tu contraseña"
+                      value={registerForm.confirmPassword}
+                      onChange={(e) => setRegisterForm({ ...registerForm, confirmPassword: e.target.value })}
+                    />
+                    <button
+                      type="button"
+                      className="password-toggle-btn"
+                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      title={showConfirmPassword ? 'Ocultar contraseña' : 'Ver contraseña'}
+                    >
+                      {showConfirmPassword ? (
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+                          <line x1="1" y1="1" x2="23" y2="23"></line>
+                        </svg>
+                      ) : (
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                          <circle cx="12" cy="12" r="3"></circle>
+                        </svg>
+                      )}
+                    </button>
+                  </div>
                 </div>
 
                 <div className="modal-actions">

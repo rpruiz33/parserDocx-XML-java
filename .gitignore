@@ -7,3 +7,12 @@ backend/target/
 backend/.settings/
 backend/.classpath
 backend/.project
+backend/data/
+data/
+*.log
+backend/classpath.txt
+
+# Environment
+.env
+.env.local
+

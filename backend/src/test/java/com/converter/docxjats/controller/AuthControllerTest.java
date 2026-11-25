@@ -78,13 +78,10 @@ public class AuthControllerTest {
 
     @Test
     public void testRegisterNewUserSuccess() {
-        String testUser = "nuevo_editor_" + System.currentTimeMillis();
-        com.converter.docxjats.dto.RegisterRequest req = new com.converter.docxjats.dto.RegisterRequest(
-                testUser,
-                "password123",
-                "Nuevo Editor Test",
-                testUser + "@unla.edu.ar"
-        );
+        String testEmail = "nuevo_editor_" + System.currentTimeMillis() + "@unla.edu.ar";
+        com.converter.docxjats.dto.RegisterRequest req = new com.converter.docxjats.dto.RegisterRequest();
+        req.setEmail(testEmail);
+        req.setPassword("password123");
 
         ResponseEntity<AuthResponse> response = restTemplate.postForEntity(
                 getBaseUrl() + "/register",
@@ -95,30 +92,7 @@ public class AuthControllerTest {
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
         assertThat(response.getBody()).isNotNull();
         assertThat(response.getBody().getToken()).isNotEmpty();
-        assertThat(response.getBody().getUsername()).isEqualTo(testUser);
+        assertThat(response.getBody().getEmail()).isEqualTo(testEmail);
         assertThat(response.getBody().getAuthProvider()).isEqualTo("LOCAL");
-    }
-
-    @Test
-    public void testGoogleFederatedLogin() {
-        com.converter.docxjats.dto.GoogleAuthRequest req = new com.converter.docxjats.dto.GoogleAuthRequest(
-                null,
-                "investigador.fed@gmail.com",
-                "Investigador Federado Google",
-                "google_sub_123456789",
-                "https://lh3.googleusercontent.com/a/test-avatar"
-        );
-
-        ResponseEntity<AuthResponse> response = restTemplate.postForEntity(
-                getBaseUrl() + "/google",
-                req,
-                AuthResponse.class
-        );
-
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(response.getBody()).isNotNull();
-        assertThat(response.getBody().getToken()).isNotEmpty();
-        assertThat(response.getBody().getNombreCompleto()).isEqualTo("Investigador Federado Google");
-        assertThat(response.getBody().getAuthProvider()).isEqualTo("GOOGLE");
     }
 }

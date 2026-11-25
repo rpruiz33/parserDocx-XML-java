@@ -4,6 +4,7 @@ import com.converter.docxjats.dto.AuthResponse;
 import com.converter.docxjats.dto.LoginRequest;
 import com.converter.docxjats.entity.Usuario;
 import com.converter.docxjats.service.interfaces.IAuthService;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -49,19 +50,6 @@ public class AuthController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", "Error interno al registrar usuario: " + e.getMessage()));
-        }
-    }
-
-    @PostMapping("/google")
-    public ResponseEntity<?> googleAuth(@RequestBody com.converter.docxjats.dto.GoogleAuthRequest request) {
-        try {
-            AuthResponse response = authService.loginWithGoogle(request);
-            return ResponseEntity.ok(response);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", e.getMessage()));
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("error", "Error en autenticación con Google: " + e.getMessage()));
         }
     }
 
